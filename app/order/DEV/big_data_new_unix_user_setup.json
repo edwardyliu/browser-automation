@@ -1,0 +1,14 @@
+{
+    "name": "Big Data New Unix User Setup",
+    "environment": "DEV",
+    "method": "absolute",
+    "graph": [
+        ["IDLE", "IDLE", "OPEN"],
+        ["OPEN", "OPEN", "GET"],
+        ["GET", "GET", "PROJECT_PIPELINE_NUMBER"],
+        ["PROJECT_PIPELINE_NUMBER", "WRITE", "OPEN_ENVIRONMENT_DROPLIST", []],
+        ["OPEN_ENVIRONMENT_DROPLIST", "CLICK", "SELECT_ENVIRONMENT_DROPLIST", []],
+        ["SELECT_ENVIRONMENT_DROPLIST", "CLICK", "CLOSE", []],
+        ["CLOSE", "CLOSE", "IDLE"]
+    ]
+}
