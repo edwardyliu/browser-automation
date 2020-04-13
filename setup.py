@@ -25,9 +25,13 @@ def shell(cmd:str, show:bool=True)->str:
     """
     streams = subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=True).communicate()
     stdout = streams[0].decode("utf-8").strip()
-    stderr = streams[1].decode("utf-8").strip()
-    if stderr: print(stderr)
     if show: print(stdout)
+    
+    try:
+        stderr = streams[1].decode("utf-8").strip()
+        if stderr: print(stderr)
+    except Exception:
+        pass
     return stdout
 
 # == Main Function ==
