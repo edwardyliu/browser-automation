@@ -1,16 +1,32 @@
 # == Import(s) ==
 # => Local
 from . import constant
+from . import model
+from . import utils
 
 # => System
 import time
 
 # => External
 
-
+# == Class: The Finite State Machine ==
 class Machine(object):
-    def __init__(self, id:str):
-        self.id = id
+    def __init__(self, uid:str, methods:[model.Method]):
+        self.log = utils.get_logger(uid)
+        self.methods = methods
+
+        self.size = len(self.methods) - 1
+        self.counter = 0
+    
+    def next(self)->bool:
+        print("to next state")
+
+        if self.counter == self.size:
+            self.counter = 0
+            return True
+        else:
+            self.counter += 1
+            return False
     
     def idle(self, argv:[str]=None):
         time.sleep(constant.IDLE)
