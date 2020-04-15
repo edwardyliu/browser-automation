@@ -1,0 +1,13 @@
+{
+    "name": "Modify KDC LDAP Unix User Account",
+    "environment": "DEV",
+    "graph": [
+        ["IDLE", "IDLE", "OPEN"],
+        ["OPEN", "OPEN", "GET"],
+        ["GET", "GET", "LOOKUP_REGION", ["https://www.thesaurus.com"]],
+        ["CLICK", "LOOKUP_REGION", "SELECT_REGION", []],
+        ["CLICK", "SELECT_REGION", "SELECT_GROUP_OPTION", []],
+        ["CLICK", "SELECT_GROUP_OPTION", "CLOSE", []],
+        ["CLOSE", "CLOSE", "IDLE"]
+    ]
+}

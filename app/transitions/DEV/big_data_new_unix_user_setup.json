@@ -1,0 +1,13 @@
+{
+    "name": "Big Data New Unix User Setup",
+    "environment": "DEV",
+    "graph": [
+        ["IDLE", "IDLE", "OPEN"],
+        ["OPEN", "OPEN", "GET"],
+        ["GET", "GET", "PROJECT_PIPELINE_NUMBER", ["https://www.google.com"]],
+        ["WRITE", "PROJECT_PIPELINE_NUMBER", "LOOKUP_ENVIRONMENT", []],
+        ["CLICK", "LOOKUP_ENVIRONMENT", "SELECT_ENVIRONMENT", []],
+        ["CLICK", "SELECT_ENVIRONMENT", "CLOSE", []],
+        ["CLOSE", "CLOSE", "IDLE"]
+    ]
+}
