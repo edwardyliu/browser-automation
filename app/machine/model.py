@@ -18,7 +18,7 @@ from selenium.webdriver.common.by import By
 @dataclass(frozen=True)
 class Action:
     """Define an Action:
-
+    
     Execute a method/function (i.e. Action) given a keyword <key> and a list of parameters <arguments>
     """
     name: str

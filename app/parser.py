@@ -9,9 +9,6 @@ import os
 import json
 from pathlib import Path
 
-# => External
-import transitions
-
 def get_dcgs()->list:
     """Get a list of Directed Cycle Graph models via files retrieved from '<basedir>/app/json/.../*.json'
 
