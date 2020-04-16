@@ -2,12 +2,10 @@
     "name": "Big Data New Unix User Setup",
     "environment": "UAT",
     "graph": [
-        ["IDLE", "IDLE", "OPEN"],
-        ["OPEN", "OPEN", "GET"],
-        ["GET", "GET", "PROJECT_PIPELINE_NUMBER", []],
-        ["WRITE", "PROJECT_PIPELINE_NUMBER", "LOOKUP_ENVIRONMENT", []],
-        ["CLICK", "LOOKUP_ENVIRONMENT", "SELECT_ENVIRONMENT", []],
-        ["CLICK", "SELECT_ENVIRONMENT", "CLOSE", []],
-        ["CLOSE", "CLOSE", "IDLE"]
+        ["IDLE", "SLEEP", "GET_PAGE"],
+        ["GET", "GET_PAGE", "PROJECT_PIPELINE_NUMBER", ["https://www.google.com"]],
+        ["WRITE", "PROJECT_PIPELINE_NUMBER", "LOOKUP_ENVIRONMENT", ["PPN XPATH", "491"]],
+        ["CLICK", "LOOKUP_ENVIRONMENT", "SELECT_ENVIRONMENT", ["FIRST CLICK", "SECOND CLICK"]],
+        ["CLICK", "SELECT_ENVIRONMENT", "SLEEP", ["THIRD CLICK", "FOURTH CLICK"]]
     ]
 }

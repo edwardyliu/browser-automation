@@ -2,12 +2,10 @@
     "name": "Modify KDC LDAP Unix User Account",
     "environment": "UAT",
     "graph": [
-        ["IDLE", "IDLE", "OPEN"],
-        ["OPEN", "OPEN", "GET"],
-        ["GET", "GET", "LOOKUP_REGION", []],
-        ["CLICK", "LOOKUP_REGION", "SELECT_REGION", []],
-        ["CLICK", "SELECT_REGION", "SELECT_GROUP_OPTION", []],
-        ["CLICK", "SELECT_GROUP_OPTION", "CLOSE", []],
-        ["CLOSE", "CLOSE", "IDLE"]
+        ["IDLE", "SLEEP", "GET_PAGE"],
+        ["GET", "GET_PAGE", "LOOKUP_REGION", ["https://www.thesaurus.com"]],
+        ["CLICK", "LOOKUP_REGION", "SELECT_REGION", ["FIRST CLICK"]],
+        ["CLICK", "SELECT_REGION", "SELECT_GROUP_OPTION", ["SECOND CLICK"]],
+        ["CLICK", "SELECT_GROUP_OPTION", "SLEEP", ["THIRD CLICK"]]
     ]
 }
