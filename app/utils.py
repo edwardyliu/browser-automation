@@ -1,7 +1,14 @@
 # == Import(s) ==
+# => Local
+from . import constant
+
+# => System
 import datetime
 import logging
+
+# => External
 import pytz
+from selenium import webdriver
 
 # == Utility Function(s) ==
 def timezone_converter_est(*args):
@@ -37,3 +44,14 @@ def get_logger(uid:str)->logging.Logger:
 
     log.addHandler(handle)
     return log
+
+def get_driver()->webdriver:
+    options = webdriver.FirefoxOptions()
+
+    options.add_argument("--start-maximized")
+    options.add_argument("--disable-gpu")
+    options.add_argument("--no-sandbox")
+    options.add_argument("--disable-dev-shm-usage")
+
+    driver = webdriver.Firefox(executable_path=constant.DRIVER_PATH, options=options)
+    return driver
