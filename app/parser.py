@@ -23,6 +23,16 @@ def get_dcgs()->list:
         dcgs.append(dcg)
     return dcgs
 
+def get_filepaths()->list:
+    """Get a list of file paths retrieved from '<basedir>/app/json/.../*.json'
+
+    Returns
+    -------
+    list:
+        A list of file paths
+    """
+    return list( Path(constant.JSON_DIRPATH).rglob("*.[jJ][sS][oO][nN]") )
+
 def parse_json(json_file)->model.DirectedCycleGraph:
     """Parse a JSON file into a Directed Cycle Graph model
 
@@ -43,7 +53,9 @@ def parse_json(json_file)->model.DirectedCycleGraph:
         nodes = []
         for node in raw["graph"]:
             try:
-                arguments:[str] = node[3]
+                arguments = node[3]
+                if not isinstance(arguments, list):
+                    arguments = [arguments]
             except IndexError:
                 arguments = [str]
             nodes.append( machine.model.Action(name=node[1], key=node[0].lower(), arguments=arguments) )
