@@ -34,14 +34,22 @@ class Machine(object):
 
     """
 
-    def __init__(self, uid:str, driver:webdriver, actions:list, filepath:str=None):
+    def __init__(self, uid:str, driver:webdriver, actions:list, path:str=None):
         self.log = utils.get_logger(uid)
         self.driver = driver
         self.actions = actions
+        self.path = path
 
         self.size = len(self.actions) - 1
         self.counter = 0
     
+    def __enter__(self):
+        self.stream = ""
+        return self
+    
+    def __exit__(self, exc_type, exc_value, traceback):
+        if self.path and self.stream: self.close()
+
     def next(self)->bool:
         """The transition function
         Perform the action and proceed to the next state
@@ -62,6 +70,10 @@ class Machine(object):
         Idle (i.e. sleep) for constant.IDLE second(s)
 
         """
+        # info
+        self.log.info(f"machine.idle: ")
+        
+        # wait
         time.sleep(constant.IDLE)
 
     def wait(self, argv:[str]=None):
@@ -73,8 +85,14 @@ class Machine(object):
         argv: [str], optional
             A float, which contains the decimal value
         """
-        try: 
+        try:
+            # extract
             decimal = float(argv[0])
+            
+            # info
+            self.log.info(f"machine.wait: {decimal}")
+
+            # wait
             time.sleep(decimal)
 
         except IndexError:
@@ -84,9 +102,9 @@ class Machine(object):
             self.log.error("machine.wait: Value Error")
             raise ValueError
 
-    def to(self, argv:[str]):
-        """An action state - to
-        To <url> page
+    def get(self, argv:[str]):
+        """An action state - get
+        Get <url> page
 
         Parameters
         ----------
@@ -94,21 +112,55 @@ class Machine(object):
             A string, which contains the url value
         """
         try:
-            # to i.e. get url
+            # extract
             url = argv[0]
-            self.log.info(f"machine.to: {url}")
-            self.driver.get(url)
 
-            # wait
-            time.sleep(constant.TO)
+            # info
+            self.log.info(f"machine.get: {url}")
+
+            # get & wait
+            self.driver.get(url)
+            time.sleep(constant.GET)
         
         except IndexError:
-            self.log.error("machine.to: Index Error")
+            self.log.error("machine.get: Index Error")
             raise IndexError
         
         except Exception:
-            self.log.error("machine.to: Unknown Error")
+            self.log.error("machine.get: Unknown Error")
             raise Exception
+
+    def get_elem(self, argv:[str]):
+        """An action state - get_elem
+        Get text value of first <xpath> element
+
+        Parameters
+        ----------
+        argv: [str]
+            A string, which contains the xpath value
+
+        Returns
+        -------
+        string:
+            The text value
+        """
+        print()
+
+    def get_elems(self, argv:[str]):
+        """An action state - get_elem
+        Get text value of all <xpath> element(s)
+
+        Parameters
+        ----------
+        argv: [str]
+            A string, which contains the xpath value
+        
+        Returns
+        -------
+        list:
+            A list of text value(s)
+        """
+        print()
 
     def click(self, argv:[str]):
         """An action state - click
@@ -121,6 +173,9 @@ class Machine(object):
         """
         for xpath in argv:
             try:
+                # info
+                self.log.info(f"machine.click: {xpath}")
+                
                 # locate
                 elem_presence = EC.presence_of_element_located((By.XPATH, xpath))
                 WebDriverWait(self.driver, constant.TIMEOUT).until(elem_presence)
@@ -153,6 +208,9 @@ class Machine(object):
         """
         for xpath in argv:
             try:
+                # info
+                self.log.info(f"machine.double_click: {xpath}")
+
                 # locate
                 elem_presence = EC.presence_of_element_located((By.XPATH, xpath))
                 WebDriverWait(self.driver, constant.TIMEOUT).until(elem_presence)
@@ -187,6 +245,9 @@ class Machine(object):
             # extract
             xpath = argv[0]
             values = argv[1]
+
+            # info
+            self.log.info(f"machine.send_keys: {xpath}, {values}")
 
             # locate
             elem_presence = EC.presence_of_element_located((By.XPATH, xpath))
@@ -223,8 +284,14 @@ class Machine(object):
             chain = ActionChains(self.driver)
             for arg in argv:
                 try:
+                    # extract
                     operation = arg[0]
                     key_values = constant.KEYS.get(arg[1], arg[1])
+
+                    # info
+                    self.log.info(f"machine.keyboard: {operation}, {key_values}")
+
+                    # append corresponding action
                     if operation == "KEY_DOWN":
                         chain.key_down(key_values)
                     elif operation == "KEY_UP":
@@ -242,22 +309,68 @@ class Machine(object):
             self.log.error("machine.keyboard: Unknown Error")
             raise Exception
     
-    def open(self, argv:[str]):
-        """An action state - open
-        Open the file stream given a <filepath>
+    def new(self, argv:[str]):
+        """An action state - create
+        New file stream and file <path>
 
         Parameters
         ----------
         argv: [str]
-            A string, which contains the filepath value
+            A string, which contains the file path value
         """
         try:
-            self.filepath = argv[0]
-            if os.path.isfile(self.filepath):
-                with open(self.filepath, "r") as f:
-                    self.fstream = "".join( f.readlines() )
+            # info
+            self.log.info(f"machine.new: ")
+
+            # init
+            self.stream = ""
+            self.path = argv[0]
+            
+        except IndexError:
+            self.log.error("machine.new: Index Error")
+            raise IndexError
+
+        except Exception:
+            self.log.error("machine.new: Unknown Error")
+            raise Exception
+
+    def flush(self, argv:[str]=None):
+        """An action state - flush
+        Flush file stream to file <path>
+
+        """
+        try:
+            # info
+            self.log.info(f"machine.flush: {self.path}, {self.stream}")
+
+            # flush
+            with open(self.path, "a") as f:
+                f.write(self.stream)
+            self.stream = ""
+        
+        except Exception:
+            self.log.error("machine.flush: Unknown Error")
+            raise Exception
+
+    def open(self, argv:[str]):
+        """An action state - open
+        Open & load content from file <path> into file stream
+
+        Parameters
+        ----------
+        argv: [str]
+            A string, which contains the file path value
+        """
+        try:
+            # extract
+            self.path = argv[0]
+
+            # open & read
+            if os.path.isfile(self.path):
+                with open(self.path, "r") as f:
+                    self.stream = "".join( f.readlines() )
             else:
-                self.fstream = ""
+                self.stream = ""
             
         except IndexError:
             self.log.error("machine.open: Index Error")
@@ -269,13 +382,14 @@ class Machine(object):
 
     def close(self, argv:[str]=None):
         """An action state - close
-        Flush contents of the file stream to the <filepath>
+        Close (i.e. overwrite) file <path> with file stream content 
 
         """
         try:
-            with open(self.filepath, "w") as f:
-                f.write(self.fstream)
-            self.fstream = ""
+            # open & write
+            with open(self.path, "w") as f:
+                f.write(self.stream)
+            self.stream = ""
 
         except Exception:
             self.log.error("machine.close: Unknown Error")
