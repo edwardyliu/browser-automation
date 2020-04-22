@@ -1,15 +1,28 @@
 # == Import(s) ==
+# => System
+import re
+
+# => External
 from selenium.webdriver.common.keys import Keys
 
 # == Constant(s) ==
-# => Machine
+# => Exception Handling
 TIMEOUT=10.
 
+# => Delay
 CLICK=1.
 DOUBLE_CLICK=1.
 GET=1.
 IDLE=2.
 
+# => FileIO
+POSITIONAL=re.compile(r"(\$\{[0-9a-zA-Z_]+\})")
+ELEM=re.compile(r"(!\{[0-9a-zA-Z_]+\})")
+ELEMS=re.compile(r"(@\{[0-9a-zA-Z_]+\})")
+
+# => Keyboard
+KEY_DOWN="KEY_DOWN"
+KEY_UP="KEY_UP"
 KEYS={
     "ADD": u'\ue025',
     "ALT": u'\ue00a',
