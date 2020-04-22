@@ -48,7 +48,7 @@ class Machine(object):
         return self
     
     def __exit__(self, exc_type, exc_value, traceback):
-        if self.path and self.stream: self.close()
+        if self.path and self.stream: self.close_file()
 
     def next(self)->bool:
         """The transition function
@@ -388,22 +388,22 @@ class Machine(object):
             self.log.error("machine.make_file: Unknown Error")
             raise Exception
 
-    def flush(self, argv:[str]=None):
-        """An action state - flush
-        Flush current file stream to file <path>
+    def flush_file(self, argv:[str]=None):
+        """An action state - flush stream to file
+        Flush file stream to file <path>
 
         """
         try:
             # info
-            self.log.info(f"machine.flush: {self.path}\nstream: {self.stream}")
+            self.log.info(f"machine.flush_file: {self.path}\nstream: {self.stream}")
 
-            # flush
+            # flush stream to file
             with open(self.path, "a") as f:
                 f.write(self.stream)
             self.stream = ""
         
         except Exception:
-            self.log.error("machine.flush: Unknown Error")
+            self.log.error("machine.flush_file: Unknown Error")
             raise Exception
 
     def open_file(self, argv:[str]):
