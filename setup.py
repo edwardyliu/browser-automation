@@ -41,13 +41,17 @@ def main(env:str="linux"):
     print("========================================================")
     resources = os.path.join(ROOTPATH, "app/resources/")
     logs = os.path.join(ROOTPATH, "app/logs/")
+    out = os.path.join(ROOTPATH, "app/out/")
     print(resources)
     if not os.path.exists(resources):
         shell(f"mkdir -p {resources}")
     print(logs)
     if not os.path.exists(logs):
         shell(f"mkdir -p {logs}")
-
+    print(out)
+    if not os.path.exists(out):
+        shell(f"mkdir -p {out}")
+    
     print("========================================================")
     print("=== Download & Install Geckodriver: ")
     print("========================================================")

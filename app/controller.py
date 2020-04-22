@@ -3,6 +3,7 @@
 from . import constant
 from . import parser
 from . import machine
+from . import utils
 
 # => System
 import time
@@ -22,18 +23,39 @@ class Controller(object):
             if dcg.env not in self.machines:
                 self.machines[dcg.env] = {}
             self.machines[dcg.env][dcg.name] = fsm
+
+        self.plugins = constant.PLUGINS
     
     def __enter__(self):
+        self.driver.get(constant.INITIAL_PAGE)
         return self
     
     def __exit__(self, exc_type, exc_value, traceback):
         self.driver.quit()
 
-    def alter_uid(self, uid:str):
-        print("alter")
-        time.sleep(constant.ALTER)
+    def set_plugins(self, plugins:dict):
+        self.plugins = plugins
 
-    def exec(self, env:str, jobs:[str], uid:str):
+    def make_file(self):
+        print()
+    
+    def write(self, buf:str):
+        print()
+
+    def submit_job(self):
+        print()
+
+    def scrape_job(self):
+        print()
+
+    def scrape_uid(self):
+        print()
+
+    def alter_uid(self, uid:str):
+        print("alter uid")
+        time.sleep(constant.TASK)
+    
+    def batch_job(self, env:str, jobs:[str], uid:str):
         self.alter_uid(uid)
 
         for job in jobs:
@@ -42,7 +64,7 @@ class Controller(object):
 
             time.sleep(constant.JOB)
     
-    def batch(self, env:str, job:str, uids:[str]):
+    def batch_uid(self, env:str, job:str, uids:[str]):
         fsm = self.machines[env][job]
 
         for uid in uids:

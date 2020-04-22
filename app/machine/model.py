@@ -488,7 +488,7 @@ class Machine(object):
                     values = values.replace(arg, "None")
 
             # append
-            self.stream += f"{values}\n"
+            self.stream += f"{values}"
 
         except IndexError:
             self.log.error("machine.write: Index Error")

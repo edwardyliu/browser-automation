@@ -5,6 +5,8 @@ from . import constant
 # => System
 import datetime
 import logging
+import os
+import re
 
 # => External
 import pytz
@@ -44,6 +46,14 @@ def get_logger(uid:str)->logging.Logger:
 
     log.addHandler(handle)
     return log
+
+def get_available_path()->str:
+    path = os.path.join(constant.OUT_DIRPATH, "result1.csv")
+    while os.path.isfile(path):
+        item = re.findall(constant.OUT_RE, path)[0]
+        path = path.replace(item, str(int(item)+1))
+    
+    return path
 
 def get_driver()->webdriver:
     options = webdriver.FirefoxOptions()
