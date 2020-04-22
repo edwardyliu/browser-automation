@@ -5,8 +5,8 @@ from . import utils
 
 # => System
 import os
+import re
 import time
-from collections import deque
 from dataclasses import dataclass
 
 # => External
@@ -102,9 +102,9 @@ class Machine(object):
             self.log.error("machine.wait: Value Error")
             raise ValueError
 
-    def get(self, argv:[str]):
-        """An action state - get
-        Get <url> page
+    def get_page(self, argv:[str]):
+        """An action state - get page
+        Get page of <url>
 
         Parameters
         ----------
@@ -116,22 +116,22 @@ class Machine(object):
             url = argv[0]
 
             # info
-            self.log.info(f"machine.get: {url}")
+            self.log.info(f"machine.get_page: {url}")
 
-            # get & wait
+            # get page & wait
             self.driver.get(url)
             time.sleep(constant.GET)
         
         except IndexError:
-            self.log.error("machine.get: Index Error")
+            self.log.error("machine.get_page: Index Error")
             raise IndexError
         
         except Exception:
-            self.log.error("machine.get: Unknown Error")
+            self.log.error("machine.get_page: Unknown Error")
             raise Exception
 
-    def get_elem(self, argv:[str]):
-        """An action state - get_elem
+    def get_elem(self, argv:[str])->str:
+        """An action state - get element
         Get text value of first <xpath> element
 
         Parameters
@@ -142,12 +142,39 @@ class Machine(object):
         Returns
         -------
         string:
-            The text value
+            A element text value
         """
-        print()
+        try:
+            # extract
+            xpath = argv[0]
 
-    def get_elems(self, argv:[str]):
-        """An action state - get_elem
+            # info
+            self.log.info(f"machine.get_elem: {xpath}")
+
+            # locate
+            elem_presence = EC.presence_of_element_located((By.XPATH, xpath))
+            WebDriverWait(self.driver, constant.TIMEOUT).until(elem_presence)
+
+            # get element text
+            elem = self.driver.find_element_by_xpath(xpath)
+            if type(elem) is list:
+                return elem[0].text
+            else:
+                return elem.text
+
+        except IndexError:
+            self.log.error("machine.get_elem: Index Error")
+            raise IndexError
+
+        except exceptions.TimeoutException:
+            return None
+        
+        except Exception:
+            self.log.error("machine.get_elem: Unknown Error")
+            raise Exception
+        
+    def get_elems(self, argv:[str])->[str]:
+        """An action state - get elements
         Get text value of all <xpath> element(s)
 
         Parameters
@@ -158,13 +185,40 @@ class Machine(object):
         Returns
         -------
         list:
-            A list of text value(s)
+            A list of element text value(s)
         """
-        print()
+        try:
+            # extract
+            xpath = argv[0]
 
-    def click(self, argv:[str]):
-        """An action state - click
-        Click the <xpath> element
+            # info
+            self.log.info(f"machine.get_elems: {xpath}")
+
+            # locate
+            elem_presence = EC.presence_of_element_located((By.XPATH, xpath))
+            WebDriverWait(self.driver, constant.TIMEOUT).until(elem_presence)
+
+            # get all element text
+            elems = self.driver.find_element_by_xpath(xpath)
+            if type(elems) is not list:
+                elems = [elems]
+            
+            return list( map(lambda elem: elem.text, elems) )
+
+        except IndexError:
+            self.log.error("machine.get_elems: Index Error")
+            raise IndexError
+
+        except exceptions.TimeoutException:
+            return None
+        
+        except Exception:
+            self.log.error("machine.get_elems: Unknown Error")
+            raise Exception
+
+    def click_elem(self, argv:[str]):
+        """An action state - click element
+        Click first <xpath> element
 
         Parameters
         ----------
@@ -174,13 +228,13 @@ class Machine(object):
         for xpath in argv:
             try:
                 # info
-                self.log.info(f"machine.click: {xpath}")
+                self.log.info(f"machine.click_elem: {xpath}")
                 
                 # locate
                 elem_presence = EC.presence_of_element_located((By.XPATH, xpath))
                 WebDriverWait(self.driver, constant.TIMEOUT).until(elem_presence)
 
-                # click
+                # click first element
                 elem = self.driver.find_element_by_xpath(xpath)
                 if type(elem) is list:
                     elem[0].click()
@@ -191,15 +245,15 @@ class Machine(object):
                 time.sleep(constant.CLICK)
 
             except exceptions.TimeoutException:
-                self.log.error("machine.click: Timeout Error")
+                self.log.error("machine.click_elem: Timeout Error")
             
             except Exception:
-                self.log.error("machine.click: Unknown Error")
+                self.log.error("machine.click_elem: Unknown Error")
                 raise Exception
 
-    def double_click(self, argv:[str]):
-        """An action state - double_click
-        Double-click the <xpath> element
+    def double_click_elem(self, argv:[str]):
+        """An action state - double-click element
+        Double-click first <xpath> element
 
         Parameters
         ----------
@@ -209,13 +263,13 @@ class Machine(object):
         for xpath in argv:
             try:
                 # info
-                self.log.info(f"machine.double_click: {xpath}")
+                self.log.info(f"machine.double_click_elem: {xpath}")
 
                 # locate
                 elem_presence = EC.presence_of_element_located((By.XPATH, xpath))
                 WebDriverWait(self.driver, constant.TIMEOUT).until(elem_presence)
 
-                # double-click
+                # double-click first element
                 elem = self.driver.find_element_by_xpath(xpath)
                 if type(elem) is list:
                     elem[0].double_click()
@@ -226,15 +280,15 @@ class Machine(object):
                 time.sleep(constant.DOUBLE_CLICK)
 
             except exceptions.TimeoutException:
-                self.log.error("machine.double_click: Timeout Error")
+                self.log.error("machine.double_click_elem: Timeout Error")
             
             except Exception:
-                self.log.error("machine.double_click: Unknown Error")
+                self.log.error("machine.double_click_elem: Unknown Error")
                 raise Exception
 
-    def send_keys(self, argv:[str]):
-        """An action state - send_keys
-        Send-keys <values> to the <xpath> element
+    def send_keys_elem(self, argv:[str]):
+        """An action state - send keys to element
+        Send-keys <values> to first <xpath> element
 
         Parameters
         ----------
@@ -247,13 +301,13 @@ class Machine(object):
             values = argv[1]
 
             # info
-            self.log.info(f"machine.send_keys: {xpath}, {values}")
+            self.log.info(f"machine.send_keys_elem: {xpath}, {values}")
 
             # locate
             elem_presence = EC.presence_of_element_located((By.XPATH, xpath))
             WebDriverWait(self.driver, constant.TIMEOUT).until(elem_presence)
 
-            # write
+            # send-keys to first element
             elem = self.driver.find_element_by_xpath(xpath)
             if type(elem) is list:
                 elem[0].send_keys(values)
@@ -261,24 +315,24 @@ class Machine(object):
                 elem.send_keys(values)
             
         except IndexError:
-            self.log.error("machine.send_keys: Index Error")
+            self.log.error("machine.send_keys_elem: Index Error")
             raise IndexError
         
         except exceptions.TimeoutException:
-            self.log.error("machine.send_keys: Timeout Error")
+            self.log.error("machine.send_keys_elem: Timeout Error")
 
         except Exception:
-            self.log.error("machine.send_keys: Unknown Error")
+            self.log.error("machine.send_keys_elem: Unknown Error")
             raise Exception
     
-    def keyboard(self, argv:[str]):
-        """An action state - keyboard
-        Keyboard-in values given the <operation> and <key_values>
+    def send_keys(self, argv:[str]):
+        """An action state - send keys
+        Send-keys <operation> and <values>
 
         Parameters
         ----------
         argv: [str]
-            A list of tuple2s, which contains the operation value and key_values value
+            A list of tuple2s, which contains the operation value and 'values' value
         """
         try:
             chain = ActionChains(self.driver)
@@ -286,32 +340,32 @@ class Machine(object):
                 try:
                     # extract
                     operation = arg[0]
-                    key_values = constant.KEYS.get(arg[1], arg[1])
+                    values = constant.KEYS.get(arg[1], arg[1])
 
                     # info
-                    self.log.info(f"machine.keyboard: {operation}, {key_values}")
+                    self.log.info(f"machine.send_keys: {operation}, {values}")
 
                     # append corresponding action
-                    if operation == "KEY_DOWN":
-                        chain.key_down(key_values)
-                    elif operation == "KEY_UP":
-                        chain.key_up(key_values)
+                    if operation == constant.KEY_DOWN:
+                        chain.key_down(values)
+                    elif operation == constant.KEY_UP:
+                        chain.key_up(values)
                     else:
-                        chain.send_keys(key_values)
+                        chain.send_keys(values)
                 
                 except IndexError:
-                    self.log.error("machine.keyboard: Index Error")
+                    self.log.error("machine.send_keys: Index Error")
                     raise IndexError
             
             chain.perform()
 
         except Exception:
-            self.log.error("machine.keyboard: Unknown Error")
+            self.log.error("machine.send_keys: Unknown Error")
             raise Exception
     
-    def new(self, argv:[str]):
-        """An action state - create
-        New file stream and file <path>
+    def make_file(self, argv:[str]):
+        """An action state - make file
+        Make a new file: a fresh file stream and a new file <path>
 
         Parameters
         ----------
@@ -320,28 +374,28 @@ class Machine(object):
         """
         try:
             # info
-            self.log.info(f"machine.new: ")
+            self.log.info(f"machine.make_file: ")
 
             # init
             self.stream = ""
             self.path = argv[0]
             
         except IndexError:
-            self.log.error("machine.new: Index Error")
+            self.log.error("machine.make_file: Index Error")
             raise IndexError
 
         except Exception:
-            self.log.error("machine.new: Unknown Error")
+            self.log.error("machine.make_file: Unknown Error")
             raise Exception
 
     def flush(self, argv:[str]=None):
         """An action state - flush
-        Flush file stream to file <path>
+        Flush current file stream to file <path>
 
         """
         try:
             # info
-            self.log.info(f"machine.flush: {self.path}, {self.stream}")
+            self.log.info(f"machine.flush: {self.path}\nstream: {self.stream}")
 
             # flush
             with open(self.path, "a") as f:
@@ -352,9 +406,9 @@ class Machine(object):
             self.log.error("machine.flush: Unknown Error")
             raise Exception
 
-    def open(self, argv:[str]):
-        """An action state - open
-        Open & load content from file <path> into file stream
+    def open_file(self, argv:[str]):
+        """An action state - open file
+        Open, read & load content from file <path> into file stream
 
         Parameters
         ----------
@@ -365,6 +419,9 @@ class Machine(object):
             # extract
             self.path = argv[0]
 
+            # info
+            self.log.info(f"machine.open_file: {self.path}")
+
             # open & read
             if os.path.isfile(self.path):
                 with open(self.path, "r") as f:
@@ -373,47 +430,107 @@ class Machine(object):
                 self.stream = ""
             
         except IndexError:
-            self.log.error("machine.open: Index Error")
+            self.log.error("machine.open_file: Index Error")
             raise IndexError
 
         except Exception:
-            self.log.error("machine.open: Unknown Error")
+            self.log.error("machine.open_file: Unknown Error")
             raise Exception
 
-    def close(self, argv:[str]=None):
-        """An action state - close
-        Close (i.e. overwrite) file <path> with file stream content 
+    def close_file(self, argv:[str]=None):
+        """An action state - close file
+        Close (i.e. overwrite) content from file stream into file <path>
 
         """
         try:
+            # info
+            self.log.info(f"machine.close_file: {self.path}\nstream: {self.stream}")
+            
             # open & write
             with open(self.path, "w") as f:
                 f.write(self.stream)
             self.stream = ""
 
         except Exception:
-            self.log.error("machine.close: Unknown Error")
+            self.log.error("machine.close_file: Unknown Error")
             raise Exception
     
     def write(self, argv:[str]):
         """An action state - write
-        Write/Append <values> to the file stream
+        Write <values> value to file stream
 
         Parameters
         ----------
         argv: [str]
             A string, which contains the 'values' value
         """
-        print()
+        try:
+            # extract
+            values = argv[0]
 
-    def find(self, argv:[str]):
-        """An action state - find
-        Find and append <text> value from <xpath> element, else append <default> value
-        Format the <text> value to be of the form <statement>
+            # info
+            self.log.info(f"machine.write: {values}")
+
+            # parse
+            positional = re.findall(constant.POSITIONAL, values)
+            elem = re.findall(constant.ELEM, values)
+            elems = re.findall(constant.ELEMS, values)
+
+            for idx, arg in enumerate(positional):
+                values = values.replace(arg, argv[idx+1])
+            for arg in elem:
+                values = values.replace(arg, str(self.get_elem([arg])))
+            for arg in elems:
+                lst = self.get_elems([arg])
+                if lst:
+                    values = values.replace(arg, ", ".join(lst))
+                else:
+                    values = values.replace(arg, "None")
+
+            # append
+            self.stream += f"{values}\n"
+
+        except IndexError:
+            self.log.error("machine.write: Index Error")
+            raise IndexError
+
+        except Exception:
+            self.log.error("machine.write: Unknown Error")
+            raise Exception
+    
+    def write_if_else(self, argv:[str]):
+        """An action state - write if else
+        Write <values> value if <xpath> element is found, else write <default> value
 
         Parameters
         ----------
         argv: [str]
-            A tuple3, which contains the xpath value, statement value and default value
+            A tuple3, which contains the xpath value (i.e. if condition), 'values' value and default value
         """
-        print()
+        try:
+            # extract
+            xpath = argv[0]
+            values = argv[1]
+            default = argv[2]
+
+            # info
+            self.log.info(f"machine.write_if_else: {xpath}, {values}, default: {default}")
+
+            # locate
+            elem_presence = EC.presence_of_element_located((By.XPATH, xpath))
+            WebDriverWait(self.driver, constant.TIMEOUT).until(elem_presence)
+
+            # if element was located
+            self.write(values)
+
+        except IndexError:
+            self.log.error("machine.write_if_else: Index Error")
+            raise IndexError
+        
+        except exceptions.TimeoutException:
+            # if element was not located
+            self.write([default])
+
+        except Exception:
+            self.log.error("machine.write_if_else: Unknown Error")
+            raise Exception
