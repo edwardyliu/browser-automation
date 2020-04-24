@@ -47,7 +47,7 @@ def get_logger(uid:str)->logging.Logger:
     log.addHandler(handle)
     return log
 
-def get_available_path()->str:
+def get_next_filepath()->str:
     path = os.path.join(constant.OUT_DIRPATH, "result1.csv")
     while os.path.isfile(path):
         item = re.findall(constant.OUT_RE, path)[0]

@@ -9,6 +9,17 @@ import os
 import json
 from pathlib import Path
 
+# == Utility Function(s) ==
+def get_filepaths()->list:
+    """Get a list of file paths retrieved from '<basedir>/app/json/.../*.json'
+
+    Returns
+    -------
+    list:
+        A list of file paths
+    """
+    return list( Path(constant.JSON_DIRPATH).rglob("*.[jJ][sS][oO][nN]") )
+
 def get_dcgs()->list:
     """Get a list of Directed Cycle Graph models via files retrieved from '<basedir>/app/json/.../*.json'
 
@@ -22,16 +33,6 @@ def get_dcgs()->list:
         dcg = parse_json(json_file)
         dcgs.append(dcg)
     return dcgs
-
-def get_filepaths()->list:
-    """Get a list of file paths retrieved from '<basedir>/app/json/.../*.json'
-
-    Returns
-    -------
-    list:
-        A list of file paths
-    """
-    return list( Path(constant.JSON_DIRPATH).rglob("*.[jJ][sS][oO][nN]") )
 
 def parse_json(json_file)->model.DirectedCycleGraph:
     """Parse a JSON file into a Directed Cycle Graph model
