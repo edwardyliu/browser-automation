@@ -1,17 +1,18 @@
 # == Import(s) ==
+# => System
 import os
 import re
 from pathlib import Path
 
 # == Constant(s) ==
-# => Controller
-INITIAL_PAGE="https://www.google.com/"
+# => General
+STARTER_URL="https://www.google.com/"
+
+# => Delay(s)
 TASK=1.
 JOB=1.
 
-OUT_DIRPATH=os.path.join(Path(__file__).parents[0], "out/")
-OUT_RE=re.compile(r"([0-9]+)\.csv")
-
+# => Plugin(s)
 PLUGINS={
     "ENABLE-PRE-JOB-ADHOC": True, 
     "ENABLE-PRE-BATCH-ADHOC": True, 
@@ -23,8 +24,8 @@ PLUGINS={
     "POST-BATCH-ADHOC": []
 }
 
-# => Parser
+# => Path & Directories
 JSON_DIRPATH=os.path.join(Path(__file__).parents[0], "jsons/")
-
-# => Utils
 DRIVER_PATH=os.path.join(Path(__file__).parents[0], "resources/geckodriver")
+OUT_DIRPATH=os.path.join(Path(__file__).parents[0], "out/")
+OUT_RE=re.compile(r"([0-9]+)\.csv")

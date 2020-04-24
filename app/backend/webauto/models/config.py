@@ -5,7 +5,7 @@ import re
 # => External
 from selenium.webdriver.common.keys import Keys
 
-# == Constant(s) ==
+# == Configuration(s) & Constant(s) ==
 # => Exception Handling
 TIMEOUT=10.
 
@@ -15,12 +15,12 @@ DOUBLE_CLICK=1.
 GET=1.
 IDLE=2.
 
-# => FileIO
+# => FileIO, REGEX
 POSITIONAL=re.compile(r"(\$\{[0-9a-zA-Z_]+\})")
 ELEM=re.compile(r"(!\{[0-9a-zA-Z_]+\})")
 ELEMS=re.compile(r"(@\{[0-9a-zA-Z_]+\})")
 
-# => Keyboard
+# => Keyboard Keys
 KEY_DOWN="KEY_DOWN"
 KEY_UP="KEY_UP"
 KEYS={

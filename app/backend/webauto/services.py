@@ -1,8 +1,7 @@
 # == Import(s) ==
 # => Local
-from . import constant
-from . import parser
-from . import machine
+from . import config
+from . import models
 from . import utils
 
 # => System
@@ -17,17 +16,17 @@ class Controller(object):
         self.driver = driver
 
         self.machines = {}
-        for dcg in parser.get_dcgs():
-            fsm = machine.model.Machine(dcg.name, self.driver, dcg.nodes)
+        for dcg in utils.get_dcgs():
+            fsm = models.Machine(dcg.name, self.driver, dcg.nodes)
             
             if dcg.env not in self.machines:
                 self.machines[dcg.env] = {}
             self.machines[dcg.env][dcg.name] = fsm
 
-        self.plugins = constant.PLUGINS
+        self.plugins = config.PLUGINS
     
     def __enter__(self):
-        self.driver.get(constant.INITIAL_PAGE)
+        self.driver.get(config.STARTER_URL)
         return self
     
     def __exit__(self, exc_type, exc_value, traceback):
@@ -53,7 +52,7 @@ class Controller(object):
 
     def alter_uid(self, uid:str):
         print("alter uid")
-        time.sleep(constant.TASK)
+        time.sleep(config.TASK)
     
     def batch_job(self, env:str, jobs:[str], uid:str):
         self.alter_uid(uid)
@@ -62,7 +61,7 @@ class Controller(object):
             fsm = self.machines[env][job]
             while fsm.next(): pass
 
-            time.sleep(constant.JOB)
+            time.sleep(config.JOB)
     
     def batch_uid(self, env:str, job:str, uids:[str]):
         fsm = self.machines[env][job]
@@ -71,5 +70,5 @@ class Controller(object):
             self.alter_uid(uid)
             while fsm.next(): pass
 
-            time.sleep(constant.JOB)
+            time.sleep(config.JOB)
     

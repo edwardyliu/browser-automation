@@ -1,6 +1,6 @@
 # == Import(s) ==
 # => Local
-from . import constant
+from . import config
 from . import utils
 
 # => System
@@ -22,11 +22,22 @@ from selenium.webdriver.common.by import By
 class Action:
     """Define an Action:
     
-    Execute a method/function (i.e. Action) given a keyword <key> and a list of parameters <arguments>
+    Execute an action given a function name <function> and a list of parameters <parameters>
+    """
+    label: str
+    function: str
+    parameters: list
+
+@dataclass(frozen=True)
+class DirectedCycleGraph:
+    """Define a Directed Cycle Graph
+
+    A finite state machine cycle is constructed with <nodes>: 
+        i.e. 1=>2=>...=>N=>1
     """
     name: str
-    key: str
-    arguments: list
+    env: str
+    nodes: list
 
 # == Data Class(es) ==
 class Machine(object):
@@ -34,11 +45,11 @@ class Machine(object):
 
     """
 
-    def __init__(self, uid:str, driver:webdriver, actions:list, path:str=None):
+    def __init__(self, uid:str, driver:webdriver, actions:list, outpath:str=None):
         self.log = utils.get_logger(uid)
         self.driver = driver
         self.actions = actions
-        self.path = path
+        self.outpath = outpath
 
         self.size = len(self.actions) - 1
         self.counter = 0
@@ -48,7 +59,7 @@ class Machine(object):
         return self
     
     def __exit__(self, exc_type, exc_value, traceback):
-        if self.path and self.stream: self.close_file()
+        if self.outpath and self.stream: self.close_file()
 
     def next(self)->bool:
         """The transition function
@@ -67,14 +78,14 @@ class Machine(object):
     
     def idle(self, argv:[str]=None):
         """An action state - idle
-        Idle (i.e. sleep) for constant.IDLE second(s)
+        Idle (i.e. sleep) for config.IDLE second(s)
 
         """
         # info
         self.log.info(f"machine.idle: ")
         
         # wait
-        time.sleep(constant.IDLE)
+        time.sleep(config.IDLE)
 
     def wait(self, argv:[str]=None):
         """An action state - wait
@@ -120,7 +131,7 @@ class Machine(object):
 
             # get page & wait
             self.driver.get(url)
-            time.sleep(constant.GET)
+            time.sleep(config.GET)
         
         except IndexError:
             self.log.error("machine.get_page: Index Error")
@@ -153,7 +164,7 @@ class Machine(object):
 
             # locate
             elem_presence = EC.presence_of_element_located((By.XPATH, xpath))
-            WebDriverWait(self.driver, constant.TIMEOUT).until(elem_presence)
+            WebDriverWait(self.driver, config.TIMEOUT).until(elem_presence)
 
             # get element text
             elem = self.driver.find_element_by_xpath(xpath)
@@ -196,7 +207,7 @@ class Machine(object):
 
             # locate
             elem_presence = EC.presence_of_element_located((By.XPATH, xpath))
-            WebDriverWait(self.driver, constant.TIMEOUT).until(elem_presence)
+            WebDriverWait(self.driver, config.TIMEOUT).until(elem_presence)
 
             # get all element text
             elems = self.driver.find_element_by_xpath(xpath)
@@ -232,7 +243,7 @@ class Machine(object):
                 
                 # locate
                 elem_presence = EC.presence_of_element_located((By.XPATH, xpath))
-                WebDriverWait(self.driver, constant.TIMEOUT).until(elem_presence)
+                WebDriverWait(self.driver, config.TIMEOUT).until(elem_presence)
 
                 # click first element
                 elem = self.driver.find_element_by_xpath(xpath)
@@ -242,7 +253,7 @@ class Machine(object):
                     elem.click()
 
                 # wait
-                time.sleep(constant.CLICK)
+                time.sleep(config.CLICK)
 
             except exceptions.TimeoutException:
                 self.log.error("machine.click_elem: Timeout Error")
@@ -267,7 +278,7 @@ class Machine(object):
 
                 # locate
                 elem_presence = EC.presence_of_element_located((By.XPATH, xpath))
-                WebDriverWait(self.driver, constant.TIMEOUT).until(elem_presence)
+                WebDriverWait(self.driver, config.TIMEOUT).until(elem_presence)
 
                 # double-click first element
                 elem = self.driver.find_element_by_xpath(xpath)
@@ -277,7 +288,7 @@ class Machine(object):
                     elem.double_click()
 
                 # wait
-                time.sleep(constant.DOUBLE_CLICK)
+                time.sleep(config.DOUBLE_CLICK)
 
             except exceptions.TimeoutException:
                 self.log.error("machine.double_click_elem: Timeout Error")
@@ -305,7 +316,7 @@ class Machine(object):
 
             # locate
             elem_presence = EC.presence_of_element_located((By.XPATH, xpath))
-            WebDriverWait(self.driver, constant.TIMEOUT).until(elem_presence)
+            WebDriverWait(self.driver, config.TIMEOUT).until(elem_presence)
 
             # send-keys to first element
             elem = self.driver.find_element_by_xpath(xpath)
@@ -340,15 +351,15 @@ class Machine(object):
                 try:
                     # extract
                     operation = arg[0]
-                    values = constant.KEYS.get(arg[1], arg[1])
+                    values = config.KEYS.get(arg[1], arg[1])
 
                     # info
                     self.log.info(f"machine.send_keys: {operation}, {values}")
 
                     # append corresponding action
-                    if operation == constant.KEY_DOWN:
+                    if operation == config.KEY_DOWN:
                         chain.key_down(values)
-                    elif operation == constant.KEY_UP:
+                    elif operation == config.KEY_UP:
                         chain.key_up(values)
                     else:
                         chain.send_keys(values)
@@ -365,12 +376,12 @@ class Machine(object):
     
     def make_file(self, argv:[str]):
         """An action state - make file
-        Make a new file: a fresh file stream and a new file <path>
+        Make a new file: a fresh file stream and a new <outpath>
 
         Parameters
         ----------
         argv: [str]
-            A string, which contains the file path value
+            A string, which contains the outpath value
         """
         try:
             # info
@@ -378,7 +389,7 @@ class Machine(object):
 
             # init
             self.stream = ""
-            self.path = argv[0]
+            self.outpath = argv[0]
             
         except IndexError:
             self.log.error("machine.make_file: Index Error")
@@ -390,15 +401,15 @@ class Machine(object):
 
     def flush_file(self, argv:[str]=None):
         """An action state - flush stream to file
-        Flush file stream to file <path>
+        Flush file stream to file <outpath>
 
         """
         try:
             # info
-            self.log.info(f"machine.flush_file: {self.path}\nstream: {self.stream}")
+            self.log.info(f"machine.flush_file: {self.outpath}\nstream: {self.stream}")
 
             # flush stream to file
-            with open(self.path, "a") as f:
+            with open(self.outpath, "a") as f:
                 f.write(self.stream)
             self.stream = ""
         
@@ -408,23 +419,23 @@ class Machine(object):
 
     def open_file(self, argv:[str]):
         """An action state - open file
-        Open, read & load content from file <path> into file stream
+        Open, read & load content from file <outpath> into file stream
 
         Parameters
         ----------
         argv: [str]
-            A string, which contains the file path value
+            A string, which contains the outpath value
         """
         try:
             # extract
-            self.path = argv[0]
+            self.outpath = argv[0]
 
             # info
-            self.log.info(f"machine.open_file: {self.path}")
+            self.log.info(f"machine.open_file: {self.outpath}")
 
             # open & read
-            if os.path.isfile(self.path):
-                with open(self.path, "r") as f:
+            if os.path.isfile(self.outpath):
+                with open(self.outpath, "r") as f:
                     self.stream = "".join( f.readlines() )
             else:
                 self.stream = ""
@@ -439,15 +450,15 @@ class Machine(object):
 
     def close_file(self, argv:[str]=None):
         """An action state - close file
-        Close (i.e. overwrite) content from file stream into file <path>
+        Close (i.e. overwrite) content from file stream into file <outpath>
 
         """
         try:
             # info
-            self.log.info(f"machine.close_file: {self.path}\nstream: {self.stream}")
+            self.log.info(f"machine.close_file: {self.outpath}\nstream: {self.stream}")
             
             # open & write
-            with open(self.path, "w") as f:
+            with open(self.outpath, "w") as f:
                 f.write(self.stream)
             self.stream = ""
 
@@ -472,9 +483,9 @@ class Machine(object):
             self.log.info(f"machine.write: {values}")
 
             # parse
-            positional = re.findall(constant.POSITIONAL, values)
-            elem = re.findall(constant.ELEM, values)
-            elems = re.findall(constant.ELEMS, values)
+            positional = re.findall(config.POSITIONAL, values)
+            elem = re.findall(config.ELEM, values)
+            elems = re.findall(config.ELEMS, values)
 
             for idx, arg in enumerate(positional):
                 values = values.replace(arg, argv[idx+1])
@@ -518,7 +529,7 @@ class Machine(object):
 
             # locate
             elem_presence = EC.presence_of_element_located((By.XPATH, xpath))
-            WebDriverWait(self.driver, constant.TIMEOUT).until(elem_presence)
+            WebDriverWait(self.driver, config.TIMEOUT).until(elem_presence)
 
             # if element was located
             self.write(values)
