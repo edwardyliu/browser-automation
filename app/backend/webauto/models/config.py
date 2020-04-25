@@ -3,27 +3,46 @@
 import re
 
 # => External
+from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.keys import Keys
 
 # == Configuration(s) & Constant(s) ==
-# => Exception Handling
-TIMEOUT=10.
-
-# => Delay
-CLICK=1.
-DOUBLE_CLICK=1.
-GET=1.
-IDLE=2.
-
-# => FileIO, REGEX
+# => Regex
 POSITIONAL=re.compile(r"(\$\{[0-9a-zA-Z_]+\})")
-ELEM=re.compile(r"(!\{[0-9a-zA-Z_]+\})")
-ELEMS=re.compile(r"(@\{[0-9a-zA-Z_]+\})")
+FIND=re.compile(r"(!\{[0-9a-zA-Z_]+\})")
+FIND_ALL=re.compile(r"(@\{[0-9a-zA-Z_]+\})")
 
-# => Keyboard Keys
-KEY_DOWN="KEY_DOWN"
-KEY_UP="KEY_UP"
-KEYS={
+# => Expected Condition(s)
+TIMEOUT=15.
+EXPECTED_CONDITIONS={
+    "ELEMENT_LOCATED_SELECTION_STATE_TO_BE": (EC.element_located_selection_state_to_be, "LOCATOR"),
+    "ELEMENT_LOCATED_TO_BE_SELECTED": (EC.element_located_to_be_selected, "LOCATOR"),
+    "ELEMENT_TO_BE_CLICKABLE": (EC.element_to_be_clickable, "LOCATOR"),
+    "ELEMENT_TO_BE_SELECTED": (EC.element_to_be_selected, "ELEMENT"),
+    "FRAME_TO_BE_AVAILABLE_AND_SWITCH_TO_IT": (EC.frame_to_be_available_and_switch_to_it, "LOCATOR"),
+    "INVISIBILITY_OF_ELEMENT": (EC.invisibility_of_element, "LOCATOR"),
+    "INVISIBILITY_OF_ELEMENT_LOCATED": (EC.invisibility_of_element_located, "LOCATOR"),
+    "NEW_WINDOW_IS_OPENED": (EC.new_window_is_opened, "INTEGER"),
+    "NUMBER_OF_WINDOWS_TO_BE": (EC.number_of_windows_to_be, "INTEGER"),
+    "PRESENCE_OF_ALL_ELEMENTS_LOCATED": (EC.presence_of_all_elements_located, "LOCATOR"),
+    "PRESENCE_OF_ELEMENT_LOCATED": (EC.presence_of_element_located, "LOCATOR"),
+    "STALENESS_OF": (EC.staleness_of, "ELEMENT"),
+    "TEXT_TO_BE_PRESENT_IN_ELEMENT": (EC.text_to_be_present_in_element, "LOCATOR"),
+    "TEXT_TO_BE_PRESENT_IN_ELEMENT_VALUE": (EC.text_to_be_present_in_element_value, "LOCATOR"),
+    "TITLE_CONTAINS": (EC.title_contains, "STRING"),
+    "TITLE_IS": (EC.title_is, "STRING"),
+    "URL_CHANGES": (EC.url_changes, "STRING"),
+    "URL_CONTAINS": (EC.url_contains, "STRING"),
+    "URL_MATCHES": (EC.url_matches, "STRING"),
+    "URL_TO_BE": (EC.url_to_be, "STRING"),
+    "VISIBILITY_OF": (EC.visibility_of, "ELEMENT"),
+    "VISIBILITY_OF_ALL_ELEMENTS_LOCATED": (EC.visibility_of_all_elements_located, "LOCATOR"),
+    "VISIBILITY_OF_ANY_ELEMENTS_LOCATED": (EC.visibility_of_any_elements_located, "LOCATOR"),
+    "VISIBILITY_OF_ELEMENT_LOCATED": (EC.visibility_of_element_located, "LOCATOR")
+}
+
+# => Special Key(s)
+SPECIAL_KEYS={
     "ADD": u'\ue025',
     "ALT": u'\ue00a',
     "ARROW_DOWN": u'\ue015',

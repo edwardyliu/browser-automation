@@ -5,6 +5,7 @@ import logging
 
 # => External
 import pytz
+from selenium.webdriver.common.by import By
 
 # == Utility Function(s) ==
 def timezone_converter_est(*args):
@@ -40,3 +41,15 @@ def get_logger(uid:str)->logging.Logger:
 
     log.addHandler(handle)
     return log
+
+def parse_expected_condition(driver, raw:str, ec:tuple):
+    if ec[1] == "LOCATOR":
+        res = (By.ID, raw)
+    elif ec[1] == "ELEMENT":
+        res = driver.find_element_by_xpath(raw) 
+    elif ec[1] == "INTEGER":
+        res = int(raw)
+    else: # String
+        res = raw
+    
+    return res
