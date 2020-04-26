@@ -8,6 +8,7 @@ from selenium.webdriver.common.keys import Keys
 
 # == Configuration(s) & Constant(s) ==
 # => Regex
+RE_NUMERAL=re.compile(r"([0-9]+)")
 POSITIONAL=re.compile(r"(\$\{[0-9a-zA-Z_]+\})")
 FIND=re.compile(r"(!\{[0-9a-zA-Z_]+\})")
 FIND_ALL=re.compile(r"(@\{[0-9a-zA-Z_]+\})")
