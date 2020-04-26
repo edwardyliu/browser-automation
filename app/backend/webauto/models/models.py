@@ -115,11 +115,17 @@ class Worker(object):
         ----------
         target: str
             A URL string
-        argv: [str]
-            A list of string values
         """
 
         self.driver.get(target)
+
+    def refresh(self, target:str=None, argv:list=None):
+        """Refresh the page
+
+        """
+
+        self.driver.refresh()
+
 
     def click(self, target:str=None, argv:list=None):
         """Click an element
@@ -127,14 +133,12 @@ class Worker(object):
         Parameters
         ----------
         target: str
-            An XPATH string
-        argv: [str]
-            A list of string values
+            An XPATH string (if any)
         """
 
         if target:
             elem = self.find_element_by_xpath(target)
-            if elem.is_displayed(): elem.click()
+            if elem.is_displayed(): ActionChains(self.driver).click(on_element=elem).perform()
         else: ActionChains(self.driver).click().perform()
 
     def click_and_hold(self, target:str=None, argv:list=None):
@@ -143,9 +147,7 @@ class Worker(object):
         Parameters
         ----------
         target: str
-            An XPATH string
-        argv: [str]
-            A list of string values
+            An XPATH string (if any)
         """
 
         if target:
@@ -154,17 +156,18 @@ class Worker(object):
         else: ActionChains(self.driver).click_and_hold().perform()
     
     def release(self, target:str=None, argv:list=None):
-        """Release click (if any)
+        """Release mouse click
 
         Parameters
         ----------
         target: str
-            An XPATH string
-        argv: [str]
-            A list of string values
+            An XPATH string (if any)
         """
 
-        ActionChains(self.driver).release().perform()
+        if target:
+            elem = self.find_element_by_xpath(target)
+            if elem.is_displayed(): ActionChains(self.driver).release(on_element=elem).perform()
+        else: ActionChains(self.driver).release().perform()
 
     def context_click(self, target:str=None, argv:list=None):
         """Context click (i.e. right click) an element
@@ -172,9 +175,7 @@ class Worker(object):
         Parameters
         ----------
         target: str
-            An XPATH string
-        argv: [str]
-            A list of string values
+            An XPATH string (if any)
         """
 
         if target:
@@ -188,9 +189,7 @@ class Worker(object):
         Parameters
         ----------
         target: str
-            An XPATH string
-        argv: [str]
-            A list of string values
+            An XPATH string (if any)
         """
 
         if target:
@@ -204,9 +203,9 @@ class Worker(object):
         Parameters
         ----------
         target: str
-            An XPATH string
+            An XPATH string, source
         argv: [str]
-            A list of string values
+            An XPATH string, destination
         """
 
         try:
@@ -216,7 +215,7 @@ class Worker(object):
             
         except IndexError:
             self.log.error("worker.drag_and_drop: Index Error")
-            self.log.info(f"invalid sequence definition: {self.sequence.env} | {self.sequence.name}")
+            self.log.error(f"invalid sequence definition: {self.sequence.env} | {self.sequence.name}")
 
     def drag_and_drop_by_offset(self, target:str, argv:list):
         """Drag and drop from <source> to <xoffset>, <yoffset> (i.e argv[0])
@@ -226,7 +225,7 @@ class Worker(object):
         target: str
             An XPATH string
         argv: [str]
-            A list of string values
+            The x & y offset
         """
 
         try:
@@ -237,7 +236,7 @@ class Worker(object):
             
         except IndexError:
             self.log.error("worker.drag_and_drop_by_offset: Index Error")
-            self.log.info(f"invalid sequence definition: {self.sequence.env} | {self.sequence.name}")
+            self.log.error(f"invalid sequence definition: {self.sequence.env} | {self.sequence.name}")
     
     def move_to_element(self, target:str, argv:list=None):
         """Move cursor to element
@@ -246,8 +245,6 @@ class Worker(object):
         ----------
         target: str
             An XPATH string
-        argv: [str]
-            A list of string values
         """
 
         elem = self.find_element_by_xpath(target)
@@ -261,7 +258,7 @@ class Worker(object):
         target: str
             An XPATH string
         argv: [str]
-            A list of string values
+            The x & y offset
         """
 
         try:
@@ -272,17 +269,15 @@ class Worker(object):
 
         except IndexError:
             self.log.error("worker.move_to_element_with_offset: Index Error")
-            self.log.info(f"invalid sequence definition: {self.sequence.env} | {self.sequence.name}")
+            self.log.error(f"invalid sequence definition: {self.sequence.env} | {self.sequence.name}")
     
     def move_by_offset(self, target:str, argv:list):
         """Move cursor to offset
 
         Parameters
         ----------
-        target: str
-            An XPATH string
         argv: [str]
-            A list of string values
+            The x & y offset
         """
 
         try:
@@ -292,7 +287,7 @@ class Worker(object):
 
         except IndexError:
             self.log.error("worker.move_by_offset: Index Error")
-            self.log.info(f"invalid sequence definition: {self.sequence.env} | {self.sequence.name}")
+            self.log.error(f"invalid sequence definition: {self.sequence.env} | {self.sequence.name}")
     
     def send_keys(self, target:str, argv:list):
         """Send keys
@@ -305,56 +300,37 @@ class Worker(object):
             A list of tuple2 string values
         """
 
-        if target:
-            elem = self.find_element_by_xpath(target)
-            if elem.is_displayed():
-                ac = ActionChains(self.driver)
-
-                for arg in argv:
-                    try:
-                        if arg[0] == "KEY_DOWN": ac.key_down(config.SPECIAL_KEYS.get(arg[1], arg[1]), element=elem)
-                        elif arg[0] == "KEY_UP": ac.key_up(config.SPECIAL_KEYS.get(arg[1], arg[1]), element=elem)
-                        else: ac.send_keys_to_element(elem, config.SPECIAL_KEYS.get(arg[1], arg[1]))
-                    
-                    except IndexError:
-                        self.log.error("worker.send_keys: Index Error")
-                        self.log.info(f"invalid sequence definition: {self.sequence.env} | {self.sequence.name}")
-                
-                ac.perform()
-            
-        else:
-            ac = ActionChains(self.driver)
-
-            for arg in argv:
-                try:
-                    if arg[0] == "KEY_DOWN": ac.key_down(config.SPECIAL_KEYS.get(arg[1], arg[1]))
-                    elif arg[0] == "KEY_UP": ac.key_up(config.SPECIAL_KEYS.get(arg[1], arg[1]))
-                    else: ac.send_keys(config.SPECIAL_KEYS.get(arg[1], arg[1]))
-                
-                except IndexError:
-                    self.log.error("worker.send_keys: Index Error")
-                    self.log.info(f"invalid sequence definition: {self.sequence.env} | {self.sequence.name}")
-            
-            ac.perform()
-    
-    def pause(self, target:str, argv:list):
+        try:
+            if target:
+                elem = self.find_element_by_xpath(target)
+                if elem.is_displayed():
+                    utils.send_keys(self.driver, elem, argv)
+            else: utils.send_keys(self.driver, None, argv)
+        
+        except IndexError:
+            self.log.error("worker.send_keys: Index Error")
+            self.log.error(f"invalid sequence definition: {self.sequence.env} | {self.sequence.name}")
+        
+        except KeyError:
+            self.log.error("worker.send_keys: Key Error")
+            self.log.error(f"invalid sequence definition: {self.sequence.env} | {self.sequence.name}")
+        
+    def pause(self, target:str, argv:list=None):
         """Pause webdriver
 
         Parameters
         ----------
         target: str
-            An XPATH string
-        argv: [str]
-            A list of string values
+            The number of seconds to pause
         """
 
         try:
-            seconds = float(argv[0])
+            seconds = float(target)
             ActionChains(self.driver).pause(seconds).perform()
 
         except IndexError:
             self.log.error("worker.pause: Index Error")
-            self.log.info(f"invalid sequence definition: {self.sequence.env} | {self.sequence.name}")
+            self.log.error(f"invalid sequence definition: {self.sequence.env} | {self.sequence.name}")
     
     def wait(self, target:str, argv:list):
         """Wait for expected condition
@@ -364,25 +340,25 @@ class Worker(object):
         target: str
             An XPATH string
         argv: [str]
-            A list of string values
+            The expected condition
         """
 
         try:
-            operation = argv[0]
-            condition = config.EXPECTED_CONDITIONS.get(argv[1])
+            operation = target
+            condition = config.EXPECTED_CONDITIONS.get(argv[0])
 
             if condition:
-                result = utils.get_parsed_expected_condition(self.driver, target, condition)
+                result = utils.parse_expected_condition(self.driver, target, condition)
                 if operation == "UNTIL_NOT": WebDriverWait(self.driver, timeout=config.TIMEOUT).until_not(condition[0](result))
                 else: WebDriverWait(self.driver, timeout=config.TIMEOUT).until(condition[0](result))
 
         except IndexError:
             self.log.error("worker.wait: Index Error")
-            self.log.info(f"invalid sequence definition: {self.sequence.env} | {self.sequence.name}")
+            self.log.error(f"invalid sequence definition: {self.sequence.env} | {self.sequence.name}")
 
         except ValueError:
             self.log.error("worker.wait: Value Error")
-            self.log.info(f"invalid sequence definition: {self.sequence.env} | {self.sequence.name}")
+            self.log.error(f"invalid sequence definition: {self.sequence.env} | {self.sequence.name}")
         
         except exceptions.TimeoutException:
             self.log.error("worker.wait: Timeout Exception")
@@ -394,8 +370,6 @@ class Worker(object):
         ----------
         target: str
             An XPATH string
-        argv: [str]
-            A list of string values
         """
         
         self.stdout[target] = ""
@@ -410,8 +384,6 @@ class Worker(object):
         ----------
         target: str
             An XPATH string
-        argv: [str]
-            A list of string values
         """
 
         self.stdout[target] = ""
@@ -431,10 +403,10 @@ class Worker(object):
         target: str
             A formatted string
         argv: [str]
-            A list of string values
+            A list of positional string values
         """
 
-        key = utils.get_next_stdout(self.stdout)
+        key = utils.next_dict_key(self.stdout)
         self.stdout[key] = ""
         
         if target:
@@ -442,7 +414,7 @@ class Worker(object):
                 try: target.replace(elem, argv[idx])
                 except IndexError:
                     self.log.error("worker.printf: Index Error | argument index #{idx}")
-                    self.log.info(f"invalid sequence definition: {self.sequence.env} | {self.sequence.name}")
+                    self.log.error(f"invalid sequence definition: {self.sequence.env} | {self.sequence.name}")
 
             for elem in re.findall(config.FIND, target):
                 xpath = elem[2:-1]

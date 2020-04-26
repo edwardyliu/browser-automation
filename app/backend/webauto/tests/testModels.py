@@ -41,7 +41,12 @@ class TestModels(unittest.TestCase):
 
     def test_worker_model(self):
         driver = utils.get_webdriver()
+
+        sequences = utils.get_sequences()
         worker = models.Worker("A Worker", driver)
+        worker.load(sequences[0])
+        worker.run()
+
         driver.quit()
 
 if __name__ == "__main__":

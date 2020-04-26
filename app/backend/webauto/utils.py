@@ -20,6 +20,7 @@ def timezone_converter_est(*args):
     """A timezone converter that converts from UTC to EST
 
     """
+
     utc_datetime = pytz.utc.localize(datetime.datetime.utcnow())
     est_timezone = pytz.timezone("US/Eastern")
     converted = utc_datetime.astimezone(est_timezone)
@@ -38,6 +39,7 @@ def get_logger(uid:str)->logging.Logger:
     Logger:
         The logging object
     """
+
     log = logging.getLogger(uid)
     log.setLevel(logging.INFO)
 
@@ -51,83 +53,110 @@ def get_logger(uid:str)->logging.Logger:
     log.addHandler(handle)
     return log
 
-def get_next_outpath()->str:
-    """Get the next available <outpath>.csv
+def get_webdriver()->webdriver:
+    """Get selenium webdriver: geckodriver
 
     """
-    path = os.path.join(config.OUT_DIRPATH, "result1.csv")
-    while os.path.isfile(path):
-        item = re.findall(config.OUT_RE, path)[0]
-        path = path.replace(item, str(int(item)+1))
-    
-    return path
 
-def get_driver()->webdriver:
-    """Get the geckodriver selenium webdriver
-
-    """
     options = webdriver.FirefoxOptions()
-
     options.add_argument("--start-maximized")
     options.add_argument("--disable-gpu")
     options.add_argument("--no-sandbox")
     options.add_argument("--disable-dev-shm-usage")
 
-    driver = webdriver.Firefox(executable_path=config.DRIVER_PATH, options=options)
-    return driver
+    return webdriver.Firefox(executable_path=config.DRIVER_EXEPATH, options=options)
 
-def get_filepaths()->list:
-    """Get a list of file paths retrieved from '<basedir>/app/json/.../*.json'
-
-    Returns
-    -------
-    list:
-        A list of file paths
-    """
-    return list( Path(config.JSON_DIRPATH).rglob("*.[jJ][sS][oO][nN]") )
-
-def get_dcgs()->list:
-    """Get a list of Directed Cycle Graph models via files retrieved from '<basedir>/app/json/.../*.json'
+def cache(stdout:dict)->str:
+    """Cache the content of <stdout> into the next available '*.json' filepath
+    
+    Parameters
+    ----------
+    stdout: dict
+        A dictionary of web element look-ups
 
     Returns
     -------
-    list:
-        A list of Directed Cycle Graph models
+    str: The cached filepath
     """
-    dcgs = []
-    for json_file in list( Path(config.JSON_DIRPATH).rglob("*.[jJ][sS][oO][nN]") ):
-        dcg = parse_json(json_file)
-        dcgs.append(dcg)
-    return dcgs
 
-def parse_json(json_file)->models.DirectedCycleGraph:
-    """Parse a JSON file into a Directed Cycle Graph model
+    filepath = os.path.join(config.DEFAULT_CACHE_DIRPATH, "result1.json")
+    while os.path.isfile(filepath):
+        pattern = re.findall(config.RE_NUMERAL_DOT_JSON, filepath)[0]
+        filepath = filepath.replace(pattern, str(int(pattern)+1))
+    
+    with open(filepath, "w") as fp:
+        json.dump(stdout, fp)
+
+    return filepath
+
+def load(filepath:str)->dict:
+    """Load the cached content from <filepath>
+    
+    Parameters
+    ----------
+    filepath: str
+        A cache filepath
+
+    Returns
+    -------
+    dict: The cached content
+    """
+    
+    with open(filepath, "r") as fp:
+        stdout = json.load(fp)
+    
+    return stdout
+
+def parsed_json_file(filepath:str)->models.Sequence:
+    """Parse the JSON file into a sequence model
 
     Parameters
     ----------
-    json_file: str
+    filepath: str
         The JSON file path
 
     Returns
     -------
-    model.DirectedCycleGraph:
-        The model object
+    model.Sequence: 
     """
+    
     try:
-        with open(json_file) as fptr:
-            raw = json.load(fptr)
+        with open(filepath) as fp:
+            raw = json.load(fp)
+        
+        cmds = []
+        for cmd in raw["commands"]:
+            label = cmd[0].lower() # possible index error
+            target = None
+            argv = None
 
-        nodes = []
-        for node in raw["graph"]:
-            try:
-                arguments = node[3]
-                if not isinstance(arguments, list):
-                    arguments = [arguments]
-            except IndexError:
-                arguments = [str]
-            nodes.append( models.Action(name=node[1], key=node[0].lower(), arguments=arguments) )
-
-        return models.DirectedCycleGraph(name=raw["name"], env=raw["environment"], nodes=nodes)
+            if len(cmd) > 1:
+                if isinstance(cmd[1], dict): 
+                    target = cmd[1].get("target", None)
+                    argv = cmd[1].get("argv", None)
+                else: target = cmd[1]
+            
+            cmds.append(models.Command(label, target, argv))
+        return models.Sequence(raw["name"], raw["env"], cmds)
+    
+    except IndexError:
+        raise IndexError(f"utils.parsed_json_file: Index Error - {filepath}")
     
     except Exception:
-        raise ValueError(f"Parser.parse | Invalid JSON File: {json_file}")
+        raise IndexError(f"utils.parsed_json_file: Invalid JSON - {filepath}")
+
+def get_sequences(log:logging.Logger=None)->list:
+    """Get a list of sequence models
+    find all from "<basedir>/data/.../*.json"
+
+    Returns
+    -------
+    list:
+        A list of sequence models
+    """
+
+    sequences = []
+    for filepath in list(Path(config.DEFAULT_SEQUENCE_DIRPATH).rglob("*.[jJ][sS][oO][nN]")):
+        if log: log.info(f"build sequence: {filepath}")
+        sequences.append(parsed_json_file(filepath))
+    return sequences
