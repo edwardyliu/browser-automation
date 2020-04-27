@@ -1,6 +1,7 @@
 # Instance specific files
 *.ini
 *.yml
+*.xlsx#
 
 # File dumps
 tmp/
