@@ -1,547 +1,495 @@
 # == Import(s) ==
 # => Local
-from . import config
 from . import utils
+from . import config
 
 # => System
-import os
 import re
-import time
+from collections import deque
 from dataclasses import dataclass
 
 # => External
 from selenium import webdriver
 from selenium.common import exceptions
 from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.action_chains import ActionChains
-from selenium.webdriver.common.by import By
 
 # == Data Model(s) ==
 @dataclass(frozen=True)
-class Action:
-    """Define an Action:
+class Command:
+    """Define a Command:
     
-    Execute an action given a function name <function> and a list of parameters <parameters>
+    Execute a command
     """
+
     label: str
-    function: str
-    parameters: list
+    target: str
+    argv: list
+
+    def __str__(self):
+        return f"Command: {self.label}"
 
 @dataclass(frozen=True)
-class DirectedCycleGraph:
-    """Define a Directed Cycle Graph
+class Sequence:
+    """Define a Sequence
 
-    A finite state machine cycle is constructed with <nodes>: 
-        i.e. 1=>2=>...=>N=>1
+    A sequence is a list of Command(s) to be executed linearly
     """
+
     name: str
     env: str
-    nodes: list
+    cmds: deque
+
+    def __str__(self):
+        return f"Sequence: {self.env}, {self.name}"
+
+    def push(self, cmd:Command):
+        """Push a new command to the rightmost position
+
+        Parameters
+        ----------
+        cmd: Command
+            A command object
+        """
+
+        self.cmds.append(cmd)
+
+    def pushleft(self, cmd:Command):
+        """Push a new command to the leftmost position
+        
+        Parameters
+        ----------
+        cmd: Command
+            A command object
+        """
+
+        self.cmds.appendleft(cmd)
+
+    def extend(self, cmds:list):
+        """Extend a list of new commands, in order, to the rightmost position
+        
+        Parameters
+        ----------
+        cmds: list
+            A list of command objects
+        """
+
+        self.cmds.extend(cmds)
+
+    def extendleft(self, cmds:list):
+        """Extend a list of new commands, in order, to the leftmost position
+        
+        Parameters
+        ----------
+        cmds: list
+            A list of command objects
+        """
+
+        for cmd in reversed(cmds): self.cmds.appendleft(cmd)
+
+    def pop(self)->Command:
+        """Pop the rightmost command away from the command list
+        
+        Returns
+        -------
+        Command: The popped command object
+        """
+
+        return self.cmds.pop()
+
+    def popleft(self)->Command:
+        """Pop the leftmost command away from the command list
+        
+        Returns
+        -------
+        Command: The popped command object
+        """
+
+        return self.cmds.popleft()
 
 # == Data Class(es) ==
-class Machine(object):
-    """A Finite State Machine generated via the JSON input files
-
+class Worker(object):
+    """Define a Worker
+    
     """
 
-    def __init__(self, uid:str, driver:webdriver, actions:list, outpath:str=None):
-        self.log = utils.get_logger(uid)
+    def __init__(self, uid:str, driver:webdriver):
+        self.uid = uid
+        self.log = utils.get_logger(self.uid)
         self.driver = driver
-        self.actions = actions
-        self.outpath = outpath
 
-        self.size = len(self.actions) - 1
-        self.counter = 0
-    
+    def __del__(self):
+        self.driver.quit()
+
     def __enter__(self):
-        self.stream = ""
         return self
-    
+
     def __exit__(self, exc_type, exc_value, traceback):
-        if self.outpath and self.stream: self.close_file()
-
-    def next(self)->bool:
-        """The transition function
-        Perform the action and proceed to the next state
-
-        """
-        action = self.actions[self.counter]
-        getattr(self, action.key)(action.arguments)
-
-        if self.counter < self.size:
-            self.counter += 1
-            return True
-        else:
-            self.counter = 0
-            return False
+        self.driver.quit()
     
-    def idle(self, argv:[str]=None):
-        """An action state - idle
-        Idle (i.e. sleep) for config.IDLE second(s)
+    def __str__(self):
+        return f"Worker: {self.uid}"
+
+    def load(self, sequence:Sequence):
+        """Load a command sequence
 
         """
-        # info
-        self.log.info(f"machine.idle: ")
-        
-        # wait
-        time.sleep(config.IDLE)
 
-    def wait(self, argv:[str]=None):
-        """An action state - wait
-        Wait <decimal> seconds
+        self.sequence = sequence
+        self.log.info(f"loaded: {self.sequence.env} | {self.sequence.name}")
+
+    def run(self)->dict:
+        """Run command sequence
+        
+        Returns
+        -------
+        str: A dictionary of key-value pairs
+            key - XPATH
+            value - A comma separated list of strings
+        """
+
+        self.stdout = {}
+        for cmd in self.sequence.cmds: getattr(self, cmd.label.lower())(target=cmd.target, argv=cmd.argv)
+        return self.stdout
+    
+    def find_element_by_xpath(self, target:str):
+        """Find element by XPATH
+
+        Returns
+        -------
+        element: A selenium webdriver element
+        """
+
+        return self.driver.find_element_by_xpath(target)
+
+    def find_elements_by_xpath(self, target:str)->list:
+        """Find element by XPATH
+
+        Returns
+        -------
+        list: A list of selenium webdriver element(s)
+        """
+
+        return self.driver.find_elements_by_xpath(target)
+
+    def get(self, target:str, argv:list=None):
+        """Get URL page
 
         Parameters
         ----------
-        argv: [str], optional
-            A float, which contains the decimal value
+        target: str
+            A URL string
         """
-        try:
-            # extract
-            decimal = float(argv[0])
-            
-            # info
-            self.log.info(f"machine.wait: {decimal}")
 
-            # wait
-            time.sleep(decimal)
+        self.driver.get(target)
+
+    def refresh(self, target:str=None, argv:list=None):
+        """Refresh the page
+
+        """
+
+        self.driver.refresh()
+    
+    def click(self, target:str=None, argv:list=None):
+        """Click an element
+
+        Parameters
+        ----------
+        target: str
+            An XPATH string (if any)
+        """
+
+        if target:
+            elem = self.find_element_by_xpath(target)
+            if elem.is_displayed(): ActionChains(self.driver).click(on_element=elem).perform()
+        else: ActionChains(self.driver).click().perform()
+
+    def click_and_hold(self, target:str=None, argv:list=None):
+        """Click an element and hold
+
+        Parameters
+        ----------
+        target: str
+            An XPATH string (if any)
+        """
+
+        if target:
+            elem = self.find_element_by_xpath(target)
+            if elem.is_displayed(): ActionChains(self.driver).click_and_hold(on_element=elem).perform()
+        else: ActionChains(self.driver).click_and_hold().perform()
+    
+    def release(self, target:str=None, argv:list=None):
+        """Release mouse click
+
+        Parameters
+        ----------
+        target: str
+            An XPATH string (if any)
+        """
+
+        if target:
+            elem = self.find_element_by_xpath(target)
+            if elem.is_displayed(): ActionChains(self.driver).release(on_element=elem).perform()
+        else: ActionChains(self.driver).release().perform()
+
+    def context_click(self, target:str=None, argv:list=None):
+        """Context click (i.e. right click) an element
+
+        Parameters
+        ----------
+        target: str
+            An XPATH string (if any)
+        """
+
+        if target:
+            elem = self.find_element_by_xpath(target)
+            if elem.is_displayed(): ActionChains(self.driver).context_click(on_element=elem).perform()
+        else: ActionChains(self.driver).context_click().perform()
+    
+    def double_click(self, target:str=None, argv:list=None):
+        """Double click an element
+
+        Parameters
+        ----------
+        target: str
+            An XPATH string (if any)
+        """
+
+        if target:
+            elem = self.find_element_by_xpath(target)
+            if elem.is_displayed(): ActionChains(self.driver).double_click(on_element=elem).perform()
+        else: ActionChains(self.driver).double_click().perform()
+    
+    def drag_and_drop(self, target:str, argv:list):
+        """Drag and drop from <source> to <dest> (i.e argv[0])
+
+        Parameters
+        ----------
+        target: str
+            An XPATH string, source
+        argv: [str]
+            An XPATH string, destination
+        """
+
+        try:
+            source = self.find_element_by_xpath(target)
+            dest = self.find_element_by_xpath(argv[0])
+            if source.is_displayed() and dest.is_displayed(): ActionChains(self.driver).drag_and_drop(source=source, target=dest).perform()
+            
+        except IndexError:
+            self.log.error("worker.drag_and_drop: Index Error")
+            self.log.error(f"invalid sequence definition: {self.sequence.env} | {self.sequence.name}")
+
+    def drag_and_drop_by_offset(self, target:str, argv:list):
+        """Drag and drop from <source> to <xoffset>, <yoffset> (i.e argv[0])
+
+        Parameters
+        ----------
+        target: str
+            An XPATH string
+        argv: [str]
+            The x & y offset
+        """
+
+        try:
+            source = self.find_element_by_xpath(target)
+            xoffset = int(argv[0])
+            yoffset = int(argv[1])
+            if source.is_displayed(): ActionChains(self.driver).drag_and_drop_by_offset(source=source, xoffset=xoffset, yoffset=yoffset).perform()
+            
+        except IndexError:
+            self.log.error("worker.drag_and_drop_by_offset: Index Error")
+            self.log.error(f"invalid sequence definition: {self.sequence.env} | {self.sequence.name}")
+    
+    def move_to_element(self, target:str, argv:list=None):
+        """Move cursor to element
+
+        Parameters
+        ----------
+        target: str
+            An XPATH string
+        """
+
+        elem = self.find_element_by_xpath(target)
+        if elem.is_displayed(): ActionChains(self.driver).move_to_element(to_element=elem).perform()
+        
+    def move_to_element_with_offset(self, target:str, argv:list):
+        """Move cursor to element with offset
+
+        Parameters
+        ----------
+        target: str
+            An XPATH string
+        argv: [str]
+            The x & y offset
+        """
+
+        try:
+            elem = self.find_element_by_xpath(target)
+            xoffset = int(argv[0])
+            yoffset = int(argv[1])
+            if elem.is_displayed(): ActionChains(self.driver).move_to_element_with_offset(to_element=elem, xoffset=xoffset, yoffset=yoffset).perform()
 
         except IndexError:
-            self.idle()
+            self.log.error("worker.move_to_element_with_offset: Index Error")
+            self.log.error(f"invalid sequence definition: {self.sequence.env} | {self.sequence.name}")
+    
+    def move_by_offset(self, target:str, argv:list):
+        """Move cursor to offset
+
+        Parameters
+        ----------
+        argv: [str]
+            The x & y offset
+        """
+
+        try:
+            xoffset = int(argv[0])
+            yoffset = int(argv[1])
+            ActionChains(self.driver).move_by_offset(xoffset=xoffset, yoffset=yoffset).perform()
+
+        except IndexError:
+            self.log.error("worker.move_by_offset: Index Error")
+            self.log.error(f"invalid sequence definition: {self.sequence.env} | {self.sequence.name}")
+    
+    def send_keys(self, target:str, argv:list):
+        """Send keys
+
+        Parameters
+        ----------
+        target: str
+            An XPATH string
+        argv: [dict]
+            A list of tuple2 string values
+        """
+
+        try:
+            if target:
+                elem = self.find_element_by_xpath(target)
+                if elem.is_displayed():
+                    utils.send_keys(self.driver, elem, argv)
+            else: utils.send_keys(self.driver, None, argv)
+        
+        except IndexError:
+            self.log.error("worker.send_keys: Index Error")
+            self.log.error(f"invalid sequence definition: {self.sequence.env} | {self.sequence.name}")
+        
+        except KeyError:
+            self.log.error("worker.send_keys: Key Error")
+            self.log.error(f"invalid sequence definition: {self.sequence.env} | {self.sequence.name}")
+        
+    def pause(self, target:str, argv:list=None):
+        """Pause webdriver
+
+        Parameters
+        ----------
+        target: str
+            The number of seconds to pause
+        """
+
+        try:
+            seconds = float(target)
+            ActionChains(self.driver).pause(seconds).perform()
+
+        except IndexError:
+            self.log.error("worker.pause: Index Error")
+            self.log.error(f"invalid sequence definition: {self.sequence.env} | {self.sequence.name}")
+    
+    def wait(self, target:str, argv:list):
+        """Wait for expected condition
+
+        Parameters
+        ----------
+        target: str
+            An XPATH string, an Integer, or a String
+        argv: [str]
+            The operation and expected condition
+        """
+
+        try:
+            operation = argv[0]
+            condition = config.EXPECTED_CONDITIONS.get(argv[1])
+
+            if condition:
+                result = utils.parse_expected_condition(self.driver, target, condition[1])
+                if operation == "UNTIL_NOT": WebDriverWait(self.driver, timeout=config.TIMEOUT).until_not(condition[0](result))
+                else: WebDriverWait(self.driver, timeout=config.TIMEOUT).until(condition[0](result))
+        
+        except IndexError:
+            self.log.error("worker.wait: Index Error")
+            self.log.error(f"invalid sequence definition: {self.sequence.env} | {self.sequence.name}")
 
         except ValueError:
-            self.log.error("machine.wait: Value Error")
-            raise ValueError
-
-    def get_page(self, argv:[str]):
-        """An action state - get page
-        Get page of <url>
-
-        Parameters
-        ----------
-        argv: [str]
-            A string, which contains the url value
-        """
-        try:
-            # extract
-            url = argv[0]
-
-            # info
-            self.log.info(f"machine.get_page: {url}")
-
-            # get page & wait
-            self.driver.get(url)
-            time.sleep(config.GET)
-        
-        except IndexError:
-            self.log.error("machine.get_page: Index Error")
-            raise IndexError
-        
-        except Exception:
-            self.log.error("machine.get_page: Unknown Error")
-            raise Exception
-
-    def get_elem(self, argv:[str])->str:
-        """An action state - get element
-        Get text value of first <xpath> element
-
-        Parameters
-        ----------
-        argv: [str]
-            A string, which contains the xpath value
-
-        Returns
-        -------
-        string:
-            A element text value
-        """
-        try:
-            # extract
-            xpath = argv[0]
-
-            # info
-            self.log.info(f"machine.get_elem: {xpath}")
-
-            # locate
-            elem_presence = EC.presence_of_element_located((By.XPATH, xpath))
-            WebDriverWait(self.driver, config.TIMEOUT).until(elem_presence)
-
-            # get element text
-            elem = self.driver.find_element_by_xpath(xpath)
-            if type(elem) is list:
-                return elem[0].text
-            else:
-                return elem.text
-
-        except IndexError:
-            self.log.error("machine.get_elem: Index Error")
-            raise IndexError
-
-        except exceptions.TimeoutException:
-            return None
-        
-        except Exception:
-            self.log.error("machine.get_elem: Unknown Error")
-            raise Exception
-        
-    def get_elems(self, argv:[str])->[str]:
-        """An action state - get elements
-        Get text value of all <xpath> element(s)
-
-        Parameters
-        ----------
-        argv: [str]
-            A string, which contains the xpath value
-        
-        Returns
-        -------
-        list:
-            A list of element text value(s)
-        """
-        try:
-            # extract
-            xpath = argv[0]
-
-            # info
-            self.log.info(f"machine.get_elems: {xpath}")
-
-            # locate
-            elem_presence = EC.presence_of_element_located((By.XPATH, xpath))
-            WebDriverWait(self.driver, config.TIMEOUT).until(elem_presence)
-
-            # get all element text
-            elems = self.driver.find_element_by_xpath(xpath)
-            if type(elems) is not list:
-                elems = [elems]
-            
-            return list( map(lambda elem: elem.text, elems) )
-
-        except IndexError:
-            self.log.error("machine.get_elems: Index Error")
-            raise IndexError
-
-        except exceptions.TimeoutException:
-            return None
-        
-        except Exception:
-            self.log.error("machine.get_elems: Unknown Error")
-            raise Exception
-
-    def click_elem(self, argv:[str]):
-        """An action state - click element
-        Click first <xpath> element
-
-        Parameters
-        ----------
-        argv: [str]
-            A list of strings, which contains the xpath value(s)
-        """
-        for xpath in argv:
-            try:
-                # info
-                self.log.info(f"machine.click_elem: {xpath}")
-                
-                # locate
-                elem_presence = EC.presence_of_element_located((By.XPATH, xpath))
-                WebDriverWait(self.driver, config.TIMEOUT).until(elem_presence)
-
-                # click first element
-                elem = self.driver.find_element_by_xpath(xpath)
-                if type(elem) is list:
-                    elem[0].click()
-                else:
-                    elem.click()
-
-                # wait
-                time.sleep(config.CLICK)
-
-            except exceptions.TimeoutException:
-                self.log.error("machine.click_elem: Timeout Error")
-            
-            except Exception:
-                self.log.error("machine.click_elem: Unknown Error")
-                raise Exception
-
-    def double_click_elem(self, argv:[str]):
-        """An action state - double-click element
-        Double-click first <xpath> element
-
-        Parameters
-        ----------
-        argv: [str]
-            A list of strings, which contains the xpath value(s)
-        """
-        for xpath in argv:
-            try:
-                # info
-                self.log.info(f"machine.double_click_elem: {xpath}")
-
-                # locate
-                elem_presence = EC.presence_of_element_located((By.XPATH, xpath))
-                WebDriverWait(self.driver, config.TIMEOUT).until(elem_presence)
-
-                # double-click first element
-                elem = self.driver.find_element_by_xpath(xpath)
-                if type(elem) is list:
-                    elem[0].double_click()
-                else:
-                    elem.double_click()
-
-                # wait
-                time.sleep(config.DOUBLE_CLICK)
-
-            except exceptions.TimeoutException:
-                self.log.error("machine.double_click_elem: Timeout Error")
-            
-            except Exception:
-                self.log.error("machine.double_click_elem: Unknown Error")
-                raise Exception
-
-    def send_keys_elem(self, argv:[str]):
-        """An action state - send keys to element
-        Send-keys <values> to first <xpath> element
-
-        Parameters
-        ----------
-        argv: [str]
-            A tuple2, which contains the xpath value and 'values' value
-        """
-        try:
-            # extract
-            xpath = argv[0]
-            values = argv[1]
-
-            # info
-            self.log.info(f"machine.send_keys_elem: {xpath}, {values}")
-
-            # locate
-            elem_presence = EC.presence_of_element_located((By.XPATH, xpath))
-            WebDriverWait(self.driver, config.TIMEOUT).until(elem_presence)
-
-            # send-keys to first element
-            elem = self.driver.find_element_by_xpath(xpath)
-            if type(elem) is list:
-                elem[0].send_keys(values)
-            else:
-                elem.send_keys(values)
-            
-        except IndexError:
-            self.log.error("machine.send_keys_elem: Index Error")
-            raise IndexError
+            self.log.error("worker.wait: Value Error")
+            self.log.error(f"invalid sequence definition: {self.sequence.env} | {self.sequence.name}")
         
         except exceptions.TimeoutException:
-            self.log.error("machine.send_keys_elem: Timeout Error")
-
-        except Exception:
-            self.log.error("machine.send_keys_elem: Unknown Error")
-            raise Exception
+            self.log.error("worker.wait: Timeout Exception")
     
-    def send_keys(self, argv:[str]):
-        """An action state - send keys
-        Send-keys <operation> and <values>
+    def find(self, target:str, argv:list=None):
+        """Find an element and retrieve its text value
 
         Parameters
         ----------
-        argv: [str]
-            A list of tuple2s, which contains the operation value and 'values' value
+        target: str
+            An XPATH string
         """
-        try:
-            chain = ActionChains(self.driver)
-            for arg in argv:
-                try:
-                    # extract
-                    operation = arg[0]
-                    values = config.KEYS.get(arg[1], arg[1])
+        
+        self.stdout[target] = ""
+        
+        elem = self.find_element_by_xpath(target)
+        if elem.is_displayed(): self.stdout[target] = elem.text
+    
+    def find_all(self, target:str, argv:list=None):
+        """Find all elements and retrieve their text values
 
-                    # info
-                    self.log.info(f"machine.send_keys: {operation}, {values}")
+        Parameters
+        ----------
+        target: str
+            An XPATH string
+        """
 
-                    # append corresponding action
-                    if operation == config.KEY_DOWN:
-                        chain.key_down(values)
-                    elif operation == config.KEY_UP:
-                        chain.key_up(values)
-                    else:
-                        chain.send_keys(values)
-                
+        self.stdout[target] = ""
+
+        elems = self.find_elements_by_xpath(target)
+        lst = []
+        for elem in elems:
+            if elem.is_displayed():
+                lst.append(elem.text)
+        if lst: self.stdout[target] = ", ".join(lst)
+
+    def printf(self, target:str, argv:list=None):
+        """Find all elements and retrieve their text values
+
+        Parameters
+        ----------
+        target: str
+            A formatted string
+        argv: [str]
+            A list of positional string values
+        """
+
+        key = utils.next_dict_key(self.stdout)
+        self.stdout[key] = ""
+        
+        if target:
+            for idx, elem in enumerate(re.findall(config.POSITIONAL, target)): 
+                try: 
+                    if elem == "${@}": target = target.replace(elem, ", ".join(argv or []))
+                    else: target = target.replace(elem, argv[idx])
                 except IndexError:
-                    self.log.error("machine.send_keys: Index Error")
-                    raise IndexError
-            
-            chain.perform()
+                    self.log.error("worker.printf: Index Error | argument index #{idx}")
+                    self.log.error(f"invalid sequence definition: {self.sequence.env} | {self.sequence.name}")
 
-        except Exception:
-            self.log.error("machine.send_keys: Unknown Error")
-            raise Exception
+            for elem in re.findall(config.FIND, target):
+                xpath = elem[2:-1]
+                self.find(xpath)
+                target = target.replace(elem, self.stdout[xpath])
+            
+            for elem in re.findall(config.FIND_ALL, target):
+                xpath = elem[2:-1]
+                self.find_all(xpath)
+                target = target.replace(elem, self.stdout[xpath])
+            
+            self.stdout[key] = target
     
-    def make_file(self, argv:[str]):
-        """An action state - make file
-        Make a new file: a fresh file stream and a new <outpath>
-
-        Parameters
-        ----------
-        argv: [str]
-            A string, which contains the outpath value
-        """
-        try:
-            # info
-            self.log.info(f"machine.make_file: ")
-
-            # init
-            self.stream = ""
-            self.outpath = argv[0]
-            
-        except IndexError:
-            self.log.error("machine.make_file: Index Error")
-            raise IndexError
-
-        except Exception:
-            self.log.error("machine.make_file: Unknown Error")
-            raise Exception
-
-    def flush_file(self, argv:[str]=None):
-        """An action state - flush stream to file
-        Flush file stream to file <outpath>
-
-        """
-        try:
-            # info
-            self.log.info(f"machine.flush_file: {self.outpath}\nstream: {self.stream}")
-
-            # flush stream to file
-            with open(self.outpath, "a") as f:
-                f.write(self.stream)
-            self.stream = ""
-        
-        except Exception:
-            self.log.error("machine.flush_file: Unknown Error")
-            raise Exception
-
-    def open_file(self, argv:[str]):
-        """An action state - open file
-        Open, read & load content from file <outpath> into file stream
-
-        Parameters
-        ----------
-        argv: [str]
-            A string, which contains the outpath value
-        """
-        try:
-            # extract
-            self.outpath = argv[0]
-
-            # info
-            self.log.info(f"machine.open_file: {self.outpath}")
-
-            # open & read
-            if os.path.isfile(self.outpath):
-                with open(self.outpath, "r") as f:
-                    self.stream = "".join( f.readlines() )
-            else:
-                self.stream = ""
-            
-        except IndexError:
-            self.log.error("machine.open_file: Index Error")
-            raise IndexError
-
-        except Exception:
-            self.log.error("machine.open_file: Unknown Error")
-            raise Exception
-
-    def close_file(self, argv:[str]=None):
-        """An action state - close file
-        Close (i.e. overwrite) content from file stream into file <outpath>
-
-        """
-        try:
-            # info
-            self.log.info(f"machine.close_file: {self.outpath}\nstream: {self.stream}")
-            
-            # open & write
-            with open(self.outpath, "w") as f:
-                f.write(self.stream)
-            self.stream = ""
-
-        except Exception:
-            self.log.error("machine.close_file: Unknown Error")
-            raise Exception
-    
-    def write(self, argv:[str]):
-        """An action state - write
-        Write <values> value to file stream
-
-        Parameters
-        ----------
-        argv: [str]
-            A string, which contains the 'values' value
-        """
-        try:
-            # extract
-            values = argv[0]
-
-            # info
-            self.log.info(f"machine.write: {values}")
-
-            # parse
-            positional = re.findall(config.POSITIONAL, values)
-            elem = re.findall(config.ELEM, values)
-            elems = re.findall(config.ELEMS, values)
-
-            for idx, arg in enumerate(positional):
-                values = values.replace(arg, argv[idx+1])
-            for arg in elem:
-                values = values.replace(arg, str(self.get_elem([arg])))
-            for arg in elems:
-                lst = self.get_elems([arg])
-                if lst:
-                    values = values.replace(arg, ", ".join(lst))
-                else:
-                    values = values.replace(arg, "None")
-
-            # append
-            self.stream += f"{values}"
-
-        except IndexError:
-            self.log.error("machine.write: Index Error")
-            raise IndexError
-
-        except Exception:
-            self.log.error("machine.write: Unknown Error")
-            raise Exception
-    
-    def write_if_else(self, argv:[str]):
-        """An action state - write if else
-        Write <values> value if <xpath> element is found, else write <default> value
-
-        Parameters
-        ----------
-        argv: [str]
-            A tuple3, which contains the xpath value (i.e. if condition), 'values' value and default value
-        """
-        try:
-            # extract
-            xpath = argv[0]
-            values = argv[1]
-            default = argv[2]
-
-            # info
-            self.log.info(f"machine.write_if_else: {xpath}, {values}, default: {default}")
-
-            # locate
-            elem_presence = EC.presence_of_element_located((By.XPATH, xpath))
-            WebDriverWait(self.driver, config.TIMEOUT).until(elem_presence)
-
-            # if element was located
-            self.write(values)
-
-        except IndexError:
-            self.log.error("machine.write_if_else: Index Error")
-            raise IndexError
-        
-        except exceptions.TimeoutException:
-            # if element was not located
-            self.write([default])
-
-        except Exception:
-            self.log.error("machine.write_if_else: Unknown Error")
-            raise Exception
