@@ -50,7 +50,7 @@ def get_logger(uid:str)->logging.Logger:
     log.addHandler(handle)
     return log
 
-def parse_expected_condition(driver, raw:str, ec:tuple):
+def parse_expected_condition(driver, raw:str, param:str):
     """Parse the expected condition
 
     Parameters
@@ -58,14 +58,14 @@ def parse_expected_condition(driver, raw:str, ec:tuple):
     driver: webdriver
         The selenium webdriver
     raw: str
-        The raw functional argument
-    ec: expected condition
-        A tuple representing a selenium expected condition
+        The raw argument; XPATH, Integer, or URL String
+    param: str
+        The necessary parameter
     """
 
-    if ec[1] == "LOCATOR": result = (By.ID, raw)
-    elif ec[1] == "ELEMENT": result = driver.find_element_by_xpath(raw)
-    elif ec[1] == "INTEGER": result = int(raw)
+    if param == "LOCATOR": result = (By.XPATH, raw)
+    elif param == "ELEMENT": result = driver.find_element_by_xpath(raw)
+    elif param == "INTEGER": result = int(raw)
     else: result = raw
     
     return result
@@ -170,7 +170,7 @@ def next_dict_key(stdout:dict)->str:
     str: An empty key value 
     """
     
-    result = "stdout1"
+    result = "${1}"
     while stdout.get(result):
         pattern = re.findall(config.RE_NUMERAL, result)[0]
         result = result.replace(pattern, str(int(pattern)+1))

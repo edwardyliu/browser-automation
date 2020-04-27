@@ -5,70 +5,112 @@ from . import models
 from . import utils
 
 # => System
+import re
 import time
+import uuid
+from collections import deque
 
 # => External
 from selenium import webdriver
 
 class Controller(object):
+    """Define a Controller
+    
+    """
 
-    def __init__(self, driver:webdriver):
-        self.driver = driver
+    def __init__(self):
+        self.log = utils.get_logger("webauto.controller")
+        self.worker = models.Worker(str(uuid.uuid4()), utils.get_webdriver())
+        
+        self.job_queue = deque([])
+        self.stdout = []
+        self.set_middleware(config.DEFAULT_PREFIX_MIDDLEWARE, config.DEFAULT_POSTFIX_MIDDLEWARE)
 
-        self.machines = {}
-        for dcg in utils.get_dcgs():
-            fsm = models.Machine(dcg.name, self.driver, dcg.nodes)
-            
-            if dcg.env not in self.machines:
-                self.machines[dcg.env] = {}
-            self.machines[dcg.env][dcg.name] = fsm
-
-        self.plugins = config.PLUGINS
+    def __del__(self):
+        if self.stdout: utils.cache(self.stdout)
     
     def __enter__(self):
-        self.driver.get(config.STARTER_URL)
         return self
     
     def __exit__(self, exc_type, exc_value, traceback):
-        self.driver.quit()
+        self.__del__()
 
-    def set_plugins(self, plugins:dict):
-        self.plugins = plugins
+    def get_job_keys(self)->list:
+        """Get a list of job key values
 
-    def make_file(self):
-        print()
+        Returns
+        -------
+        list: The job key values
+        """
+
+        return list(self.jobs.keys())
+
+    def set_middleware(self, prefix:list, postfix:list):
+        """Set universal middlewares
+
+        Parameters
+        ----------
+        prefix: list
+            A list of command objects
+        postfix: list
+            A list of command objects
+        """
+
+        self.prefix = prefix
+        self.postfix = postfix
+        self.jobs = {}
+        for sequence in utils.get_sequences(): 
+            sequence.extendleft(self.prefix)
+            sequence.extend(self.postfix)
+            self.jobs[sequence.name] = sequence
+
+    def enqueue(self, key:str, fmt:str=None, argv:dict=None):
+        """Enqueue a new job
+
+        Parameters
+        ----------
+        key: str
+            The job key
+        fmt: str
+            The string format
+        argv: dict
+            A lookup table
+        """
+
+        self.job_queue.append((key, fmt, argv))
     
-    def write(self, buf:str):
-        print()
+    def dequeue(self):
+        """Dequeue (i.e. load & run) the oldest job
 
-    def submit_job(self):
-        print()
+        """
 
-    def scrape_job(self):
-        print()
+        key, fmt, argv = self.job_queue.popleft()
+        job = self.jobs.get(key)
+        if job:
+            self.worker.load(job)
+            results = self.worker.run()
+            if fmt: formatted = utils.parse_job(fmt, argv, results)
+            else: formatted = utils.parse_job(config.DEFAULT_FORMAT, argv, results)
+            self.stdout.append(formatted)
 
-    def scrape_uid(self):
-        print()
+    def submit(self):
+        """Dequeue until the job queue is empty
 
-    def alter_uid(self, uid:str):
-        print("alter uid")
-        time.sleep(config.TASK)
-    
-    def batch_job(self, env:str, jobs:[str], uid:str):
-        self.alter_uid(uid)
+        """
 
-        for job in jobs:
-            fsm = self.machines[env][job]
-            while fsm.next(): pass
+        while len(self.job_queue) > 0: self.dequeue()
 
-            time.sleep(config.JOB)
-    
-    def batch_uid(self, env:str, job:str, uids:[str]):
-        fsm = self.machines[env][job]
+    def save(self, filepath:str=None):
+        """Save as CSV file
 
-        for uid in uids:
-            self.alter_uid(uid)
-            while fsm.next(): pass
-
-            time.sleep(config.JOB)
+        Parameters
+        ----------
+        filepath: str
+            Where to save the file
+        """
+        
+        if not filepath: filepath = utils.next_key("save", ".csv")
+        with open(filepath, "w") as fp:
+            fp.write(",\n".join(self.stdout))
+        self.stdout = []
     

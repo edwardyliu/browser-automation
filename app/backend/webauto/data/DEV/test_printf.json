@@ -1,0 +1,22 @@
+{
+    "name": "TEST PRINTF",
+    "env": "DEV",
+    "commands": [
+        ["GET", {"target": "https://www.google.com/"}],
+        ["PAUSE", 1.5],
+        ["PRINTF", {
+            "target": "Hello !{/html/body/div/div[4]/span/center/div[3]/div[1]/div/a}, my name is ${name}!",
+            "argv": "Edward Y. Liu"}],
+        ["PAUSE", 1.5],
+
+        ["GET", "https://www.youtube.com/"],
+        ["PAUSE", 1.5],
+        ["PRINTF", {
+            "target": "Hello Video: !{//*[@id='video-title']}, my name is ${name} and I am ${verb}!",
+            "argv": ["Edward Y. Liu", "Happy"]}],
+        ["PRINTF", {
+            "target": "Hello Videos: @{//*[@id='video-title']}, my name is ${name} and I am ${verb}! LOL ${@}!",
+            "argv": ["Edward Y. Liu", "Hyper"]}],
+        ["PAUSE", 1.5]
+    ]
+}

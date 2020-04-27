@@ -5,6 +5,7 @@ from .. import utils
 
 # => System
 import unittest
+from collections import deque
 
 class TestModels(unittest.TestCase):
     
@@ -29,23 +30,23 @@ class TestModels(unittest.TestCase):
         sequence = models.Sequence(
             name="A Web Sequence",
             env="DEV",
-            cmds=[cmda, cmdb])
+            cmds=deque([cmda, cmdb]))
         self.assertEqual(sequence.name, "A Web Sequence")
         self.assertEqual(sequence.env, "DEV")
-        self.assertEqual(sequence.cmds, [cmda, cmdb])
-
+        self.assertEqual(sequence.cmds, deque([cmda, cmdb]))
+        
         sequence.cmds.append(cmdc)
-        self.assertEqual(sequence.cmds, [cmda, cmdb, cmdc])
+        self.assertEqual(sequence.cmds, deque([cmda, cmdb, cmdc]))
         self.assertEqual(sequence.cmds.pop(), cmdc)
-        self.assertEqual(sequence.cmds, [cmda, cmdb])
+        self.assertEqual(sequence.cmds, deque([cmda, cmdb]))
 
     def test_worker_model(self):
         driver = utils.get_webdriver()
 
-        sequences = utils.get_sequences()
         worker = models.Worker("A Worker", driver)
-        worker.load(sequences[0])
-        worker.run()
+        for sequence in utils.get_sequences():
+            worker.load(sequence)
+            print(f"{sequence.name}: {worker.run()}")
 
         driver.quit()
 

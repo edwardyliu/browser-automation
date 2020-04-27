@@ -9,9 +9,9 @@ from selenium.webdriver.common.keys import Keys
 # == Configuration(s) & Constant(s) ==
 # => Regex
 RE_NUMERAL=re.compile(r"([0-9]+)")
-POSITIONAL=re.compile(r"(\$\{[0-9a-zA-Z_]+\})")
-FIND=re.compile(r"(!\{[0-9a-zA-Z_]+\})")
-FIND_ALL=re.compile(r"(@\{[0-9a-zA-Z_]+\})")
+POSITIONAL=re.compile(r"(\$\{.*?\})")
+FIND=re.compile(r"(!\{.*?\})")
+FIND_ALL=re.compile(r"(@\{.*?\})")
 
 # => Expected Condition(s)
 TIMEOUT=15.

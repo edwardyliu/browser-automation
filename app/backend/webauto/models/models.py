@@ -5,6 +5,7 @@ from . import config
 
 # => System
 import re
+from collections import deque
 from dataclasses import dataclass
 
 # => External
@@ -20,9 +21,13 @@ class Command:
     
     Execute a command
     """
+
     label: str
     target: str
     argv: list
+
+    def __str__(self):
+        return f"Command: {self.label}"
 
 @dataclass(frozen=True)
 class Sequence:
@@ -30,31 +35,27 @@ class Sequence:
 
     A sequence is a list of Command(s) to be executed linearly
     """
+
     name: str
     env: str
-    cmds: list
+    cmds: deque
 
-# == Data Class(es) ==
-class Worker(object):
-    
-    def __init__(self, uid:str, driver:webdriver):
-        """Define a Worker
+    def __str__(self):
+        return f"Sequence: {self.env}, {self.name}"
 
-        """
-
-        self.log = utils.get_logger(uid)
-        self.driver = driver
-    
-    def load(self, sequence:Sequence):
-        """Load a command sequence
-
-        """
-
-        self.sequence = sequence
-        self.log.info(f"loaded: {self.sequence.env} | {self.sequence.name}")
-    
     def push(self, cmd:Command):
-        """Push (i.e. append) a new command into the command sequence
+        """Push a new command to the rightmost position
+
+        Parameters
+        ----------
+        cmd: Command
+            A command object
+        """
+
+        self.cmds.append(cmd)
+
+    def pushleft(self, cmd:Command):
+        """Push a new command to the leftmost position
         
         Parameters
         ----------
@@ -62,17 +63,80 @@ class Worker(object):
             A command object
         """
 
-        self.sequence.cmds.append(cmd)
-    
+        self.cmds.appendleft(cmd)
+
+    def extend(self, cmds:list):
+        """Extend a list of new commands, in order, to the rightmost position
+        
+        Parameters
+        ----------
+        cmds: list
+            A list of command objects
+        """
+
+        self.cmds.extend(cmds)
+
+    def extendleft(self, cmds:list):
+        """Extend a list of new commands, in order, to the leftmost position
+        
+        Parameters
+        ----------
+        cmds: list
+            A list of command objects
+        """
+
+        for cmd in reversed(cmds): self.cmds.appendleft(cmd)
+
     def pop(self)->Command:
-        """Pop the last command away from the command sequence
+        """Pop the rightmost command away from the command list
         
         Returns
         -------
         Command: The popped command object
         """
 
-        return self.sequence.cmds.pop()
+        return self.cmds.pop()
+
+    def popleft(self)->Command:
+        """Pop the leftmost command away from the command list
+        
+        Returns
+        -------
+        Command: The popped command object
+        """
+
+        return self.cmds.popleft()
+
+# == Data Class(es) ==
+class Worker(object):
+    """Define a Worker
+    
+    """
+
+    def __init__(self, uid:str, driver:webdriver):
+        self.uid = uid
+        self.log = utils.get_logger(self.uid)
+        self.driver = driver
+
+    def __del__(self):
+        self.driver.quit()
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        self.driver.quit()
+    
+    def __str__(self):
+        return f"Worker: {self.uid}"
+
+    def load(self, sequence:Sequence):
+        """Load a command sequence
+
+        """
+
+        self.sequence = sequence
+        self.log.info(f"loaded: {self.sequence.env} | {self.sequence.name}")
 
     def run(self)->dict:
         """Run command sequence
@@ -85,7 +149,7 @@ class Worker(object):
         """
 
         self.stdout = {}
-        for cmd in self.sequence.cmds: getattr(self, cmd.label)(target=cmd.target, argv=cmd.argv)
+        for cmd in self.sequence.cmds: getattr(self, cmd.label.lower())(target=cmd.target, argv=cmd.argv)
         return self.stdout
     
     def find_element_by_xpath(self, target:str):
@@ -125,8 +189,7 @@ class Worker(object):
         """
 
         self.driver.refresh()
-
-
+    
     def click(self, target:str=None, argv:list=None):
         """Click an element
 
@@ -338,20 +401,20 @@ class Worker(object):
         Parameters
         ----------
         target: str
-            An XPATH string
+            An XPATH string, an Integer, or a String
         argv: [str]
-            The expected condition
+            The operation and expected condition
         """
 
         try:
-            operation = target
-            condition = config.EXPECTED_CONDITIONS.get(argv[0])
+            operation = argv[0]
+            condition = config.EXPECTED_CONDITIONS.get(argv[1])
 
             if condition:
-                result = utils.parse_expected_condition(self.driver, target, condition)
+                result = utils.parse_expected_condition(self.driver, target, condition[1])
                 if operation == "UNTIL_NOT": WebDriverWait(self.driver, timeout=config.TIMEOUT).until_not(condition[0](result))
                 else: WebDriverWait(self.driver, timeout=config.TIMEOUT).until(condition[0](result))
-
+        
         except IndexError:
             self.log.error("worker.wait: Index Error")
             self.log.error(f"invalid sequence definition: {self.sequence.env} | {self.sequence.name}")
@@ -411,7 +474,9 @@ class Worker(object):
         
         if target:
             for idx, elem in enumerate(re.findall(config.POSITIONAL, target)): 
-                try: target.replace(elem, argv[idx])
+                try: 
+                    if elem == "${@}": target = target.replace(elem, ", ".join(argv or []))
+                    else: target = target.replace(elem, argv[idx])
                 except IndexError:
                     self.log.error("worker.printf: Index Error | argument index #{idx}")
                     self.log.error(f"invalid sequence definition: {self.sequence.env} | {self.sequence.name}")
@@ -419,12 +484,12 @@ class Worker(object):
             for elem in re.findall(config.FIND, target):
                 xpath = elem[2:-1]
                 self.find(xpath)
-                target.replace(elem, self.stdout[xpath])
+                target = target.replace(elem, self.stdout[xpath])
             
             for elem in re.findall(config.FIND_ALL, target):
                 xpath = elem[2:-1]
                 self.find_all(xpath)
-                target.replace(elem, self.stdout[xpath])
+                target = target.replace(elem, self.stdout[xpath])
             
             self.stdout[key] = target
     
