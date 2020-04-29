@@ -17,9 +17,16 @@ from selenium.webdriver.common.action_chains import ActionChains
 # == Data Model(s) ==
 @dataclass(frozen=True)
 class Command:
-    """Define a Command:
-    
-    Execute a command
+    """Define a Command: Execute a command
+
+    Parameters
+    ----------
+    label: str
+        Command label
+    target: str
+        Primary command argument
+    argv: list
+        Secondary command arguments
     """
 
     label: str
@@ -30,18 +37,48 @@ class Command:
         return f"Command: {self.label}"
 
 @dataclass(frozen=True)
-class Sequence:
-    """Define a Sequence
+class Key:
+    """Define a Key: The ID of a sequence object
 
-    A sequence is a list of Command(s) to be executed linearly
+    Parameters
+    ----------
+    name: str
+        Sequence name
+    env: str
+        Sequence environment
     """
 
     name: str
     env: str
+
+    def __hash__(self):
+        return hash(self.env + self.name)
+
+    def __eq__(self, another):
+        return (
+            hasattr(another, "env") and self.env == another.env and 
+            hasattr(another, "name") and self.name == another.name)
+
+    def __str__(self):
+        return f"{self.env}, {self.name}"
+
+@dataclass(frozen=True)
+class Sequence:
+    """Define a Sequence: A sequence is a list of Command(s) to be executed linearly
+
+    Parameters
+    ----------
+    key: models.Key
+        The ID
+    cmds: deque of models.Command(s)
+        A queue of commands
+    """
+
+    key: Key
     cmds: deque
 
     def __str__(self):
-        return f"Sequence: {self.env}, {self.name}"
+        return f"Sequence({self.key})"
 
     def push(self, cmd:Command):
         """Push a new command to the rightmost position
@@ -130,14 +167,31 @@ class Worker(object):
     def __str__(self):
         return f"Worker: {self.uid}"
 
+    # == Getter(s) ==
+    def get_key(self)->Key: 
+        if hasattr(self, "sequence"): 
+            return self.sequence.key 
+        else: 
+            return None
+
+    # == Setter(s) ==
     def load(self, sequence:Sequence):
         """Load a command sequence
 
         """
 
+        self.reset()
         self.sequence = sequence
-        self.log.info(f"loaded: {self.sequence.env} | {self.sequence.name}")
+        self.log.info(f"loaded: {self.sequence}")
 
+    def reset(self):
+        """Reset any saved states
+
+        """
+
+        self.stdout = {}
+
+    # == Functional ==
     def run(self)->dict:
         """Run command sequence
         
@@ -148,7 +202,6 @@ class Worker(object):
             value - A comma separated list of strings
         """
 
-        self.stdout = {}
         for cmd in self.sequence.cmds: getattr(self, cmd.label.lower())(target=cmd.target, argv=cmd.argv)
         return self.stdout
     
@@ -172,6 +225,7 @@ class Worker(object):
 
         return self.driver.find_elements_by_xpath(target)
 
+    # == Command Function(s) ==
     def get(self, target:str, argv:list=None):
         """Get URL page
 
@@ -278,7 +332,8 @@ class Worker(object):
             
         except IndexError:
             self.log.error("worker.drag_and_drop: Index Error")
-            self.log.error(f"invalid sequence definition: {self.sequence.env} | {self.sequence.name}")
+            self.log.error(f"invalid sequence definition: {self.sequence}")
+            raise IndexError
 
     def drag_and_drop_by_offset(self, target:str, argv:list):
         """Drag and drop from <source> to <xoffset>, <yoffset> (i.e argv[0])
@@ -299,7 +354,8 @@ class Worker(object):
             
         except IndexError:
             self.log.error("worker.drag_and_drop_by_offset: Index Error")
-            self.log.error(f"invalid sequence definition: {self.sequence.env} | {self.sequence.name}")
+            self.log.error(f"invalid sequence definition: {self.sequence}")
+            raise IndexError
     
     def move_to_element(self, target:str, argv:list=None):
         """Move cursor to element
@@ -332,7 +388,8 @@ class Worker(object):
 
         except IndexError:
             self.log.error("worker.move_to_element_with_offset: Index Error")
-            self.log.error(f"invalid sequence definition: {self.sequence.env} | {self.sequence.name}")
+            self.log.error(f"invalid sequence definition: {self.sequence}")
+            raise IndexError
     
     def move_by_offset(self, target:str, argv:list):
         """Move cursor to offset
@@ -350,7 +407,8 @@ class Worker(object):
 
         except IndexError:
             self.log.error("worker.move_by_offset: Index Error")
-            self.log.error(f"invalid sequence definition: {self.sequence.env} | {self.sequence.name}")
+            self.log.error(f"invalid sequence definition: {self.sequence}")
+            raise IndexError
     
     def send_keys(self, target:str, argv:list):
         """Send keys
@@ -372,11 +430,13 @@ class Worker(object):
         
         except IndexError:
             self.log.error("worker.send_keys: Index Error")
-            self.log.error(f"invalid sequence definition: {self.sequence.env} | {self.sequence.name}")
+            self.log.error(f"invalid sequence definition: {self.sequence}")
+            raise IndexError
         
         except KeyError:
             self.log.error("worker.send_keys: Key Error")
-            self.log.error(f"invalid sequence definition: {self.sequence.env} | {self.sequence.name}")
+            self.log.error(f"invalid sequence definition: {self.sequence}")
+            raise KeyError
         
     def pause(self, target:str, argv:list=None):
         """Pause webdriver
@@ -393,7 +453,8 @@ class Worker(object):
 
         except IndexError:
             self.log.error("worker.pause: Index Error")
-            self.log.error(f"invalid sequence definition: {self.sequence.env} | {self.sequence.name}")
+            self.log.error(f"invalid sequence definition: {self.sequence}")
+            raise IndexError
     
     def wait(self, target:str, argv:list):
         """Wait for expected condition
@@ -417,11 +478,13 @@ class Worker(object):
         
         except IndexError:
             self.log.error("worker.wait: Index Error")
-            self.log.error(f"invalid sequence definition: {self.sequence.env} | {self.sequence.name}")
+            self.log.error(f"invalid sequence definition: {self.sequence}")
+            raise IndexError
 
         except ValueError:
             self.log.error("worker.wait: Value Error")
-            self.log.error(f"invalid sequence definition: {self.sequence.env} | {self.sequence.name}")
+            self.log.error(f"invalid sequence definition: {self.sequence}")
+            raise ValueError
         
         except exceptions.TimeoutException:
             self.log.error("worker.wait: Timeout Exception")
@@ -473,23 +536,21 @@ class Worker(object):
         self.stdout[key] = ""
         
         if target:
-            for idx, elem in enumerate(re.findall(config.POSITIONAL, target)): 
+            for elem in re.findall(config.POSITIONAL, target): 
                 try: 
-                    if elem == "${@}": target = target.replace(elem, ", ".join(argv or []))
-                    else: target = target.replace(elem, argv[idx])
+                    if elem == config.ARG_ALL: target = target.replace(elem, ", ".join(argv or []))
+                    elif elem[2:-1].isdigit(): target = target.replace(elem, argv[int(elem[2:-1])-1])
+                    elif elem[2] == config.FIND_ALL: 
+                        self.find_all(elem[3:-1])
+                        target = target.replace(elem, self.stdout[elem[3:-1]])
+                    else:
+                        self.find(elem[2:-1])
+                        target = target.replace(elem, self.stdout[elem[2:-1]])
+                    
                 except IndexError:
                     self.log.error("worker.printf: Index Error | argument index #{idx}")
-                    self.log.error(f"invalid sequence definition: {self.sequence.env} | {self.sequence.name}")
-
-            for elem in re.findall(config.FIND, target):
-                xpath = elem[2:-1]
-                self.find(xpath)
-                target = target.replace(elem, self.stdout[xpath])
-            
-            for elem in re.findall(config.FIND_ALL, target):
-                xpath = elem[2:-1]
-                self.find_all(xpath)
-                target = target.replace(elem, self.stdout[xpath])
+                    self.log.error(f"invalid sequence definition: {self.sequence}")
+                    raise IndexError
             
             self.stdout[key] = target
     

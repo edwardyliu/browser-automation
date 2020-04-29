@@ -147,13 +147,10 @@ def parse_json_file(filepath:str)->models.Sequence:
                 else: target = cmd[1]
             
             cmds.append(models.Command(label, target, argv))
-        return models.Sequence(raw["name"], raw["env"], cmds)
+        return models.Sequence(models.Key(raw["name"], raw["env"]), cmds)
     
     except IndexError:
         raise IndexError(f"utils.parse_json_file: Index Error - {filepath}")
-    
-    except Exception:
-        raise IndexError(f"utils.parse_json_file: Invalid JSON - {filepath}")
 
 def get_sequences(log:logging.Logger=None)->list:
     """Get a list of sequence models
@@ -190,7 +187,7 @@ def parse_job(fmt:str, argv:dict, results:dict)->str:
 
     for elem in re.findall(config.POSITIONAL, fmt):
         value = elem[2:-1]
-        if value == "@RESULT":
+        if value == config.RES_ALL:
             span = []; result = results.get("${1}")
             while result:
                 span.append(result)

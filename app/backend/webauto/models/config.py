@@ -10,8 +10,8 @@ from selenium.webdriver.common.keys import Keys
 # => Regex
 RE_NUMERAL=re.compile(r"([0-9]+)")
 POSITIONAL=re.compile(r"(\$\{.*?\})")
-FIND=re.compile(r"(!\{.*?\})")
-FIND_ALL=re.compile(r"(@\{.*?\})")
+ARG_ALL="${@}"
+FIND_ALL="@"
 
 # => Expected Condition(s)
 TIMEOUT=15.

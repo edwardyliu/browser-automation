@@ -6,6 +6,7 @@ from . import utils
 
 # => System
 import re
+import sys
 import time
 import uuid
 from collections import deque
@@ -13,6 +14,7 @@ from collections import deque
 # => External
 from selenium import webdriver
 
+# == Service Class(es) ==
 class Controller(object):
     """Define a Controller
     
@@ -62,32 +64,37 @@ class Controller(object):
         for sequence in utils.get_sequences(): 
             sequence.extendleft(self.prefix)
             sequence.extend(self.postfix)
-            self.jobs[sequence.name] = sequence
+            self.jobs[sequence.key] = sequence
 
-    def enqueue(self, key:str, fmt:str=None, argv:dict=None):
+    def enqueue(self, env:str, name:str, fmt:str=None, argv:dict=None):
         """Enqueue a new job
 
         Parameters
         ----------
-        key: str
-            The job key
+        env: str
+            The job environment
+        name: str
+            The job name
         fmt: str
             The string format
         argv: dict
             A lookup table
         """
 
+        key = models.Key(name, env)
         self.job_queue.append((key, fmt, argv))
     
     def dequeue(self):
         """Dequeue (i.e. load & run) the oldest job
 
         """
-
+        
         key, fmt, argv = self.job_queue.popleft()
         job = self.jobs.get(key)
         if job:
-            self.worker.load(job)
+            if key != self.worker.get_key(): self.worker.load(job)
+            else: self.worker.reset()
+
             results = self.worker.run()
             if fmt: formatted = utils.parse_job(fmt, argv, results)
             else: formatted = utils.parse_job(config.DEFAULT_FORMAT, argv, results)
@@ -113,4 +120,12 @@ class Controller(object):
         with open(filepath, "w") as fp:
             fp.write(",\n".join(self.stdout))
         self.stdout = []
-    
+
+# == Modularization ==
+this = sys.modules[__name__]
+this.controller = None
+
+def __init__():
+    if not this.controller: this.controller = Controller()
+
+# == API ==

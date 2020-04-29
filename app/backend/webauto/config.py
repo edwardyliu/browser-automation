@@ -20,6 +20,7 @@ DEFAULT_FORMAT="argv: ${@}, results: ${@RESULT}"
 # => Regex
 RE_NUMERAL_DOT_JSON=re.compile(r"([0-9]+)\.json")
 POSITIONAL=re.compile(r"(\$\{.*?\})")
+RES_ALL="@#"
 
 # => Middleware(s)
 DEFAULT_PREFIX_MIDDLEWARE=[
@@ -29,6 +30,6 @@ DEFAULT_POSTFIX_MIDDLEWARE=[
     models.Command("GET", DEFAULT_HOMEPAGE_URL, None),
     models.Command(
         "PRINTF", 
-        "web_element: !{/html/body/div/div[4]/span/center/div[3]/div[1]/div/a}, inner_argv: ${@}", 
+        "web_element: ${/html/body/div/div[4]/span/center/div[3]/div[1]/div/a}, inner_argv: ${@}", 
         ["A", "Beautiful", "Mind"])
 ]

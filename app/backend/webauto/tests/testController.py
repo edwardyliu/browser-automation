@@ -1,6 +1,7 @@
 # == Import(s) ==
 # => Local
-from .. import services
+from .. import models
+from .. import service
 
 # => System
 import os
@@ -10,31 +11,34 @@ from pathlib import Path
 class TestController(unittest.TestCase):
 
     def test_get_job_keys(self):
-        controller = services.Controller()
+        controller = service.Controller()
         keys = controller.get_job_keys()
 
         self.assertEqual(len(keys), 4)
-        self.assertEqual("TEST SIMPLE CURSOR STATES" in keys, True)
-        self.assertEqual("TEST COMPLEX CURSOR STATES" in keys, True)
-        self.assertEqual("TEST PRINTF" in keys, True)
-        self.assertEqual("TEST KEYBOARD STATES" in keys, True)
+        self.assertEqual(models.Key("TEST SIMPLE CURSOR STATES", "DEV") in keys, True)
+        self.assertEqual(models.Key("TEST COMPLEX CURSOR STATES", "DEV") in keys, True)
+        self.assertEqual(models.Key("TEST PRINTF", "DEV") in keys, True)
+        self.assertEqual(models.Key("TEST KEYBOARD STATES", "DEV") in keys, True)
     
     def test_submit(self):
-        controller = services.Controller()
-        controller.enqueue("TEST COMPLEX CURSOR STATES", argv={"name": "Edward", "target": "Fun"})
-        controller.enqueue("TEST COMPLEX CURSOR STATES", fmt="Hello World: ${@}", argv={"name": "Beau", "target": "Excitement"})
+        controller = service.Controller()
+        controller.enqueue("DEV", "TEST COMPLEX CURSOR STATES", argv={"name": "Edward", "target": "Fun"})
+        controller.enqueue("DEV", "TEST COMPLEX CURSOR STATES", fmt="Hello World: ${1} ;; ${@}", argv={"name": "Beau", "target": "Excitement"})
         controller.submit()
-
+        
+        print(controller.stdout)
         self.assertEqual(len(controller.stdout), 2)
         self.assertEqual("Edward" in controller.stdout[0], True)
         self.assertEqual("Beau" in controller.stdout[1], True)
     
     def test_bulk_submit_and_save(self):
-        controller = services.Controller()
+        controller = service.Controller()
         key = "TEST PRINTF"
-        fmt = "My name is ${user}! $2: ${2}."
+        fmt = "My name is ${user}! $3: ${3}."
         users = ["Edward", "John", "Suri", "Kristen", "Han", "Steven", "Will"]
-        for user in users: controller.enqueue(key, fmt=fmt, argv={"user": user})
+        for user in users: controller.enqueue("DEV", key, fmt=fmt, argv={"user": user})
+        self.assertEqual(len(controller.job_queue), len(users))
+
         controller.submit()
         
         self.assertEqual(len(controller.stdout), len(users))

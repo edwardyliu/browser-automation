@@ -12,27 +12,37 @@ class TestModels(unittest.TestCase):
     def test_command_model(self):
         command = models.Command(
             label="printf", 
-            target="A beautiful mind ${name}",
+            target="A beautiful mind ${1}",
             argv=["Edward"])
         self.assertEqual(command.label, "printf")
-        self.assertEqual(command.target, "A beautiful mind ${name}")
+        self.assertEqual(command.target, "A beautiful mind ${1}")
         self.assertEqual(command.argv, ["Edward"])
 
         command.argv.append("Beau")
         self.assertEqual(command.argv, ["Edward", "Beau"])
         self.assertEqual(command.argv.pop(), "Beau")
         self.assertEqual(command.argv, ["Edward"])
+    
+    def test_key_model(self):
+        keya = models.Key("A Test A", "DEV")
+        keyb = models.Key("A Test B", "DEV")
+        keyc = models.Key("A Test A", "DEV")
+        lookup = {keya: "Hello Key Model A"}
+
+        self.assertEqual(lookup[keya], "Hello Key Model A")
+        self.assertEqual(lookup[keyc], "Hello Key Model A")
+        self.assertEqual(keya, keyc)
+
+        lookup[keyb] = "Hello Key Model B"
+        self.assertEqual(lookup[keyb], "Hello Key Model B")
 
     def test_sequence_model(self):
-        cmda = models.Command(label="printf", target="A beautiful mind ${name}", argv=["Edward"])
-        cmdb = models.Command(label="printf", target="An amazing experience with ${name}", argv=["Beau"])
-        cmdc = models.Command(label="printf", target="A ${name} cause", argv=["noble"])
-        sequence = models.Sequence(
-            name="A Web Sequence",
-            env="DEV",
-            cmds=deque([cmda, cmdb]))
-        self.assertEqual(sequence.name, "A Web Sequence")
-        self.assertEqual(sequence.env, "DEV")
+        cmda = models.Command(label="printf", target="A beautiful mind ${1}", argv=["Edward"])
+        cmdb = models.Command(label="printf", target="An amazing experience with ${1}", argv=["Beau"])
+        cmdc = models.Command(label="printf", target="A ${1} cause", argv=["noble"])
+        key = models.Key("A Web Sequence", "DEV")
+        sequence = models.Sequence(key=key, cmds=deque([cmda, cmdb]))
+        self.assertEqual(sequence.key, key)
         self.assertEqual(sequence.cmds, deque([cmda, cmdb]))
         
         sequence.cmds.append(cmdc)
@@ -44,10 +54,10 @@ class TestModels(unittest.TestCase):
         driver = utils.get_webdriver()
 
         worker = models.Worker("A Worker", driver)
-        for sequence in utils.get_sequences():
-            worker.load(sequence)
-            print(f"{sequence.name}: {worker.run()}")
-
+        sequence = utils.get_sequences()[0]
+        worker.load(sequence)
+        print(f"{sequence.key}: {worker.run()}")
+        
         driver.quit()
 
 if __name__ == "__main__":
