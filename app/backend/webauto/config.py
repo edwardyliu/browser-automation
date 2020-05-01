@@ -15,12 +15,13 @@ DEFAULT_CACHE_DIRPATH=os.path.join(Path(__file__).parents[0], "resources/cache/"
 DEFAULT_DRIVER_EXEPATH=os.path.join(Path(__file__).parents[0], "resources/geckodriver")
 
 # => Format
-DEFAULT_FORMAT="argv: ${@}, results: ${@RESULT}"
+DEFAULT_FORMAT="argv: ${@}, tblv: ${@#}"
 
 # => Regex
 RE_NUMERAL_DOT_JSON=re.compile(r"([0-9]+)\.json")
 POSITIONAL=re.compile(r"(\$\{.*?\})")
-RES_ALL="@#"
+ARGV="@"
+TBLV="@#"
 
 # => Middleware(s)
 DEFAULT_PREFIX_MIDDLEWARE=[

@@ -9,19 +9,23 @@ import re
 import sys
 import time
 import uuid
-from collections import deque
+
+# => Threading
+import queue
+import threading
 
 # => External
+from collections import deque
 from selenium import webdriver
 
 # == Service Class(es) ==
-class Controller(object):
-    """Define a Controller
+class Queue(object):
+    """Define a worker queue
     
     """
-
+    
     def __init__(self):
-        self.log = utils.get_logger("webauto.controller")
+        self.log = utils.get_logger("webauto.queue")
         self.worker = models.Worker(str(uuid.uuid4()), utils.get_webdriver())
         
         self.job_queue = deque([])
@@ -37,7 +41,8 @@ class Controller(object):
     def __exit__(self, exc_type, exc_value, traceback):
         self.__del__()
 
-    def get_job_keys(self)->list:
+    # ==> Getter(s)
+    def get_keys(self)->list:
         """Get a list of job key values
 
         Returns
@@ -47,6 +52,10 @@ class Controller(object):
 
         return list(self.jobs.keys())
 
+    # ==> Setter(s)
+    def reset(self):
+        self.stdout = []
+    
     def set_middleware(self, prefix:list, postfix:list):
         """Set universal middlewares
 
@@ -66,7 +75,8 @@ class Controller(object):
             sequence.extend(self.postfix)
             self.jobs[sequence.key] = sequence
 
-    def enqueue(self, env:str, name:str, fmt:str=None, argv:dict=None):
+    # ==> Functional
+    def enqueue(self, env:str, name:str, fmt:str=None, tbl:dict=None):
         """Enqueue a new job
 
         Parameters
@@ -77,36 +87,36 @@ class Controller(object):
             The job name
         fmt: str
             The string format
-        argv: dict
+        tbl: dict
             A lookup table
         """
 
         key = models.Key(name, env)
-        self.job_queue.append((key, fmt, argv))
+        self.job_queue.append((key, fmt, tbl))
     
     def dequeue(self):
         """Dequeue (i.e. load & run) the oldest job
 
         """
         
-        key, fmt, argv = self.job_queue.popleft()
+        key, fmt, tbl = self.job_queue.popleft()
         job = self.jobs.get(key)
         if job:
             if key != self.worker.get_key(): self.worker.load(job)
             else: self.worker.reset()
 
-            results = self.worker.run()
-            if fmt: formatted = utils.parse_job(fmt, argv, results)
-            else: formatted = utils.parse_job(config.DEFAULT_FORMAT, argv, results)
+            results = self.worker.run(tbl)
+            if fmt: formatted = utils.parse_job(fmt, tbl, results)
+            else: formatted = utils.parse_job(config.DEFAULT_FORMAT, tbl, results)
             self.stdout.append(formatted)
-
+    
     def submit(self):
         """Dequeue until the job queue is empty
 
         """
 
         while len(self.job_queue) > 0: self.dequeue()
-
+    
     def save(self, filepath:str=None):
         """Save as CSV file
 
@@ -116,16 +126,6 @@ class Controller(object):
             Where to save the file
         """
         
-        if not filepath: filepath = utils.next_key("save", ".csv")
+        if not filepath: filepath = utils.next_cache_key("save", ".csv")
         with open(filepath, "w") as fp:
             fp.write(",\n".join(self.stdout))
-        self.stdout = []
-
-# == Modularization ==
-this = sys.modules[__name__]
-this.controller = None
-
-def __init__():
-    if not this.controller: this.controller = Controller()
-
-# == API ==

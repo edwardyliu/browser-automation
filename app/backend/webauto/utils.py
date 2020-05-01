@@ -67,7 +67,7 @@ def get_webdriver()->webdriver:
     driver.maximize_window()
     return driver
 
-def next_key(prefix:str, postfix:str)->str:
+def next_cache_key(prefix:str, postfix:str)->str:
     """Get the next available '*.json' filepath
 
     Returns
@@ -116,7 +116,7 @@ def load(filepath:str)->list:
         stdout = json.load(fp)
     return stdout
 
-def parse_json_file(filepath:str)->models.Sequence:
+def parse_json(filepath:str)->models.Sequence:
     """Parse the JSON file into a sequence model
 
     Parameters
@@ -150,7 +150,7 @@ def parse_json_file(filepath:str)->models.Sequence:
         return models.Sequence(models.Key(raw["name"], raw["env"]), cmds)
     
     except IndexError:
-        raise IndexError(f"utils.parse_json_file: Index Error - {filepath}")
+        raise IndexError(f"utils.parse_json: Index Error - {filepath}")
 
 def get_sequences(log:logging.Logger=None)->list:
     """Get a list of sequence models
@@ -165,17 +165,17 @@ def get_sequences(log:logging.Logger=None)->list:
     sequences = []
     for filepath in list(Path(config.DEFAULT_SEQUENCE_DIRPATH).rglob("*.[jJ][sS][oO][nN]")):
         if log: log.info(f"build sequence: {filepath}")
-        sequences.append(parse_json_file(filepath))
+        sequences.append(parse_json(filepath))
     return sequences
 
-def parse_job(fmt:str, argv:dict, results:dict)->str:
-    """Parse job results into formatted string
+def parse_job(fmt:str, tbl:dict, results:dict)->str:
+    """Parse job results into a formatted string
 
     Parameters
     ----------
     fmt: str
         The string format
-    argv: dict
+    tbl: dict
         A lookup table
     results: dict
         The sequence's stdout lookup table 
@@ -187,13 +187,13 @@ def parse_job(fmt:str, argv:dict, results:dict)->str:
 
     for elem in re.findall(config.POSITIONAL, fmt):
         value = elem[2:-1]
-        if value == config.RES_ALL:
+        if value == config.TBLV: fmt = fmt.replace(elem, json.dumps(tbl))
+        elif value == config.ARGV:
             span = []; result = results.get("${1}")
             while result:
                 span.append(result)
                 result = results.get("${" + str(len(span)+1) + "}")
             fmt = fmt.replace(elem, ", ".join(span))
         elif value.isdigit(): fmt = fmt.replace(elem, results.get(elem, "N/A"))
-        elif value == "@": fmt = fmt.replace(elem, json.dumps(argv))
-        else: fmt = fmt.replace(elem, argv.get(value, "None"))
+        else: fmt = fmt.replace(elem, tbl.get(value, "None"))
     return fmt

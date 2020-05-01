@@ -13,7 +13,8 @@
         ["PAUSE", 1.5],
         ["RELEASE"],
         
-        ["SEND_KEYS", {"target": "//input[@name='q']", "argv": ["Python Selenium ActionChains Documentation${ENTER}"]}],
+        ["SEND_KEYS", {"target": "//input[@name='q']", "argv": ["Python Selenium ActionChains Documentation"]}],
+        ["SEND_KEYS", {"argv": "${ENTER}"}],
         ["PAUSE", 1.5],
         
         ["GET", "https://www.google.com/"],

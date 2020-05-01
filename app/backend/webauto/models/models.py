@@ -9,6 +9,7 @@ from collections import deque
 from dataclasses import dataclass
 
 # => External
+import json
 from selenium import webdriver
 from selenium.common import exceptions
 from selenium.webdriver.support.ui import WebDriverWait
@@ -189,12 +190,18 @@ class Worker(object):
 
         """
 
+        self.tbl = None
         self.stdout = {}
 
     # == Functional ==
-    def run(self)->dict:
+    def run(self, tbl:dict=None)->dict:
         """Run command sequence
         
+        Parameters
+        ----------
+        tbl: dict
+            A look-up table
+
         Returns
         -------
         str: A dictionary of key-value pairs
@@ -202,6 +209,7 @@ class Worker(object):
             value - A comma separated list of strings
         """
 
+        self.tbl = tbl
         for cmd in self.sequence.cmds: getattr(self, cmd.label.lower())(target=cmd.target, argv=cmd.argv)
         return self.stdout
     
@@ -210,7 +218,7 @@ class Worker(object):
 
         Returns
         -------
-        element: A selenium webdriver element
+        WebElement: A selenium web element object
         """
 
         return self.driver.find_element_by_xpath(target)
@@ -220,11 +228,103 @@ class Worker(object):
 
         Returns
         -------
-        list: A list of selenium webdriver element(s)
+        list: A list of selenium web element objects
         """
 
         return self.driver.find_elements_by_xpath(target)
 
+    def find(self, target:str)->str:
+        """Find an element and retrieve its text value
+
+        Parameters
+        ----------
+        target: str
+            An XPATH string
+        
+        Returns
+        -------
+        str: WebElement.text
+        """
+        
+        res = ""
+        elem = self.find_element_by_xpath(target)
+        if elem.is_displayed(): res = elem.text
+        
+        return res
+
+    def find_all(self, target:str)->str:
+        """Find all elements and retrieve their text values
+
+        Parameters
+        ----------
+        target: str
+            An XPATH string
+        
+        Returns
+        -------
+        str: WebElement.text
+        """
+
+        res = ""
+        elems = self.find_elements_by_xpath(target)
+        lst = []
+        for elem in elems:
+            if elem.is_displayed():
+                lst.append(elem.text)
+        if lst: res = ", ".join(lst)
+
+        return res
+
+    def peek(self, key:str)->str:
+        """Peek into look-up table; if not found, peek into page
+
+        Parameters
+        ----------
+        key: str
+            A key
+        
+        Returns
+        -------
+        str: value
+        """
+
+        if self.tbl and self.tbl.get(key): 
+            res = self.tbl[key]
+            if isinstance(res, str): return res
+            elif isinstance(res, dict): return json.dumps(res)
+            elif isinstance(res, list): return ", ".join(res)
+            else: raise ValueError(res)
+        else: return self.find(key)
+    
+    def parse_format(self, fmt:str, argv:list=None)->str:
+        """Parse into formatted string
+
+        Parameters
+        ----------
+        fmt: str
+            The string format
+        argv: [str]
+            A list of positional arguments
+            
+        Returns
+        -------
+        str: value
+        """
+
+        for elem in re.findall(config.POSITIONAL, fmt):
+            value = elem[2:-1]
+            if value == config.TBLV and self.tbl:
+                fmt = fmt.replace(elem, json.dumps(self.tbl))
+            elif value == config.ARGV and argv:
+                fmt = fmt.replace(elem, ", ".join(argv))
+            elif value.isdigit():
+                fmt = fmt.replace(elem, argv[int(value)-1])
+            elif value[0] == config.FINDV:
+                fmt = fmt.replace(elem, self.find_all(value[1:]))
+            else: fmt = fmt.replace(elem, self.peek(value))
+        
+        return fmt
+    
     # == Command Function(s) ==
     def get(self, target:str, argv:list=None):
         """Get URL page
@@ -236,6 +336,17 @@ class Worker(object):
         """
 
         self.driver.get(target)
+
+    def dget(self, target:str, argv:list=None):
+        """Get URL page
+
+        Parameters
+        ----------
+        target: str
+            A key
+        """
+
+        if self.tbl and self.tbl.get(target): self.driver.get(self.tbl[target])
 
     def refresh(self, target:str=None, argv:list=None):
         """Refresh the page
@@ -333,7 +444,7 @@ class Worker(object):
         except IndexError:
             self.log.error("worker.drag_and_drop: Index Error")
             self.log.error(f"invalid sequence definition: {self.sequence}")
-            raise IndexError
+            raise IndexError(argv)
 
     def drag_and_drop_by_offset(self, target:str, argv:list):
         """Drag and drop from <source> to <xoffset>, <yoffset> (i.e argv[0])
@@ -355,7 +466,7 @@ class Worker(object):
         except IndexError:
             self.log.error("worker.drag_and_drop_by_offset: Index Error")
             self.log.error(f"invalid sequence definition: {self.sequence}")
-            raise IndexError
+            raise IndexError(argv)
     
     def move_to_element(self, target:str, argv:list=None):
         """Move cursor to element
@@ -389,7 +500,7 @@ class Worker(object):
         except IndexError:
             self.log.error("worker.move_to_element_with_offset: Index Error")
             self.log.error(f"invalid sequence definition: {self.sequence}")
-            raise IndexError
+            raise IndexError(argv)
     
     def move_by_offset(self, target:str, argv:list):
         """Move cursor to offset
@@ -408,7 +519,7 @@ class Worker(object):
         except IndexError:
             self.log.error("worker.move_by_offset: Index Error")
             self.log.error(f"invalid sequence definition: {self.sequence}")
-            raise IndexError
+            raise IndexError(argv)
     
     def send_keys(self, target:str, argv:list):
         """Send keys
@@ -417,27 +528,38 @@ class Worker(object):
         ----------
         target: str
             An XPATH string
-        argv: [dict]
+        argv: [tuple2]
             A list of tuple2 string values
         """
 
+        if target:
+            elem = self.find_element_by_xpath(target)
+            if elem.is_displayed(): utils.send_keys(self.driver, elem, argv)
+        else: utils.send_keys(self.driver, None, argv)
+    
+    def dsend_keys(self, target:str, argv:list):
+        """Send keys
+
+        Parameters
+        ----------
+        target: str
+            An XPATH string
+        argv: [str]
+            A list of strings
+        """
+
         try:
+            values = map(lambda arg: self.parse_format(arg), argv)
             if target:
                 elem = self.find_element_by_xpath(target)
-                if elem.is_displayed():
-                    utils.send_keys(self.driver, elem, argv)
-            else: utils.send_keys(self.driver, None, argv)
+                if elem.is_displayed(): utils.send_keys(self.driver, elem, values)
+            else: utils.send_keys(self.driver, None, values)
         
-        except IndexError:
-            self.log.error("worker.send_keys: Index Error")
+        except TypeError:
+            self.log.error("worker.dsend_keys: Type Error")
             self.log.error(f"invalid sequence definition: {self.sequence}")
-            raise IndexError
-        
-        except KeyError:
-            self.log.error("worker.send_keys: Key Error")
-            self.log.error(f"invalid sequence definition: {self.sequence}")
-            raise KeyError
-        
+            raise TypeError(argv)
+    
     def pause(self, target:str, argv:list=None):
         """Pause webdriver
 
@@ -446,15 +568,9 @@ class Worker(object):
         target: str
             The number of seconds to pause
         """
-
-        try:
-            seconds = float(target)
-            ActionChains(self.driver).pause(seconds).perform()
-
-        except IndexError:
-            self.log.error("worker.pause: Index Error")
-            self.log.error(f"invalid sequence definition: {self.sequence}")
-            raise IndexError
+        
+        seconds = float(target)
+        ActionChains(self.driver).pause(seconds).perform()
     
     def wait(self, target:str, argv:list):
         """Wait for expected condition
@@ -479,50 +595,14 @@ class Worker(object):
         except IndexError:
             self.log.error("worker.wait: Index Error")
             self.log.error(f"invalid sequence definition: {self.sequence}")
-            raise IndexError
-
-        except ValueError:
-            self.log.error("worker.wait: Value Error")
-            self.log.error(f"invalid sequence definition: {self.sequence}")
-            raise ValueError
+            raise IndexError(argv)
         
         except exceptions.TimeoutException:
             self.log.error("worker.wait: Timeout Exception")
-    
-    def find(self, target:str, argv:list=None):
-        """Find an element and retrieve its text value
-
-        Parameters
-        ----------
-        target: str
-            An XPATH string
-        """
-        
-        self.stdout[target] = ""
-        
-        elem = self.find_element_by_xpath(target)
-        if elem.is_displayed(): self.stdout[target] = elem.text
-    
-    def find_all(self, target:str, argv:list=None):
-        """Find all elements and retrieve their text values
-
-        Parameters
-        ----------
-        target: str
-            An XPATH string
-        """
-
-        self.stdout[target] = ""
-
-        elems = self.find_elements_by_xpath(target)
-        lst = []
-        for elem in elems:
-            if elem.is_displayed():
-                lst.append(elem.text)
-        if lst: self.stdout[target] = ", ".join(lst)
 
     def printf(self, target:str, argv:list=None):
-        """Find all elements and retrieve their text values
+        """Generate an ARGV statement
+        Find & replace all special sequences and generate a formatted text
 
         Parameters
         ----------
@@ -532,25 +612,8 @@ class Worker(object):
             A list of positional string values
         """
 
-        key = utils.next_dict_key(self.stdout)
+        key = utils.next_argv_key(self.stdout)
         self.stdout[key] = ""
         
-        if target:
-            for elem in re.findall(config.POSITIONAL, target): 
-                try: 
-                    if elem == config.ARG_ALL: target = target.replace(elem, ", ".join(argv or []))
-                    elif elem[2:-1].isdigit(): target = target.replace(elem, argv[int(elem[2:-1])-1])
-                    elif elem[2] == config.FIND_ALL: 
-                        self.find_all(elem[3:-1])
-                        target = target.replace(elem, self.stdout[elem[3:-1]])
-                    else:
-                        self.find(elem[2:-1])
-                        target = target.replace(elem, self.stdout[elem[2:-1]])
-                    
-                except IndexError:
-                    self.log.error("worker.printf: Index Error | argument index #{idx}")
-                    self.log.error(f"invalid sequence definition: {self.sequence}")
-                    raise IndexError
-            
-            self.stdout[key] = target
-    
+        if target: self.stdout[key] = self.parse_format(fmt=target, argv=argv)
+        

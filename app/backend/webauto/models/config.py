@@ -4,14 +4,14 @@ import re
 
 # => External
 from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.common.keys import Keys
 
 # == Configuration(s) & Constant(s) ==
 # => Regex
 RE_NUMERAL=re.compile(r"([0-9]+)")
 POSITIONAL=re.compile(r"(\$\{.*?\})")
-ARG_ALL="${@}"
-FIND_ALL="@"
+ARGV="@"
+TBLV="@#"
+FINDV="@"
 
 # => Expected Condition(s)
 TIMEOUT=15.
@@ -43,7 +43,7 @@ EXPECTED_CONDITIONS={
 }
 
 # => Special Key(s)
-SPECIAL_KEYS={
+KEYS={
     "${ADD}": u'\ue025',
     "${ALT}": u'\ue00a',
     "${ARROW_DOWN}": u'\ue015',

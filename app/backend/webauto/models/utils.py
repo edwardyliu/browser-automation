@@ -70,23 +70,21 @@ def parse_expected_condition(driver, raw:str, param:str):
     
     return result
 
-def parse_special_keys(pattern, string:str)->str:
-    """Parse special keys, replacing them with their corresponding special character
+def parse_key(string:str)->str:
+    """Parse & funnel any special-key values, replacing them with their corresponding special characters
     
     Parameters
     ----------
-    pattern: AnyStr
-        The regex compiled pattern
     string: str
         The source string
     
     Returns
     -------
-    str: The replaced string
+    str: The funnelled string
     """
 
-    for replacement in re.findall(pattern, string):
-        string = string.replace(replacement, config.SPECIAL_KEYS[replacement])
+    for replacement in re.findall(config.POSITIONAL, string):
+        string = string.replace(replacement, config.KEYS[replacement])
     return string
 
 def send_raw_key(ac, state:str, key:str):
@@ -142,10 +140,10 @@ def send_keys(driver, elem, items:list):
     for item in items:
         if isinstance(item, list): 
             state = item[0]
-            keys = parse_special_keys(config.POSITIONAL, item[1])
+            keys = parse_key(item[1])
         else: 
             state = "SEND"
-            keys = parse_special_keys(config.POSITIONAL, item)
+            keys = parse_key(item)
 
         if state == "SEND":
             if elem: send_key(ac, elem, state, keys)
@@ -157,7 +155,7 @@ def send_keys(driver, elem, items:list):
                 for key in keys: send_raw_key(ac, state, key)
     ac.perform()
 
-def next_dict_key(stdout:dict)->str:
+def next_argv_key(stdout:dict)->str:
     """Get the next available standard-out dictionary key
     
     Parameters

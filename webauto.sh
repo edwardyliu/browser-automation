@@ -28,7 +28,7 @@ case $key in
         rm -r "${DIR}"/app/backend/webauto/resources
         find "${DIR}"/app/backend/webauto/ -type f -name "*.csv" -exec rm -r {} +
         find "${DIR}"/app/backend/ -type d -name "__pycache__" -exec rm -r {} +
-        find "${DIR}"/app/backend/ -type f -name "*.log" -exec rm -r {} +
+        find "${DIR}"/ -type f -name "*.log" -exec rm -r {} +
         exit 0
     ;;
     -m|--make)
