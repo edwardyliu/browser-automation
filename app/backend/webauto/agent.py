@@ -121,11 +121,11 @@ class Agent(object):
 
         Parameters
         ----------
-        filepath: str
-            Where to save the file
+        requestor: str
+            The requestor's E-mail
         """
         
-        if not filepath: filepath = utils.next_cache_key("save", ".csv")
+        filepath = utils.next_cache_key("save", ".csv")
         with open(filepath, "w") as fp:
             fp.write(",\n".join(self.results))
 
