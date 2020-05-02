@@ -3,16 +3,18 @@
 from . import config
 
 # => System
-import datetime
-import logging
 import re
+import logging
+import datetime
 
 # => External
 import pytz
-from selenium.webdriver.common.action_chains import ActionChains
+from selenium import webdriver
 from selenium.webdriver.common.by import By
+from selenium.webdriver.common.action_chains import ActionChains
 
 # == Utility Function(s) ==
+# => Logger
 def timezone_converter_est(*args):
     """A timezone converter that converts from UTC to EST
 
@@ -50,6 +52,7 @@ def get_logger(uid:str)->logging.Logger:
     log.addHandler(handle)
     return log
 
+# => Parser
 def parse_expected_condition(driver, raw:str, param:str):
     """Parse the expected condition
 
@@ -70,7 +73,7 @@ def parse_expected_condition(driver, raw:str, param:str):
     
     return result
 
-def parse_key(string:str)->str:
+def parse_keyboard(string:str)->str:
     """Parse & funnel any special-key values, replacing them with their corresponding special characters
     
     Parameters
@@ -87,74 +90,7 @@ def parse_key(string:str)->str:
         string = string.replace(replacement, config.KEYS[replacement])
     return string
 
-def send_raw_key(ac, state:str, key:str):
-    """Send raw key
-
-    Parameters
-    ----------
-    ac: ActionChain
-        The selenium action chain object
-    state: str
-        The key state
-    key: str
-        The key character
-    """
-
-    if state == "KEY_DOWN": ac.key_down(key)
-    elif state == "KEY_UP": ac.key_up(key)
-    else: ac.send_keys(key)
-
-def send_key(ac, elem, state:str, key:str):
-    """Send key
-
-    Parameters
-    ----------
-    ac: ActionChain
-        The selenium action chain object
-    elem: WebElement
-        The web element
-    state: str
-        The key state
-    key: str
-        The key character
-    """
-
-    if state == "KEY_DOWN": ac.key_down(key, element=elem)
-    elif state == "KEY_UP": ac.key_up(key, element=elem)
-    else: ac.send_keys_to_element(elem, key)
-
-def send_keys(driver, elem, items:list):
-    """Send keys
-
-    Parameters
-    ----------
-    driver: webdriver
-        The selenium webdriver
-    elem: WebElement
-        The web element
-    items: list
-        A list of keyboard-input values
-    """
-
-    ac = ActionChains(driver)
-    for item in items:
-        if isinstance(item, list): 
-            state = item[0]
-            keys = parse_key(item[1])
-        else: 
-            state = "SEND"
-            keys = parse_key(item)
-
-        if state == "SEND":
-            if elem: send_key(ac, elem, state, keys)
-            else: send_raw_key(ac, state, keys)
-        else:
-            if elem: 
-                for key in keys: send_key(ac, elem, state, key)
-            else: 
-                for key in keys: send_raw_key(ac, state, key)
-    ac.perform()
-
+# => Getter
 def next_argv_key(stdout:dict)->str:
     """Get the next available standard-out dictionary key
     
@@ -174,3 +110,87 @@ def next_argv_key(stdout:dict)->str:
         result = result.replace(pattern, str(int(pattern)+1))
     
     return result
+
+def get_webdriver()->webdriver:
+    """Get selenium webdriver: geckodriver
+
+    """
+
+    options = webdriver.FirefoxOptions()
+    options.add_argument("--disable-gpu")
+    options.add_argument("--no-sandbox")
+    options.add_argument("--disable-dev-shm-usage")
+    driver = webdriver.Firefox(executable_path=config.DEFAULT_WEBDRIVER_EXEPATH, options=options)
+    driver.maximize_window()
+    return driver
+
+# => Functional
+def send_raw_key(ac, logic:str, key:str):
+    """Send raw key
+
+    Parameters
+    ----------
+    ac: ActionChain
+        The selenium action chain object
+    logic: str
+        The keyboard logic
+    key: str
+        The keyboard character
+    """
+
+    if logic == config.KEY_DOWN: ac.key_down(key)
+    elif logic == config.KEY_UP: ac.key_up(key)
+    else: ac.send_keys(key)
+
+def send_key(ac, elem, logic:str, key:str):
+    """Send key
+
+    Parameters
+    ----------
+    ac: ActionChain
+        The selenium action chain object
+    elem: WebElement
+        The web element
+    logic: str
+        The keyboard logic
+    key: str
+        The keyboard character
+    """
+
+    if logic == config.KEY_DOWN: ac.key_down(key, element=elem)
+    elif logic == config.KEY_UP: ac.key_up(key, element=elem)
+    else: ac.send_keys_to_element(elem, key)
+
+def send_keys(driver, elem, argv:list):
+    """Send keys
+
+    Parameters
+    ----------
+    driver: webdriver
+        A selenium webdriver
+    elem: WebElement
+        A web element
+    argv: list
+        A list of keyboard inputs
+    """
+
+    ac = ActionChains(driver)
+    for arg in argv:
+        if isinstance(arg, list) or isinstance(arg, tuple):
+            try:
+                logic = arg[0]
+                keys = parse_keyboard(arg[1])
+            except IndexError: raise IndexError(argv, arg)
+        else: 
+            logic = "SEND"
+            keys = parse_keyboard(arg)
+
+        if logic == "SEND":
+            if elem: send_key(ac, elem, logic, keys)
+            else: send_raw_key(ac, logic, keys)
+        else:
+            if elem: 
+                for key in keys: send_key(ac, elem, logic, key)
+            else: 
+                for key in keys: send_raw_key(ac, logic, key)
+    ac.perform()

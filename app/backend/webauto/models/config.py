@@ -1,20 +1,29 @@
 # == Import(s) ==
 # => System
+import os
 import re
+from pathlib import Path
 
 # => External
 from selenium.webdriver.support import expected_conditions as EC
 
-# == Configuration(s) & Constant(s) ==
-# => Regex
+# == Configuration(s) ==
+# => Path & Directories
+DEFAULT_WEBDRIVER_EXEPATH=os.path.join(Path(__file__).parents[0], "../resources/geckodriver")
+
+# => Regex(s)
 RE_NUMERAL=re.compile(r"([0-9]+)")
 POSITIONAL=re.compile(r"(\$\{.*?\})")
+
+# => Constant(s)
+WAIT=1.5
+TIMEOUT=15.
+
 ARGV="@"
 TBLV="@#"
 FINDV="@"
 
 # => Expected Condition(s)
-TIMEOUT=15.
 EXPECTED_CONDITIONS={
     "ELEMENT_LOCATED_SELECTION_STATE_TO_BE": (EC.element_located_selection_state_to_be, "LOCATOR"),
     "ELEMENT_LOCATED_TO_BE_SELECTED": (EC.element_located_to_be_selected, "LOCATOR"),
@@ -42,7 +51,9 @@ EXPECTED_CONDITIONS={
     "VISIBILITY_OF_ELEMENT_LOCATED": (EC.visibility_of_element_located, "LOCATOR")
 }
 
-# => Special Key(s)
+# => Special Key Character(s)
+KEY_DOWN="KEY_DOWN"
+KEY_UP="KEY_UP"
 KEYS={
     "${ADD}": u'\ue025',
     "${ALT}": u'\ue00a',

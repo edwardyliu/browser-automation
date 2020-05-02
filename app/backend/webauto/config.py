@@ -7,23 +7,22 @@ import os
 import re
 from pathlib import Path
 
-# == Configuration(s) & Constant(s) ==
+# == Configuration(s) ==
 # => Path & Directories
-DEFAULT_HOMEPAGE_URL="https://www.google.com/"
-DEFAULT_SEQUENCE_DIRPATH=os.path.join(Path(__file__).parents[0], "data/")
+DEFAULT_TASK_DIRPATH=os.path.join(Path(__file__).parents[0], "tasks/")
 DEFAULT_CACHE_DIRPATH=os.path.join(Path(__file__).parents[0], "resources/cache/")
-DEFAULT_DRIVER_EXEPATH=os.path.join(Path(__file__).parents[0], "resources/geckodriver")
 
-# => Format
-DEFAULT_FORMAT="argv: ${@}, tblv: ${@#}"
-
-# => Regex
-RE_NUMERAL_DOT_JSON=re.compile(r"([0-9]+)\.json")
+# => Regex(s)
+RE_NUMERAL=re.compile(r"([0-9]+)")
 POSITIONAL=re.compile(r"(\$\{.*?\})")
+
+# => Constant(s)
+DEFAULT_STRING_FORMAT="argv: ${@}, tblv: ${@#}"
 ARGV="@"
 TBLV="@#"
 
 # => Middleware(s)
+DEFAULT_HOMEPAGE_URL="https://www.google.com/"
 DEFAULT_PREFIX_MIDDLEWARE=[
     models.Command("GET", DEFAULT_HOMEPAGE_URL, None)
 ]

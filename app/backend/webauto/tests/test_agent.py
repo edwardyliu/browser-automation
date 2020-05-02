@@ -1,14 +1,14 @@
 # == Import(s) ==
 # => Local
 from .. import models
-from .. import service
+from .. import agent
 
 # => System
 import os
 import unittest
 from pathlib import Path
 
-class TestQueue(unittest.TestCase):
+class TestAgent(unittest.TestCase):
 
     def test_get_keys(self):
         queue = service.Queue()

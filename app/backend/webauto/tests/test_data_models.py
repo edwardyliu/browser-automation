@@ -7,9 +7,9 @@ from .. import utils
 import unittest
 from collections import deque
 
-class TestModels(unittest.TestCase):
+class TestDataModels(unittest.TestCase):
     
-    def test_command_model(self):
+    def test_model_command(self):
         command = models.Command(
             label="printf", 
             target="A beautiful mind ${1}",
@@ -23,7 +23,7 @@ class TestModels(unittest.TestCase):
         self.assertEqual(command.argv.pop(), "Beau")
         self.assertEqual(command.argv, ["Edward"])
     
-    def test_key_model(self):
+    def test_model_key(self):
         keya = models.Key("A Test A", "DEV")
         keyb = models.Key("A Test B", "DEV")
         keyc = models.Key("A Test A", "DEV")
@@ -36,29 +36,19 @@ class TestModels(unittest.TestCase):
         lookup[keyb] = "Hello Key Model B"
         self.assertEqual(lookup[keyb], "Hello Key Model B")
 
-    def test_sequence_model(self):
-        cmda = models.Command(label="printf", target="A beautiful mind ${1}", argv=["Edward"])
-        cmdb = models.Command(label="printf", target="An amazing experience with ${1}", argv=["Beau"])
+    def test_model_task(self):
+        cmda = models.Command(label="printf", target="A beautiful mind ${2}", argv=["Edward", "Beau"])
+        cmdb = models.Command(label="printf", target="An amazing experience with ${1}", argv=["Jim"])
         cmdc = models.Command(label="printf", target="A ${1} cause", argv=["noble"])
-        key = models.Key("A Web Sequence", "DEV")
-        sequence = models.Sequence(key=key, cmds=deque([cmda, cmdb]))
-        self.assertEqual(sequence.key, key)
-        self.assertEqual(sequence.cmds, deque([cmda, cmdb]))
+        key = models.Key("DEV", "A Web Task")
+        task = models.Task(key=key, cmds=deque([cmda, cmdb]))
+        self.assertEqual(task.key, key)
+        self.assertEqual(task.cmds, deque([cmda, cmdb]))
         
-        sequence.cmds.append(cmdc)
-        self.assertEqual(sequence.cmds, deque([cmda, cmdb, cmdc]))
-        self.assertEqual(sequence.cmds.pop(), cmdc)
-        self.assertEqual(sequence.cmds, deque([cmda, cmdb]))
-
-    def test_worker_model(self):
-        driver = utils.get_webdriver()
-
-        worker = models.Worker("A Worker", driver)
-        sequence = utils.get_sequences()[0]
-        worker.load(sequence)
-        print(f"{sequence.key}: {worker.run()}")
-        
-        driver.quit()
+        task.cmds.append(cmdc)
+        self.assertEqual(task.cmds, deque([cmda, cmdb, cmdc]))
+        self.assertEqual(task.cmds.pop(), cmdc)
+        self.assertEqual(task.cmds, deque([cmda, cmdb]))
 
 if __name__ == "__main__":
     unittest.main()
