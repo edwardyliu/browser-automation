@@ -1,0 +1,45 @@
+{
+    "name": "TEST COMPLEX CURSOR STATES",
+    "env": "TEST",
+    "commands": [
+        ["GET", "https://www.youtube.com/"],
+        ["PAUSE", 1.5],
+        ["CLICK", "/html/body/ytd-app/div/div/ytd-masthead/div[3]/div[3]/div[2]/ytd-topbar-menu-button-renderer[2]/div"],
+        ["PAUSE", 1.5],
+
+        ["GET", {"target": "https://www.youtube.com/"}],
+        ["PAUSE", 1.5],
+        ["DRAG_AND_DROP_BY_OFFSET", {
+            "target": "/html/body/ytd-app/div/ytd-page-manager/ytd-browse/ytd-two-column-browse-results-renderer/div[1]/ytd-rich-grid-renderer/div[6]/ytd-rich-item-renderer[3]/div/ytd-rich-grid-video-renderer/div[1]/ytd-thumbnail/a",
+            "argv": [100, 100]}],
+        ["PAUSE", 1.5],
+
+        ["GET", {"target": "https://www.youtube.com/"}],
+        ["PAUSE", 1.5],
+        ["MOVE_TO_ELEMENT", "/html/body/ytd-app/div/ytd-page-manager/ytd-browse/ytd-two-column-browse-results-renderer/div[1]/ytd-rich-grid-renderer/div[6]/ytd-rich-item-renderer[3]/div/ytd-rich-grid-video-renderer/div[1]/ytd-thumbnail/a"],
+        ["MOVE_TO_ELEMENT_WITH_OFFSET", {
+            "target": "/html/body/ytd-app/div/ytd-page-manager/ytd-browse/ytd-two-column-browse-results-renderer/div[1]/ytd-rich-grid-renderer/div[6]/ytd-rich-item-renderer[3]/div/ytd-rich-grid-video-renderer/div[1]/ytd-thumbnail/a",
+            "argv": [100, 100]}],
+        ["PAUSE", 1.5],
+
+        ["GET", {"target": "https://www.youtube.com/"}],
+        ["PAUSE", 1.5],
+        ["DRAG_AND_DROP", {
+            "target": "/html/body/ytd-app/div/ytd-page-manager/ytd-browse/ytd-two-column-browse-results-renderer/div[1]/ytd-rich-grid-renderer/div[6]/ytd-rich-item-renderer[3]/div/ytd-rich-grid-video-renderer/div[1]/ytd-thumbnail/a",
+            "argv": "/html/body/ytd-app/div/div/ytd-masthead/div[3]/div[2]/ytd-searchbox/form/div/div[1]/input"}],
+        ["PAUSE", 1.5],
+
+        ["GET", {"target": "https://www.youtube.com/"}],
+        ["PAUSE", 1.5],
+        ["SEND_KEYS", {"target": "/html/body/ytd-app/div/div/ytd-masthead/div[3]/div[2]/ytd-searchbox/form/div/div[1]/input", "argv": "a beautiful mind alternatives${ENTER}"}],
+        ["WAIT", {
+            "target": "//*[@id='thumbnail']",
+            "argv": ["UNTIL", "PRESENCE_OF_ALL_ELEMENTS_LOCATED"]}],
+        
+        ["GET", "https://www.youtube.com/"],
+        ["WAIT", {
+            "target": "YouTube",
+            "argv": ["UNTIL", "TITLE_CONTAINS"]}],
+        ["PAUSE", 1.5]
+    ]
+}

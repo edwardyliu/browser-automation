@@ -1,3 +1,5 @@
+# setup.py
+
 # == Import(s) ==
 import os
 import subprocess
@@ -39,8 +41,8 @@ def main(env="linux"):
     print("========================================================")
     print("=== Make Folder(s): ")
     print("========================================================")
-    resources = os.path.join(ROOTPATH, "app/backend/webauto/resources/")
-    cache = os.path.join(ROOTPATH, "app/backend/webauto/resources/cache/")
+    resources = os.path.join(ROOTPATH, "project/server/tasks/ina/resources/")
+    cache = os.path.join(ROOTPATH, "project/server/tasks/ina/resources/cache/")
     print(resources)
     if not os.path.exists(resources):
         shell("mkdir -p {0}".format(resources), show=False)

@@ -1,0 +1,12 @@
+{
+    "name": "TEST GLOBAL LOOKUP TABLE",
+    "env": "TEST",
+    "commands": [
+        ["GET", {"target": "https://www.google.com/"}],
+        ["PAUSE", 1.5],
+        ["DSEND_KEYS", {"target": "//input[@name='q']", "argv": "Python Module ${username}"}],
+        ["SEND_KEYS", {"argv": "${ENTER}"}],
+        ["PAUSE", 1.5],
+        ["PRINTF", {"target": "Hello ${noun} and ${name}"}]
+    ]
+}
