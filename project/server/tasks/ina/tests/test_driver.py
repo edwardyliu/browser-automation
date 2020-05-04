@@ -16,64 +16,49 @@ from collections import deque
 class TestDriver(unittest.TestCase):
     
     def test_run(self):
-        worker = driver.Driver("test_simple_task")
+        worker = driver.Driver("test_run")
         self.assertEqual(worker.key(), None)
-        key = models.Key("Test", "Beautiful")
+
+        key = models.Key("TEST", "test_run")
         task = models.Task(key, deque([
             models.Command("get", "https://www.google.com/", None),
-            models.Command("printf", "Hello World, me Name's ${1}", ["Beau"]),
-            models.Command("pause", "5", None)
+            models.Command("printf", "Hello world, name's ${1}", ["Beau"])
         ]))
         worker.assign(task)
         self.assertEqual(worker.key(), key)
         
-        results = worker.run()
-        self.assertEqual(results, worker.results)
-        self.assertEqual(results["${1}"], "Hello World, me Name's Beau")
+        response = worker.run()
+        self.assertEqual(response, worker.results)
+        self.assertEqual(response["${1}"], "Hello world, name's Beau")
 
     def test_write(self):
         worker = driver.Driver("test_write")
-        key = models.Key("Test", "Writer")
+        key = models.Key("TEST", "test_write")
         task = models.Task(key, deque([
             models.Command("get", "https://www.google.com/", None),
-            models.Command("write", "//input[@name='q']", ["wow ${/html/body/div/div[4]/span/center/div[3]/div[1]/div/a}... ${name} is typing, "]),
+            models.Command("write", "//input[@name='q']", ["Wow ${/html/body/div/div[4]/span/center/div[3]/div[1]/div/a}! ${user} is typing..."]),
+            models.Command("printf", "Wow ${/html/body/div/div[4]/span/center/div[3]/div[1]/div/a}! ${user} is typing...", None),
             models.Command("send_keys", None, ["${ENTER}"]),
-            models.Command("pause", "5.0", None)
+            models.Command("pause", "2.0", None)
         ]))
         worker.assign(task)
         self.assertEqual(worker.key(), key)
-        
-        worker.run({"name": "Edward"})
 
-    def test_write_argv(self):
-        worker = driver.Driver("test_write_argv")
-        key = models.Key("Test", "Writer")
-        task = models.Task(key, deque([
-            models.Command("get", "https://www.youtube.com/", None),
-            models.Command("pause", "3.0", None),
-            models.Command("printf", "START HERE ${//*[@id='video-title']} | name: ${name}, ${2}", ["Edward", "Beau"]),
-            models.Command("write", "/html/body/ytd-app/div/div/ytd-masthead/div[3]/div[2]/ytd-searchbox/form/div/div[1]/input", ["${//*[@id='video-title']}... ${name}"]),
-            models.Command("pause", "5.0", None)
-        ]))
-        worker.assign(task)
-        self.assertEqual(worker.key(), key)
-        
-        
-        worker.run({"name": "Edward", "noun": "Toronto"})
+        response = worker.run({"user": "Edward"})
+        self.assertEqual("Edward is typing..." in response["${1}"], True)
 
     def test_write_all(self):
         worker = driver.Driver("test_write_argv")
         key = models.Key("Test", "Writer")
         task = models.Task(key, deque([
             models.Command("get", "https://www.youtube.com/", None),
-            models.Command("pause", "3.0", None),
-            models.Command("write", "/html/body/ytd-app/div/div/ytd-masthead/div[3]/div[2]/ytd-searchbox/form/div/div[1]/input", ["${@//*[@id='video-title']}... lutv: ${@#}... argv: ${@}"]),
-            models.Command("pause", "5.0", None)
+            models.Command("write", "/html/body/ytd-app/div/div/ytd-masthead/div[3]/div[2]/ytd-searchbox/form/div/div[1]/input", ["${@//*[@id='video-title']}; lutv: ${@#};"]),
+            models.Command("pause", "2.0", None)
         ]))
         worker.assign(task)
         self.assertEqual(worker.key(), key)
         
-        worker.run({"name": "Edward", "noun": "Toronto"})
+        worker.run({"user": "Edward", "city": "Toronto"})
 
 if __name__ == "__main__":
     unittest.main()

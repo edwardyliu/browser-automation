@@ -2,4 +2,4 @@
 
 # == Export(s) ==
 # => API
-from .service import exec_job
+from .api import create_task

@@ -6,6 +6,7 @@ from . import tasks
 
 # => System
 import time
+import uuid
 
 # => External
 from flask import Flask, request, jsonify
@@ -18,12 +19,13 @@ def get_current_time():
     return jsonify({"time": time.time()})
 
 @app.route("/job", methods=["POST"])
-def exec_job():
+def create_task():
     message = request.json
-    parcel = message.get("parcel"); requestor = message.get("requestor")
     print(f"Message: {message}")
-
-    if parcel: tasks.exec_job(parcel, requestor)
+    
+    uid = str(uuid.uuid4())
+    print(f"UID: {uid}")
+    if message: tasks.create_task(message, uid)
     return jsonify({"time": time.time()})
 
 app.run()

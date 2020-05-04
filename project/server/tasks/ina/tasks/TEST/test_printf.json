@@ -3,20 +3,16 @@
     "env": "TEST",
     "commands": [
         ["GET", {"target": "https://www.google.com/"}],
-        ["PAUSE", 1.5],
         ["PRINTF", {
             "target": "Hello ${/html/body/div/div[4]/span/center/div[3]/div[1]/div/a}, my name is ${1}!",
             "argv": "Edward Y. Liu"}],
-        ["PAUSE", 1.5],
 
         ["GET", "https://www.youtube.com/"],
-        ["PAUSE", 1.5],
         ["PRINTF", {
             "target": "Hello Video: ${//*[@id='video-title']}, my name is ${1} and I am ${2}!",
             "argv": ["Edward Y. Liu", "Happy"]}],
         ["PRINTF", {
             "target": "Hello Videos: ${@//*[@id='video-title']}, I am ${2}! my name is ${1}! LOL ${@}!",
-            "argv": ["Edward Y. Liu", "Hyper"]}],
-        ["PAUSE", 1.5]
+            "argv": ["Edward Y. Liu", "Hyper"]}]
     ]
 }

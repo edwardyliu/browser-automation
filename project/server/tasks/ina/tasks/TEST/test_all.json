@@ -1,16 +1,14 @@
 {
-    "name": "TEST SIMPLE CURSOR STATES",
+    "name": "TEST ALL",
     "env": "TEST",
     "commands": [
         ["GET", {"target": "https://www.google.com/"}],
-        
-        ["PAUSE", 1.5],
         ["MOVE_BY_OFFSET", {"argv": [100, 200]}],
         ["CLICK"],
         ["MOVE_BY_OFFSET", {"argv": [400, 400]}],
         ["DOUBLE_CLICK"],
         ["CLICK_AND_HOLD"],
-        ["PAUSE", 1.5],
+        ["PAUSE", 1.0],
         ["RELEASE"],
         
         ["SEND_KEYS", {"target": "//input[@name='q']", "argv": ["Python Selenium ActionChains Documentation"]}],
@@ -18,8 +16,7 @@
         ["PAUSE", 1.5],
         
         ["GET", "https://www.google.com/"],
-        ["PAUSE", 1.5],
-        ["SEND_KEYS", {"target": "//input[@name='q']", "argv": [["KEY_DOWN", "${SHIFT}"], "lowercase", ["KEY_UP", "${SHIFT}"], "${ENTER}"]}],
+        ["SEND_KEYS", {"target": "//input[@name='q']", "argv": [["KEY_DOWN", "${SHIFT}"], "uppercase Edward", ["KEY_UP", "${SHIFT}"], "${ENTER}"]}],
         ["PAUSE", 1.5]
     ]
 }

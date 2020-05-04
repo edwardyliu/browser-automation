@@ -25,12 +25,17 @@ POSITIONAL=re.compile(r"(\$\{.*?\})")
 ARGV="@"
 LUTV="@#"
 FINDV="@"
+LAST="-1"
 
 # => Default(s)
 DEFAULT_WAIT=1.5
 DEFAULT_TIMEOUT=15.
 
-DEFAULT_STRING_FORMAT="argv: ${@}, lutv: ${@#}"
+DEFAULT_DELIMITER=","
+DEFAULT_STRING_FORMAT=(
+    "${userid}" + DEFAULT_DELIMITER +   # user ID
+    "${1}" + DEFAULT_DELIMITER +        # order
+    "${" + LAST + "}")                  # order ID
 DEFAULT_URL="https://www.google.com/"
 DEFAULT_PREFIX=[
     models.Command("GET", DEFAULT_URL, None)
@@ -38,6 +43,10 @@ DEFAULT_PREFIX=[
 DEFAULT_SUFFIX=[
     models.Command("GET", DEFAULT_URL, None)
 ]
+
+DEFAULT_SMTP_SERVER="localhost"
+DEFAULT_SMTP_PORT=1025
+DEFAULT_SENDER_EMAIL="support@nauto.com"
 
 # => Expected Condition(s)
 EXPECTED_CONDITIONS={

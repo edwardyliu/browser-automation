@@ -1,14 +1,11 @@
 {
-    "name": "TEST KEYBOARD STATES",
+    "name": "TEST KEYBOARD",
     "env": "TEST",
     "commands": [
         ["GET", {"target": "https://www.google.com/"}],
-        ["PAUSE", 1.5],
         ["SEND_KEYS", {
             "target": "//input[@name='q']",
-            "argv": ["A beautiful mind", ["KEY_DOWN", "${SHIFT}"], "lowercase", ["KEY_UP", "${SHIFT}"]]}],
-        ["PAUSE", 1.5],
-        
+            "argv": ["A beautiful mind", ["KEY_DOWN", "${SHIFT}"], "uppercase", ["KEY_UP", "${SHIFT}"]]}],
         ["SEND_KEYS", {"argv": "review${ENTER}"}],
         ["PAUSE", 1.5]
     ]

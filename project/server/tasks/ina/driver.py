@@ -229,8 +229,10 @@ class Driver(object):
             A URL string
         """
 
-        try: self.driver.get(target); self.pause(config.DEFAULT_WAIT)
-
+        try: 
+            self.driver.get(target)
+            self.pause(config.DEFAULT_WAIT)
+        
         except exceptions.InvalidArgumentException:
             self.log.error(f"get: Invalid Argument Exception - Malformed URL - '{target}' is not a valid URL")
             self.log.error(f"invalid task definition: {self.task}")

@@ -2,7 +2,7 @@
 
 # == Import(s) ==
 # => Local
-from project.server.tasks import service
+from project.server.tasks import api
 
 # => System
 import unittest
@@ -10,28 +10,33 @@ import unittest
 # == Test Object ==
 class TestService(unittest.TestCase):
     
-    def test_exec_job(self):
-        parcel = [
-            {
-                "env": "TEST",
-                "name": "TEST COMPLEX CURSOR STATES"
-            },
-            {
-                "env": "TEST",
-                "name": "TEST GLOBAL LOOKUP TABLE",
-                "lut": {"username": "EYL", "noun": "World", "name": "Myself"}
-            },
-            {
-                "env": "TEST",
-                "name": "TEST COMPLEX CURSOR STATES"
-            },
-            {
-                "env": "TEST",
-                "name": "TEST COMPLEX CURSOR STATES"
-            },
-        ]
-        requestor = "Edward"
-        service.exec_job(parcel, requestor)
+    def test_create_task(self):
+        message = {
+            "receiver": "edward.yifengliu@gmail.com",
+            "parcel": [
+                {
+                    "env": "TEST",
+                    "name": "TEST MOUSE",
+                    "lut": {"userid": "Edward"}
+                },
+                {
+                    "env": "TEST",
+                    "name": "TEST LUT",
+                    "lut": {"userid": "Kim"}
+                },
+                {
+                    "env": "TEST",
+                    "name": "TEST MOUSE",
+                    "lut": {"userid": "Tim"}
+                },
+                {
+                    "env": "TEST",
+                    "name": "TEST MOUSE",
+                    "lut": {"userid": "Bim"}
+                }
+            ]
+        }
+        api.create_task(message)
 
 if __name__ == "__main__":
     unittest.main()
