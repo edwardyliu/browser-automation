@@ -1,4 +1,4 @@
-# project/server/tasks/tests/test_service.py
+# project/server/tasks/tests/test_api.py
 
 # == Import(s) ==
 # => Local
@@ -8,7 +8,7 @@ from project.server.tasks import api
 import unittest
 
 # == Test Object ==
-class TestService(unittest.TestCase):
+class TestAPI(unittest.TestCase):
     
     def test_create_task(self):
         message = {

@@ -6,7 +6,7 @@ import unittest
 
 # == Module Test: Tasks ==
 def tests()->bool:
-    tests = unittest.TestLoader().discover("project/server/tasks/tests/", pattern="test*.py")
+    tests = unittest.TestLoader().discover("project/server/tasks/", pattern="test*.py")
     result = unittest.TextTestRunner(verbosity=2).run(tests)
     if result.wasSuccessful(): return 0
     else: return 1

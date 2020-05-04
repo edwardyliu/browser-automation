@@ -53,7 +53,7 @@ class Driver(object):
 
         self.reset()
         self.task = task
-        self.log.info(f"assigned: {self.task}")
+        self.log.debug(f"assigned: {self.task}")
 
     def reset(self):
         """Clean state information

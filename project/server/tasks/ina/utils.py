@@ -48,13 +48,13 @@ def get_logger(uid:str)->logging.Logger:
     """
 
     log = logging.getLogger(uid)
-    log.setLevel(logging.INFO)
+    log.setLevel(config.LOG_LEVEL)
 
     fmt = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
     fmt.converter = timezone_converter_est
 
     handle = logging.StreamHandler()
-    handle.setLevel(logging.INFO)
+    handle.setLevel(config.LOG_LEVEL)
     handle.setFormatter(fmt)
     log.addHandler(handle)
     return log

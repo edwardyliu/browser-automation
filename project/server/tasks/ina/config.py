@@ -7,12 +7,16 @@ from . import models
 # => System
 import os
 import re
+import logging
 from pathlib import Path
 
 # => External
 from selenium.webdriver.support import expected_conditions as EC
 
 # == Configuration(s) ==
+# => Logging
+LOG_LEVEL=logging.ERROR
+
 # => Path & Directories
 TASK_DIRPATH=os.path.join(Path(__file__).parents[0], "tasks/")
 CACHE_DIRPATH=os.path.join(Path(__file__).parents[0], "resources/cache/")
