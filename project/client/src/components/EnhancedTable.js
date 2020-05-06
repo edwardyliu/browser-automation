@@ -1,7 +1,9 @@
 import React from 'react'
 
 import Checkbox from '@material-ui/core/Checkbox'
+import FileSaver from "file-saver"
 import MaUTable from '@material-ui/core/Table'
+import Papa from "papaparse"
 import PropTypes from 'prop-types'
 import TableBody from '@material-ui/core/TableBody'
 import TableCell from '@material-ui/core/TableCell'
@@ -168,10 +170,18 @@ const EnhancedTable = ({
         setPageSize(Number(event.target.value))
     }
 
+    const selectByIndexs = (array, indexs) => 
+        array.filter((_, i) => indexs.includes(i))
+
     const removeByIndexs = (array, indexs) =>
         array.filter((_, i) => !indexs.includes(i))
 
-        const deleteOrderHandler = event => {
+    const addOrderHandler = order => {
+        const newData = data.concat([order])
+        setData(newData)
+    }
+
+    const deleteOrderHandler = event => {
         const newData = removeByIndexs(
             data,
             Object.keys(selectedRowIds).map(x => parseInt(x, 10))
@@ -179,9 +189,34 @@ const EnhancedTable = ({
         setData(newData)
     }
 
-    const addOrderHandler = order => {
-        const newData = data.concat([order])
-        setData(newData)
+    const importHandler = event => {
+        const file = event.target.files[0]
+        const reader = new FileReader()
+        reader.onload = event => {
+            const csvData = event.target.result
+            const newData = Papa.parse(csvData, {header: true}).data
+            setData(newData)
+        }
+        reader.readAsText(file)
+    }
+
+    const exportHandler = event => {
+        let newData = data
+        for (let key in newData) { delete newData[key]["subRows"] }
+        const csv = Papa.unparse(newData)
+        const csvData = new Blob([csv], { type: "text/csv;charset=utf-8;"})
+        FileSaver.saveAs(csvData, "nauto-snap.csv")
+    }
+
+    const exportSelectedHandler = event => {
+        let newData = selectByIndexs(
+            data,
+            Object.keys(selectedRowIds).map(x => parseInt(x, 10))
+        )
+        for (let key in newData) { delete newData[key]["subRows"] }
+        const csv = Papa.unparse(newData)
+        const csvData = new Blob([csv], { type: "text/csv;charset=utf-8;"})
+        FileSaver.saveAs(csvData, "nauto-snap.csv")
     }
 
     // Render the UI for your table
@@ -189,8 +224,11 @@ const EnhancedTable = ({
         <TableContainer>
             <TableToolbar
                 numSelected={Object.keys(selectedRowIds).length}
-                deleteOrderHandler={deleteOrderHandler}
                 addOrderHandler={addOrderHandler}
+                deleteOrderHandler={deleteOrderHandler}
+                importHandler={importHandler}
+                exportHandler={exportHandler}
+                exportSelectedHandler={exportSelectedHandler}
                 preGlobalFilteredRows={preGlobalFilteredRows}
                 setGlobalFilter={setGlobalFilter}
                 globalFilter={globalFilter}
@@ -234,7 +272,6 @@ const EnhancedTable = ({
                         )
                     })}
                 </TableBody>
-
                 <TableFooter>
                     <TableRow>
                         <TablePagination
@@ -242,6 +279,7 @@ const EnhancedTable = ({
                             5,
                             10,
                             25,
+                            50,
                             { label: 'All', value: data.length },
                             ]}
                             colSpan={3}

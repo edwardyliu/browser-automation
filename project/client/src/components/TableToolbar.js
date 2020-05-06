@@ -7,6 +7,8 @@ import GlobalFilter from './GlobalFilter'
 import IconButton from '@material-ui/core/IconButton'
 import { lighten, makeStyles } from '@material-ui/core/styles'
 import PropTypes from 'prop-types'
+import PublishIcon from '@material-ui/icons/Publish';
+import SaveIcon from '@material-ui/icons/Save';
 import Toolbar from '@material-ui/core/Toolbar'
 import Typography from '@material-ui/core/Typography'
 import Tooltip from '@material-ui/core/Tooltip'
@@ -29,6 +31,16 @@ const useToolbarStyles = makeStyles(theme => ({
     title: {
         flex: '1 1 100%',
     },
+    iconBundle: {
+        display: 'contents',
+    },
+    selectedIconBundle: {
+        width: '25%',
+        textAlign: 'right',
+    },
+    input: {
+        display: 'none',
+    },
 }))
 
 const TableToolbar = props => {
@@ -37,6 +49,9 @@ const TableToolbar = props => {
     numSelected,
     addOrderHandler,
     deleteOrderHandler,
+    importHandler,
+    exportHandler,
+    exportSelectedHandler,
     preGlobalFilteredRows,
     setGlobalFilter,
     globalFilter,
@@ -64,17 +79,39 @@ const TableToolbar = props => {
             )}
 
             {numSelected > 0 ? (
-                <Tooltip title="Delete">
-                    <IconButton aria-label="delete" onClick={deleteOrderHandler}>
-                        <DeleteIcon />
-                    </IconButton>
-                </Tooltip>
+                <div className={classes.selectedIconBundle}>
+                    <Tooltip title="Export CSV">
+                        <IconButton aria-label="export csv" onClick={exportSelectedHandler}>
+                            <SaveIcon />
+                        </IconButton>
+                    </Tooltip>
+                    <Tooltip title="Delete">
+                        <IconButton aria-label="delete" onClick={deleteOrderHandler}>
+                            <DeleteIcon />
+                        </IconButton>
+                    </Tooltip>
+                </div>
             ) : (
-                <GlobalFilter
-                    preGlobalFilteredRows={preGlobalFilteredRows}
-                    globalFilter={globalFilter}
-                    setGlobalFilter={setGlobalFilter}
-                />
+                <div className={classes.iconBundle}>
+                    <input className={classes.input} id="icon-import-csv" type="file" onChange={importHandler} />
+                    <label htmlFor="icon-import-csv">
+                        <Tooltip title="Import CSV">
+                            <IconButton color="primary" aria-label="import csv" component="span">
+                                <PublishIcon />
+                            </IconButton>
+                        </Tooltip>
+                    </label>
+                    <Tooltip title="Export CSV">
+                        <IconButton color="secondary" aria-label="export csv" onClick={exportHandler}>
+                            <SaveIcon />
+                        </IconButton>
+                    </Tooltip>
+                    <GlobalFilter
+                        preGlobalFilteredRows={preGlobalFilteredRows}
+                        globalFilter={globalFilter}
+                        setGlobalFilter={setGlobalFilter}
+                    />
+                </div>
             )}
         </Toolbar>
     )
@@ -84,6 +121,9 @@ TableToolbar.propTypes = {
   numSelected: PropTypes.number.isRequired,
   addOrderHandler: PropTypes.func.isRequired,
   deleteOrderHandler: PropTypes.func.isRequired,
+  importHandler: PropTypes.func.isRequired,
+  exportHandler: PropTypes.func.isRequired,
+  exportSelectedHandler: PropTypes.func.isRequired,
   setGlobalFilter: PropTypes.func.isRequired,
   preGlobalFilteredRows: PropTypes.array.isRequired,
   globalFilter: PropTypes.string.isRequired,
