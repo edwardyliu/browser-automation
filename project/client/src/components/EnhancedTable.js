@@ -176,8 +176,8 @@ const EnhancedTable = ({
     const removeByIndexs = (array, indexs) =>
         array.filter((_, i) => !indexs.includes(i))
 
-    const addOrderHandler = order => {
-        const newData = data.concat([order])
+    const addOrderHandler = entry => {
+        const newData = data.concat([entry])
         setData(newData)
     }
 
@@ -202,7 +202,6 @@ const EnhancedTable = ({
 
     const exportHandler = event => {
         let newData = data
-        for (let key in newData) { delete newData[key]["subRows"] }
         const csv = Papa.unparse(newData)
         const csvData = new Blob([csv], { type: "text/csv;charset=utf-8;"})
         FileSaver.saveAs(csvData, "nauto-snap.csv")
@@ -213,7 +212,6 @@ const EnhancedTable = ({
             data,
             Object.keys(selectedRowIds).map(x => parseInt(x, 10))
         )
-        for (let key in newData) { delete newData[key]["subRows"] }
         const csv = Papa.unparse(newData)
         const csvData = new Blob([csv], { type: "text/csv;charset=utf-8;"})
         FileSaver.saveAs(csvData, "nauto-snap.csv")

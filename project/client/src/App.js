@@ -2,7 +2,7 @@ import React from 'react'
 
 import CssBaseline from '@material-ui/core/CssBaseline'
 import EnhancedTable from './components/EnhancedTable'
-import makeData from './utils/makeData'
+import makeData from './helpers/makeData'
 
 const App = () => {
     const columns = React.useMemo(
@@ -12,16 +12,12 @@ const App = () => {
                 accessor: 'userId',
             },
             {
-                Header: 'Order ID',
-                accessor: 'orderId',
-            },
-            {
-                Header: 'Environment',
-                accessor: 'env',
-            },
-            {
                 Header: 'Dictionary',
                 accessor: 'dict',
+            },
+            {
+                Header: 'Order IDs',
+                accessor: 'orderIds',
             },
         ],
         []
