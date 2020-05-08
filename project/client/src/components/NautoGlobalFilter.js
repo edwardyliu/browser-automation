@@ -1,7 +1,7 @@
 import React from 'react'
 
 import FindInPageIcon from '@material-ui/icons/FindInPage'
-import InputBase from '@material-ui/core/InputBase'
+import Input from '@material-ui/core/Input'
 import { makeStyles, fade } from '@material-ui/core'
 import PropTypes from 'prop-types'
 import Tooltip from '@material-ui/core/Tooltip'
@@ -62,17 +62,18 @@ const NautoGlobalFilter = ({
                 <FindInPageIcon />
             </div>
             <Tooltip title="Search">
-                <InputBase 
-                    value={globalFilter || ''}
-                    onChange={e => {
-                        setGlobalFilter(e.target.value || undefined) // Set undefined to remove the filter entirely
-                    }}
-                    placeholder={`${count} records...`}
+                <Input
                     classes={{
                         root: classes.inputRoot,
                         input: classes.inputInput,
                     }}
                     inputProps={{ 'aria-label': 'search' }}
+                    onChange={e => {
+                        setGlobalFilter(e.target.value || undefined) // Set undefined to remove the filter entirely
+                    }}
+                    placeholder={`${count} records...`}
+                    value={globalFilter || ''}
+                    variant="outlined"
                 />
             </Tooltip>
         </div>

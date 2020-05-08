@@ -61,9 +61,9 @@ const NautoTable = ({
             updateData,
         },
         useGlobalFilter,
+        useSortBy,
         usePagination,
         useRowSelect,
-        useSortBy,
         hooks => {
             hooks.allColumns.push(columns => [
                 // Let's make a column for selection
