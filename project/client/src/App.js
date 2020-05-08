@@ -1,38 +1,43 @@
 import React from 'react'
 
 import CssBaseline from '@material-ui/core/CssBaseline'
-import EnhancedTable from './components/EnhancedTable'
+import NautoTable from './components/NautoTable'
+
 import makeData from './helpers/makeData'
 
 const App = () => {
+
     const columns = React.useMemo(
         () => [
             {
                 Header: 'User ID',
-                accessor: 'userId',
+                accessor: 'usrId',
             },
             {
-                Header: 'Dictionary',
-                accessor: 'dict',
+                Header: 'Look-Up Table',
+                accessor: 'lut',
             },
             {
-                Header: 'Order IDs',
-                accessor: 'orderIds',
+                Header: 'Order Name',
+                accessor: 'name',
+            },
+            {
+                Header: 'Environment',
+                accessor: 'env',
             },
         ],
         []
     )
-
-    const [data, setData] = React.useState(React.useMemo(() => makeData(10), []))
-    const [skipPageReset, setSkipPageReset] = React.useState(false)
-
+    const [data, setData] = React.useState(React.useMemo(() => makeData(5), []))
+    
     // We need to keep the table from resetting the pageIndex when we
     // Update data. So we can keep track of that flag with a ref.
+    const [skipPageReset, setSkipPageReset] = React.useState(false)
 
-    // When our cell renderer calls updateOrderData, we'll use
+    // When our cell renderer calls updateData, we'll use
     // the rowIndex, columnId and new value to update the
     // original data
-    const updateOrderData = (rowIndex, columnId, value) => {
+    const updateData = (rowIndex, columnId, value) => {
         // We also turn on the flag to not reset the page
         setSkipPageReset(true)
         setData(old =>
@@ -51,12 +56,12 @@ const App = () => {
     return (
         <div>
             <CssBaseline />
-            <EnhancedTable
+            <NautoTable
                 columns={columns}
                 data={data}
                 setData={setData}
-                updateOrderData={updateOrderData}
                 skipPageReset={skipPageReset}
+                updateData={updateData}
             />
         </div>
     )

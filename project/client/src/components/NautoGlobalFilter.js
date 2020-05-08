@@ -2,7 +2,7 @@ import React from 'react'
 
 import FindInPageIcon from '@material-ui/icons/FindInPage'
 import InputBase from '@material-ui/core/InputBase'
-import { fade, makeStyles } from '@material-ui/core/styles'
+import { makeStyles, fade } from '@material-ui/core'
 import PropTypes from 'prop-types'
 import Tooltip from '@material-ui/core/Tooltip'
 
@@ -44,11 +44,12 @@ const useStyles = makeStyles(theme => ({
     },
 }))
 
-const GlobalFilter = ({
-    preGlobalFilteredRows,
+const NautoGlobalFilter = ({
     globalFilter,
+    preGlobalFilteredRows,
     setGlobalFilter,
 }) => {
+
     const classes = useStyles()
     const count = preGlobalFilteredRows.length
 
@@ -61,7 +62,7 @@ const GlobalFilter = ({
                 <FindInPageIcon />
             </div>
             <Tooltip title="Search">
-                <InputBase
+                <InputBase 
                     value={globalFilter || ''}
                     onChange={e => {
                         setGlobalFilter(e.target.value || undefined) // Set undefined to remove the filter entirely
@@ -78,10 +79,10 @@ const GlobalFilter = ({
     )
 }
 
-GlobalFilter.propTypes = {
+NautoGlobalFilter.propTypes = {
+    globalFilter: PropTypes.string,
     preGlobalFilteredRows: PropTypes.array.isRequired,
-    globalFilter: PropTypes.string.isRequired,
     setGlobalFilter: PropTypes.func.isRequired,
 }
 
-export default GlobalFilter
+export default NautoGlobalFilter

@@ -15,11 +15,12 @@ const useStyles = makeStyles(theme => ({
     },
 }))
 
-const TablePaginationActions = props => {
+const NautoPaginationActions = props => {
     const classes = useStyles()
     const theme = useTheme()
     const { count, page, rowsPerPage, onChangePage } = props
 
+    // == Events ==
     const handleFirstPageButtonClick = event => {
         onChangePage(event, 0)
     }
@@ -78,11 +79,11 @@ const TablePaginationActions = props => {
     )
 }
 
-TablePaginationActions.propTypes = {
+NautoPaginationActions.propTypes = {
     count: PropTypes.number.isRequired,
     onChangePage: PropTypes.func.isRequired,
     page: PropTypes.number.isRequired,
     rowsPerPage: PropTypes.number.isRequired,
 }
 
-export default TablePaginationActions
+export default NautoPaginationActions

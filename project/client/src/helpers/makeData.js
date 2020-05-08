@@ -10,9 +10,10 @@ const range = len => {
 
 const newOrder = () => {
     return {
-        userId: namor.generate({ words: 1, numbers: 0 }),
-        dict: "",
-        orderIds: namor.generate({ words: 1, numbers: 0 }),
+        usrId: namor.generate({ words: 1, numbers: 0 }),
+        lut: "",
+        name: namor.generate({ words: 1, numbers: 0 }),
+        env: namor.generate({ words: 1, numbers: 0 }),
     }
 }
 
