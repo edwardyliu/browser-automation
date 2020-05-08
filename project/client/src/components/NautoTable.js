@@ -1,9 +1,13 @@
 import React from 'react'
 
+import Button from '@material-ui/core/Button';
+import CenterFocusWeakIcon from '@material-ui/icons/CenterFocusWeak';
 import FileSaver from "file-saver"
 import Papa from "papaparse"
 import PropTypes from 'prop-types'
+import { makeStyles } from '@material-ui/core/styles';
 import MaUTable from '@material-ui/core/Table'
+import SendIcon from '@material-ui/icons/Send';
 import TableBody from '@material-ui/core/TableBody'
 import TableCell from '@material-ui/core/TableCell'
 import TableContainer from '@material-ui/core/TableContainer'
@@ -29,6 +33,15 @@ const defaultColumn = {
     Cell: NautoCell,
 }
 
+const useStyles = makeStyles((theme) => ({
+    button: {
+        margin: theme.spacing(1),
+    },
+    rightwards: {
+        float: 'right',
+    },
+}))
+
 const NautoTable = ({
     columns,
     data,
@@ -37,6 +50,7 @@ const NautoTable = ({
     updateData,
 }) => {
 
+    const classes = useStyles()
     const {
         getTableProps,
         gotoPage,
@@ -298,6 +312,25 @@ const NautoTable = ({
                                 native: true,
                             }}
                         />
+                        <TableCell></TableCell>
+                        <TableCell className={classes.rightwards}>
+                            <Button
+                                variant="contained"
+                                color="secondary"
+                                className={classes.button}
+                                endIcon={<SendIcon />}
+                            >
+                                Send
+                            </Button>
+                            <Button
+                                variant="contained"
+                                color="primary"
+                                className={classes.button}
+                                endIcon={<CenterFocusWeakIcon />}
+                            >
+                                Scan
+                            </Button>
+                        </TableCell>
                     </TableRow>
                 </TableFooter>
             </MaUTable>
