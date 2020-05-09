@@ -25,14 +25,24 @@ case $key in
         usage && exit 0
     ;;
     -c|--clean)
+        find "${DIR}"/ -type f -name "*.log" -exec rm -r {} +
+
+        # server
         rm -r "${DIR}"/project/server/tasks/ina/resources
         find "${DIR}"/project/server/tasks/ -type f -name "*.csv" -exec rm -r {} +
         find "${DIR}"/project/server/ -type d -name "__pycache__" -exec rm -r {} +
-        find "${DIR}"/ -type f -name "*.log" -exec rm -r {} +
+        
+        # client
+        rm -r "${DIR}"/project/client/build
+
         exit 0
     ;;
     -m|--make)
+        # server
         python3 "${DIR}/setup.py"
+
+        # client
+        (cd "${DIR}/project/client" && npm install --save && npm run build)
         exit 0
     ;;
     *)

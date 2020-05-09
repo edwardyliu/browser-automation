@@ -3,7 +3,6 @@
 # == Import(s) ==
 # => Local
 from . import config
-from . import models
 
 # => System
 import os
@@ -11,8 +10,6 @@ import re
 import json
 import logging
 import datetime
-from pathlib import Path
-from collections import deque
 from email import encoders
 from email.mime.base import MIMEBase
 
@@ -132,46 +129,6 @@ def get_webdriver()->webdriver:
     driver.maximize_window()
     return driver
 
-def get_tasklist(log:logging.Logger=None, prefix:list=None, suffix:list=None)->list:
-    """Get a list of task objects from "<basedir>/tasks/.../*.json"
-
-    Returns
-    -------
-    list: A list of task objects
-    """
-
-    tasks = []
-    for filepath in list(Path(config.TASK_DIRPATH).rglob("*.[jJ][sS][oO][nN]")):
-        if log: log.info(f"parsing task: {filepath}")
-        task = parse_json(filepath)
-        if prefix: task.extendleft(prefix)
-        if suffix: task.extend(suffix)
-        task.pushleft(models.Command("printf", f"[{task.key.env}] {task.key.name}", None))
-
-        tasks.append(task)
-
-    return tasks
-
-def get_taskdict(log:logging.Logger=None, prefix:list=None, suffix:list=None)->dict:
-    """Get a list of task objects from "<basedir>/tasks/.../*.json"
-
-    Returns
-    -------
-    dict: A dictionary of task objects
-    """
-    
-    tasks = {}
-    for filepath in list(Path(config.TASK_DIRPATH).rglob("*.[jJ][sS][oO][nN]")):
-        if log: log.info(f"parsing task: {filepath}")
-        task = parse_json(filepath)
-        if prefix: task.extendleft(prefix)
-        if suffix: task.extend(suffix)
-        task.pushleft(models.Command("printf", f"[{task.key.env}] {task.key.name}", None))
-
-        tasks[task.key] = task
-
-    return tasks
-
 def get_email_attachment(filepath:str):
     """Get file from file path as a e-mail attachment
 
@@ -204,41 +161,6 @@ def get_email_attachment(filepath:str):
     return part
 
 # => Parser(s)
-def parse_json(filepath:str)->models.Task:
-    """Parse JSON file into task object
-
-    Parameters
-    ----------
-    filepath: str
-        The JSON file path
-
-    Returns
-    -------
-    model.Task: The task object
-    """
-    
-    try:
-        with open(filepath) as fp:
-            raw = json.load(fp)
-        
-        cmds = deque([])
-        for cmd in raw["commands"]:
-            label = cmd[0].lower() # possible index error
-            target = None
-            argv = None
-
-            if len(cmd) > 1:
-                if isinstance(cmd[1], dict): 
-                    target = cmd[1].get("target", None)
-                    argv = cmd[1].get("argv", None)
-                    if argv and not isinstance(argv, list): argv = [argv]
-                else: target = cmd[1]
-            
-            cmds.append(models.Command(label, target, argv))
-        return models.Task(models.Key(raw["env"], raw["name"]), cmds)
-    
-    except IndexError: raise IndexError(f"ina.models.utils.parse_json: Index Error - {filepath}")
-
 def parse_expected_condition(driver, target:str, param:str):
     """Parse expected condition
 
@@ -364,7 +286,7 @@ def send_keys(driver, elem, argv:list):
             try:
                 logic = arg[0]
                 keys = parse_keyboard(arg[1])
-            except IndexError: raise IndexError(f"ina.models.utils.send_keys: IndexError '{argv}' - {arg}")
+            except IndexError: raise IndexError(f"ina.utils.send_keys: IndexError '{argv}' - {arg}")
         else: 
             logic = "SEND"
             keys = parse_keyboard(arg)

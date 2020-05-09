@@ -6,7 +6,6 @@ from . import utils
 from . import config
 from . import models
 from . import driver
-from . import constant
 from . import template
 
 # => System
@@ -57,52 +56,34 @@ class Job(object):
 
         """
 
-        if not self.driver: self.driver = driver.Driver(self.id)
-        while len(self.queue) > 0: self.pop()
-        if receiver: self.notify(receiver)
+        if len(self.queue) > 0:
+            if not self.driver: self.driver = driver.Driver(self.id)
+            while len(self.queue) > 0: self.pop()
+            if receiver: self.notify(receiver)
         
-    def push(self, key:models.Key, fmt:str=None, lut:dict=None):
+    def push(self, task:models.Task, fmt:str=None, lut:dict=None):
         """Push (i.e. enqueue) a new task
 
         Parameters
         ----------
-        key: models.Key
-            The task key
+        task: models.Task
+            The task
         fmt: str, optional
             The string format
         lut: dict, optional
             A lookup table
         """
 
-        self.queue.append((key, fmt, lut))
-
-    def push_(self, env:str, name:str, fmt:str=None, lut:dict=None):
-        """Push (i.e. enqueue) a new task
-
-        Parameters
-        ----------
-        env: str
-            The task environment
-        name: str
-            The task name
-        fmt: str, optional
-            The string format
-        lut: dict, optional
-            A lookup table
-        """
-
-        key = models.Key(env, name)
-        self.queue.append((key, fmt, lut))
+        self.queue.append((task, fmt, lut))
     
     def pop(self):
         """Pop (i.e. dequeue - assign & work) the oldest task
 
         """
         
-        key, fmt, lut = self.queue.popleft()
-        task = constant.TASK_DICT.get(key)
+        task, fmt, lut = self.queue.popleft()
         if task:
-            if key != self.driver.key(): self.driver.assign(task)
+            if task.key != self.driver.key(): self.driver.assign(task)
             else: self.driver.reset()
 
             response = self.driver.run(lut)

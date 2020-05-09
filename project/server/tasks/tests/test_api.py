@@ -17,22 +17,22 @@ class TestAPI(unittest.TestCase):
                 {
                     "env": "TEST",
                     "name": "TEST MOUSE",
-                    "lut": {"userid": "Edward"}
+                    "lut": {"usrId": "Edward"}
                 },
                 {
                     "env": "TEST",
                     "name": "TEST LUT",
-                    "lut": {"userid": "Kim"}
+                    "lut": {"usrId": "Kim"}
                 },
                 {
                     "env": "TEST",
                     "name": "TEST MOUSE",
-                    "lut": {"userid": "Tim"}
+                    "lut": {"usrId": "Tim"}
                 },
                 {
                     "env": "TEST",
                     "name": "TEST MOUSE",
-                    "lut": {"userid": "Bim"}
+                    "lut": {"usrId": "Bim"}
                 }
             ]
         }
