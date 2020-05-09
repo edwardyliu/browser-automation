@@ -20,12 +20,12 @@ const App = () => {
                 accessor: "env",
             },
             {
-                Header: "Order Name",
-                accessor: "name",
-            },
-            {
                 Header: "Dictionary",
                 accessor: "lut",
+            },
+            {
+                Header: "Order Name",
+                accessor: "name",
             },
         ],
         []

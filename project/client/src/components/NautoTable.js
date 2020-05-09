@@ -16,6 +16,7 @@ import TableHead from '@material-ui/core/TableHead'
 import TablePagination from '@material-ui/core/TablePagination'
 import TableRow from '@material-ui/core/TableRow'
 import TableSortLabel from '@material-ui/core/TableSortLabel'
+import TextField from '@material-ui/core/TextField'
 import {
     useGlobalFilter,
     usePagination,
@@ -36,8 +37,6 @@ const defaultColumn = {
 const useStyles = makeStyles((theme) => ({
     button: {
         margin: theme.spacing(1),
-    },
-    rightwards: {
         float: 'right',
     },
 }))
@@ -51,6 +50,7 @@ const NautoTable = ({
 }) => {
 
     const classes = useStyles()
+    const [receipt, setReceipt] = React.useState("")
     const {
         getTableProps,
         gotoPage,
@@ -186,6 +186,11 @@ const NautoTable = ({
 
     const handleChangeRowsPerPage = event => {
         setPageSize(Number(event.target.value))
+    }
+
+    const handleChangeReceipt = event => {
+        setReceipt(event.target.value)
+        console.log(receipt)
     }
 
     const handleAddOrder = cart => {
@@ -328,7 +333,14 @@ const NautoTable = ({
                         />
                         <TableCell />
                         <TableCell />
-                        <TableCell className={classes.rightwards}>
+                        <TableCell>
+                            <TextField
+                                label='E-mail Receipt'
+                                onChange={handleChangeReceipt}
+                                style={{ width: '275px' }}
+                                type='text'
+                                value={receipt}
+                            />
                             <Button
                                 className={classes.button}
                                 color="secondary"
