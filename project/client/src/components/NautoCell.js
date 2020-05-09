@@ -52,7 +52,7 @@ NautoCell.propTypes = {
         index: PropTypes.number.isRequired,
     }),
     column: PropTypes.shape({
-        id: PropTypes.number.isRequired,
+        id: PropTypes.string.isRequired,
     }),
     updateData: PropTypes.func.isRequired,
 }

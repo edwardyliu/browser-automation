@@ -1,13 +1,13 @@
 import React from 'react'
 
-import Button from '@material-ui/core/Button';
+import Button from '@material-ui/core/Button'
 import CenterFocusWeakIcon from '@material-ui/icons/CenterFocusWeak';
 import FileSaver from "file-saver"
 import Papa from "papaparse"
 import PropTypes from 'prop-types'
-import { makeStyles } from '@material-ui/core/styles';
+import { makeStyles } from '@material-ui/core/styles'
 import MaUTable from '@material-ui/core/Table'
-import SendIcon from '@material-ui/icons/Send';
+import SendIcon from '@material-ui/icons/Send'
 import TableBody from '@material-ui/core/TableBody'
 import TableCell from '@material-ui/core/TableCell'
 import TableContainer from '@material-ui/core/TableContainer'
@@ -191,12 +191,11 @@ const NautoTable = ({
     const handleAddOrder = cart => {
         const orders = cart['items'].map(item => ({
             "usrId": cart['usrId'],
-            "lut": cart['lut'],
-            "name": item['name'],
+            "orderId": "",
             "env": item['env'],
-        }))
-        console.log(orders)
-        
+            "name": item['name'],
+            "lut": cart['lut'],
+        }))        
         const newData = data.concat(orders)
         setData(newData)
     }
@@ -207,6 +206,10 @@ const NautoTable = ({
             Object.keys(selectedRowIds).map(x => parseInt(x, 10))
         )
         setData(newData)
+    }
+
+    const handleClear = event => {
+        setData([])
     }
 
     const handleImportOrder = event => {
@@ -237,11 +240,22 @@ const NautoTable = ({
         FileSaver.saveAs(csvData, "nauto-selection.csv")
     }
 
+    const handleSend = event => {
+        console.log("Send")
+        console.log(data)
+    }
+
+    const handleScan = event => {
+        console.log("Scan")
+        console.log(data)
+    }
+
     return (
         <TableContainer>
             <NautoToolbar
                 globalFilter={globalFilter}
                 handleAddOrder={handleAddOrder}
+                handleClear={handleClear}
                 handleDeleteOrder={handleDeleteOrder}
                 handleExportOrder={handleExportOrder}
                 handleExportSelection={handleExportSelection}
@@ -312,21 +326,24 @@ const NautoTable = ({
                                 native: true,
                             }}
                         />
-                        <TableCell></TableCell>
+                        <TableCell />
+                        <TableCell />
                         <TableCell className={classes.rightwards}>
                             <Button
-                                variant="contained"
-                                color="secondary"
                                 className={classes.button}
+                                color="secondary"
                                 endIcon={<SendIcon />}
+                                onClick={handleSend}
+                                variant="contained"
                             >
                                 Send
                             </Button>
                             <Button
-                                variant="contained"
-                                color="primary"
                                 className={classes.button}
+                                color="primary"
                                 endIcon={<CenterFocusWeakIcon />}
+                                onClick={handleScan}
+                                variant="contained"
                             >
                                 Scan
                             </Button>

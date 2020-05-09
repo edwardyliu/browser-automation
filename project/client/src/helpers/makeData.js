@@ -11,9 +11,10 @@ const range = len => {
 const newOrder = () => {
     return {
         usrId: namor.generate({ words: 1, numbers: 0 }),
-        lut: "",
-        name: namor.generate({ words: 1, numbers: 0 }),
+        orderId: "",
         env: namor.generate({ words: 1, numbers: 0 }),
+        name: namor.generate({ words: 1, numbers: 0 }),
+        lut: "",
     }
 }
 

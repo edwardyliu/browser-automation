@@ -2,6 +2,7 @@ import React from 'react'
 
 import clsx from 'clsx'
 import DeleteIcon from '@material-ui/icons/Delete'
+import DeleteSweepIcon from '@material-ui/icons/DeleteSweep'
 import IconButton from '@material-ui/core/IconButton'
 import { lighten, makeStyles } from '@material-ui/core/styles'
 import PropTypes from 'prop-types'
@@ -32,6 +33,22 @@ const useStyles = makeStyles(theme => ({
     title: {
         flex: '1 1 100%',
     },
+    titleLogoText: {
+        fontSize: '2.0em',
+        fontWeight: 'bold',
+    },
+    nColor: {
+        color: '#010100',
+    },
+    aColor: {
+        color: '#FD7F20',
+    },
+    uColor: {
+        color: '#4d4d4d',
+    },
+    tColor: {
+        color: '#FC2E20',
+    },
     defaultIconBundle: {
         display: 'contents',
     },
@@ -49,6 +66,7 @@ const NautoToolbar = props => {
     const {
         globalFilter,
         handleAddOrder,
+        handleClear,
         handleDeleteOrder,
         handleExportOrder,
         handleExportSelection,
@@ -83,7 +101,12 @@ const NautoToolbar = props => {
                     variant='h6'
                     id='tableTitle'
                 >
-                    Nauto Orders
+                    <span className={classes.titleLogoText}>
+                        <span className={classes.nColor}>N</span>
+                        <span className={classes.aColor}>a</span>
+                        <span className={classes.uColor}>u</span>
+                        <span className={classes.tColor}>to</span>
+                    </span> Ordering Service
                 </Typography>
             )}
 
@@ -128,10 +151,19 @@ const NautoToolbar = props => {
                     <Tooltip title="Export as CSV">
                         <IconButton
                             aria-label='export as csv'
-                            color="secondary"
+                            color="primary"
                             onClick={handleExportOrder}
                         >
                             <SaveIcon />
+                        </IconButton>
+                    </Tooltip>
+                    <Tooltip title="Clear">
+                        <IconButton
+                            aria-label='clear'
+                            color="secondary"
+                            onClick={handleClear}
+                        >
+                            <DeleteSweepIcon />
                         </IconButton>
                     </Tooltip>
                     <NautoGlobalFilter 
@@ -148,6 +180,7 @@ const NautoToolbar = props => {
 NautoToolbar.propTypes = {
     globalFilter: PropTypes.string,
     handleAddOrder: PropTypes.func.isRequired,
+    handleClear: PropTypes.func.isRequired,
     handleDeleteOrder: PropTypes.func.isRequired,
     handleExportOrder: PropTypes.func.isRequired,
     handleExportSelection: PropTypes.func.isRequired,

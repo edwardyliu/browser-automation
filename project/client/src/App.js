@@ -3,32 +3,34 @@ import React from 'react'
 import CssBaseline from '@material-ui/core/CssBaseline'
 import NautoTable from './components/NautoTable'
 
-import makeData from './helpers/makeData'
-
 const App = () => {
 
     const columns = React.useMemo(
         () => [
             {
-                Header: 'User ID',
-                accessor: 'usrId',
+                Header: "User ID",
+                accessor: "usrId",
             },
             {
-                Header: 'Look-Up Table',
-                accessor: 'lut',
+                Header: "Order ID",
+                accessor: "orderId",
             },
             {
-                Header: 'Order Name',
-                accessor: 'name',
+                Header: "Environment",
+                accessor: "env",
             },
             {
-                Header: 'Environment',
-                accessor: 'env',
+                Header: "Order Name",
+                accessor: "name",
+            },
+            {
+                Header: "Dictionary",
+                accessor: "lut",
             },
         ],
         []
     )
-    const [data, setData] = React.useState(React.useMemo(() => makeData(5), []))
+    const [data, setData] = React.useState(React.useMemo(() => [], []))
     
     // We need to keep the table from resetting the pageIndex when we
     // Update data. So we can keep track of that flag with a ref.
