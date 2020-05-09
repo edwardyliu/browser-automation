@@ -36,8 +36,12 @@ const defaultColumn = {
 }
 
 const useStyles = makeStyles((theme) => ({
-    button: {
+    actionButton: {
         margin: theme.spacing(1),
+        float: 'right',
+    },
+    actionCell: {
+        display: 'flex',
         float: 'right',
     },
 }))
@@ -112,6 +116,7 @@ const NautoTable = ({
     )
 
     // == Effects ==
+    // => Only Once
     React.useEffect(() => {
         axios.get(url.concat('/tasks'))
             .then(response => {
@@ -195,13 +200,25 @@ const NautoTable = ({
     }
 
     const handleSend = event => {
-        console.log("Send")
-        console.log(data)
+        axios.post(url.concat('/job'), {
+                'receipt': receipt,
+                'package': data,
+            }).then(response => {
+                console.log(response)
+            }, error => {
+                console.log(error)
+            })
     }
 
     const handleScan = event => {
-        console.log("Scan")
-        console.log(data)
+        axios.post(url.concat('/scan'), {
+                'receipt': receipt,
+                'package': data,
+            }).then(response => {
+                console.log(response)
+            }, error => {
+                console.log(error)
+            })
     }
 
     return (
@@ -282,7 +299,7 @@ const NautoTable = ({
                         />
                         <TableCell />
                         <TableCell />
-                        <TableCell>
+                        <TableCell className={classes.actionCell}>
                             <TextField
                                 label='E-mail Receipt'
                                 onChange={handleChangeReceipt}
@@ -290,24 +307,26 @@ const NautoTable = ({
                                 type='text'
                                 value={receipt}
                             />
-                            <Button
-                                className={classes.button}
-                                color="secondary"
-                                endIcon={<SendIcon />}
-                                onClick={handleSend}
-                                variant="contained"
-                            >
-                                Send
-                            </Button>
-                            <Button
-                                className={classes.button}
-                                color="primary"
-                                endIcon={<CenterFocusWeakIcon />}
-                                onClick={handleScan}
-                                variant="contained"
-                            >
-                                Scan
-                            </Button>
+                            <div>
+                                <Button
+                                    className={classes.actionButton}
+                                    color="secondary"
+                                    endIcon={<SendIcon />}
+                                    onClick={handleSend}
+                                    variant="contained"
+                                >
+                                    Send
+                                </Button>
+                                <Button
+                                    className={classes.actionButton}
+                                    color="primary"
+                                    endIcon={<CenterFocusWeakIcon />}
+                                    onClick={handleScan}
+                                    variant="contained"
+                                >
+                                    Scan
+                                </Button>
+                            </div>
                         </TableCell>
                     </TableRow>
                 </TableFooter>

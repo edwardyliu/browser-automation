@@ -226,7 +226,9 @@ def parse_task_response(fmt:str, lut:dict, response:dict)->str:
             fmt = fmt.replace(elem, "; ".join(span))
         elif value == config.LAST: fmt = fmt.replace(elem, response.get(list(response.keys())[-1], "N/A"))
         elif value.isdigit(): fmt = fmt.replace(elem, response.get(elem, "N/A"))
-        else: fmt = fmt.replace(elem, lut.get(value, "None"))
+        else: 
+            if isinstance(lut, dict): fmt = fmt.replace(elem, lut.get(value, "None"))
+            else: fmt = fmt.replace(elem, "None")
     
     return fmt
 
