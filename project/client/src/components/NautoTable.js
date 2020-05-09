@@ -1,5 +1,6 @@
 import React from 'react'
 
+import axios from 'axios'
 import Button from '@material-ui/core/Button'
 import CenterFocusWeakIcon from '@material-ui/icons/CenterFocusWeak';
 import FileSaver from "file-saver"
@@ -49,8 +50,11 @@ const NautoTable = ({
     updateData,
 }) => {
 
+    const url = "http://127.0.0.1:5000/api"
     const classes = useStyles()
+    const [possibleItems, setPossibleItems] = React.useState([])
     const [receipt, setReceipt] = React.useState("")
+
     const {
         getTableProps,
         gotoPage,
@@ -106,71 +110,16 @@ const NautoTable = ({
             ])
         }
     )
-    
-    const possibleItems = [
-        { name: 'The Shawshank Redemption', env: "DEV" },
-        { name: 'The Godfather', env: "DEV" },
-        { name: 'The Godfather: Part II', env: "DEV" },
-        { name: 'The Dark Knight', env: "DEV" },
-        { name: '12 Angry Men', env: "DEV" },
-        { name: "Schindler's List", env: "DEV" },
-        { name: 'Pulp Fiction', env: "DEV" },
-        { name: 'The Lord of the Rings: The Return of the King', env: "DEV" },
-        { name: 'The Good, the Bad and the Ugly', env: "DEV" },
-        { name: 'Fight Club', env: "DEV" },
-        { name: 'The Lord of the Rings: The Fellowship of the Ring', env: "DEV" },
-        { name: 'Star Wars: Episode V - The Empire Strikes Back', env: "DEV" },
-        { name: 'Forrest Gump', env: "DEV" },
-        { name: 'Inception', env: "DEV" },
-        { name: 'The Lord of the Rings: The Two Towers', env: "DEV" },
-        { name: "One Flew Over the Cuckoo's Nest", env: "DEV" },
-        { name: 'Goodfellas', env: "DEV" },
-        { name: 'The Matrix', env: "DEV" },
-        { name: 'Seven Samurai', env: "DEV" },
-        { name: 'Star Wars: Episode IV - A New Hope', env: "DEV" },
-        { name: 'City of God', env: "UAT" },
-        { name: 'Se7en', env: "UAT" },
-        { name: 'The Silence of the Lambs', env: "UAT" },
-        { name: "It's a Wonderful Life", env: "UAT" },
-        { name: 'Life Is Beautiful', env: "UAT" },
-        { name: 'The Usual Suspects', env: "UAT" },
-        { name: 'Léon: The Professional', env: "UAT" },
-        { name: 'Spirited Away', env: "UAT" },
-        { name: 'Saving Private Ryan', env: "UAT" },
-        { name: 'Once Upon a Time in the West', env: "UAT" },
-        { name: 'American History X', env: "UAT" },
-        { name: 'Interstellar', env: "UAT" },
-        { name: 'Casablanca', env: "UAT" },
-        { name: 'City Lights', env: "UAT" },
-        { name: 'Psycho', env: "UAT" },
-        { name: 'The Green Mile', env: "UAT" },
-        { name: 'The Intouchables', env: "UAT" },
-        { name: 'Modern Times', env: "UAT" },
-        { name: 'Raiders of the Lost Ark', env: "UAT" },
-        { name: 'Rear Window', env: "UAT" },
-        { name: 'The Pianist', env: "UAT" },
-        { name: 'The Departed', env: "UAT" },
-        { name: 'Terminator 2: Judgment Day', env: "UAT" },
-        { name: 'Back to the Future', env: "UAT" },
-        { name: 'Whiplash', env: "PROD" },
-        { name: 'Gladiator', env: "PROD" },
-        { name: 'Memento', env: "PROD" },
-        { name: 'The Prestige', env: "PROD" },
-        { name: 'The Lion King', env: "PROD" },
-        { name: 'Apocalypse Now', env: "PROD" },
-        { name: 'Alien', env: "PROD" },
-        { name: 'Sunset Boulevard', env: "PROD" },
-        { name: 'Dr. Strangelove or: How I Learned to Stop Worrying and Love the Bomb', env: "PROD" },
-        { name: 'The Great Dictator', env: "PROD" },
-        { name: 'Cinema Paradiso', env: "PROD" },
-        { name: 'The Lives of Others', env: "PROD" },
-        { name: 'Grave of the Fireflies', env: "PROD" },
-        { name: 'Paths of Glory', env: "PROD" },
-        { name: 'Django Unchained', env: "PROD" },
-        { name: 'The Shining', env: "PROD" },
-        { name: 'WALL·E', env: "PROD" },
-        { name: 'American Beauty', env: "PROD" },
-    ]
+
+    // == Effects ==
+    React.useEffect(() => {
+        axios.get(url.concat('/tasks'))
+            .then(response => {
+                setPossibleItems(response.data)
+            }, error => {
+                console.log(error)
+            })
+    }, [])
 
     // == Utils ==
     const selectByIndexs = (array, indexs) => 

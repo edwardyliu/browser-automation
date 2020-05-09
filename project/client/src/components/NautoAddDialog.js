@@ -31,12 +31,12 @@ const useStyles = makeStyles(theme => ({
 }))
 
 const NautoAddDialog = props => {
-    const classes = useStyles()
     const {
         handleAddOrder,
         possibleItems,
     } = props
-
+    const classes = useStyles()
+    
     const [cart, setCart] = React.useState(newCart)
     const [open, setOpen] = React.useState(false)
     const [switchState, setSwitchState] = React.useState({
