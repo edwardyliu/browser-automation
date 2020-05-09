@@ -3,7 +3,7 @@
     "env": "TEST",
     "commands": [
         ["GET", {"target": "https://www.google.com/"}],
-        ["DSEND_KEYS", {"target": "//input[@name='q']", "argv": "Python Module ${userid}"}],
+        ["DSEND_KEYS", {"target": "//input[@name='q']", "argv": "Python Module ${usrId}"}],
         ["SEND_KEYS", {"argv": "${ENTER}"}],
         ["PAUSE", 1.5]
     ]

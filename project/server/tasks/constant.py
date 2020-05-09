@@ -1,9 +1,8 @@
-# project/server/tasks/ina/constant.py
+# project/server/tasks/constant.py
 
 # == Import(s) ==
-# => Local
-from . import config
 from . import utils
+from . import config
 
 # == Constant(s) ==
 # => Task

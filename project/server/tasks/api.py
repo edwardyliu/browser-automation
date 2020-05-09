@@ -3,17 +3,22 @@
 # == Import(s) ==
 # => Local
 from . import ina
+from . import constant
 
 # == INA API ==
-def create_task(message:dict, uid:str=None):
-    receiver:str = message.get("receiver"); parcel:dict = message.get("parcel")
-    if parcel:
+def get_task_keys()->list:
+    return constant.TASK_KEYS
+
+def create_job(message:dict, uid:str=None):
+    receipt:str = message.get("receipt"); tasks:dict = message.get("tasks")
+    if tasks:
         try:
             job = ina.Job(uid)
-            for item in parcel:
-                key = ina.Key(item["env"], item["name"]); fmt = item.get("fmt"); lut = item.get("lut")
-                job.push(key, fmt, lut)
-            job.exec(receiver)
+            for task in tasks:
+                key = ina.Key(task["env"], task["name"]); fmt = task.get("fmt"); lut = task.get("lut")
+                task = constant.TASK_DICT.get(key)
+                if task: job.push(task, fmt, lut)
+            job.exec(receipt)
             return True
         except KeyError: pass
     return False
