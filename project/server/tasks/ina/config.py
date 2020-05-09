@@ -1,9 +1,6 @@
 # project/server/tasks/ina/config.py
 
 # == Import(s) ==
-# => Local
-from . import models
-
 # => System
 import os
 import re
@@ -18,14 +15,12 @@ from selenium.webdriver.support import expected_conditions as EC
 LOG_LEVEL=logging.ERROR
 
 # => Path & Directories
-TASK_DIRPATH=os.path.join(Path(__file__).parents[0], "tasks/")
 CACHE_DIRPATH=os.path.join(Path(__file__).parents[0], "resources/cache/")
 WEBDRIVER_EXEPATH=os.path.join(Path(__file__).parents[0], "resources/geckodriver")
 
 # => Regex(s)
 RE_NUMERAL=re.compile(r"([0-9]+)")
 POSITIONAL=re.compile(r"(\$\{.*?\})")
-
 ARGV="@"
 LUTV="@#"
 FINDV="@"
@@ -37,16 +32,9 @@ DEFAULT_TIMEOUT=15.
 
 DEFAULT_DELIMITER=","
 DEFAULT_STRING_FORMAT=(
-    "${userid}" + DEFAULT_DELIMITER +   # user ID
+    "${usrId}" + DEFAULT_DELIMITER +    # user ID
     "${1}" + DEFAULT_DELIMITER +        # order
     "${" + LAST + "}")                  # order ID
-DEFAULT_URL="https://www.google.com/"
-DEFAULT_PREFIX=[
-    models.Command("GET", DEFAULT_URL, None)
-]
-DEFAULT_SUFFIX=[
-    models.Command("GET", DEFAULT_URL, None)
-]
 
 DEFAULT_SMTP_SERVER="localhost"
 DEFAULT_SMTP_PORT=1025

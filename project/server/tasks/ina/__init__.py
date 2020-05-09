@@ -7,6 +7,3 @@ from .models import Key
 from .models import Task
 from .driver import Driver
 from .job import Job
-
-# => Constant(s)
-from .constant import TASK_KEYS
