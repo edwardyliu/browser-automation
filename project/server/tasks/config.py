@@ -18,9 +18,8 @@ JOURNAL_DIRPATH=os.path.join(Path(__file__).parents[0], "journal/")
 
 # => Default(s)
 DEFAULT_URL="https://www.google.com/"
-DEFAULT_PREFIX=[
+PREFIX=[]
+SUFFIX=[
     ina.Command("GET", DEFAULT_URL, None)
-]
-DEFAULT_SUFFIX=[
-    ina.Command("GET", DEFAULT_URL, None)
+    # TODO: Get Order Id & [Optionally] Memos
 ]

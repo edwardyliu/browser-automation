@@ -69,7 +69,7 @@ const App = () => {
 
     // == Effects ==
     React.useEffect(() => {
-        axios.get(server.concat('/tasks'))
+        axios.get(server.concat('/keys'))
             .then(response => {
                 setMarketplace(response.data)
             }, error => {

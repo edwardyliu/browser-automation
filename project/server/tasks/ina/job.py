@@ -127,15 +127,15 @@ class Job(object):
         # == HTML E-mail ==
         body = template.body_meta(taskid=self.id, dt=self.dt)
         body += template.body_information(email=sender)
-        body += template.body_content_head("User ID", "Order", "Order ID")        
+        body += template.body_content_head("User ID", "Env", "Name", "Order ID")
         if len(self.lines) > 0:
-            lastrow = self.lines[-1].split(config.DEFAULT_DELIMITER)
+            lastrow = self.lines[-1].split(",")
             for line in self.lines[:-1]:
-                row = line.split(config.DEFAULT_DELIMITER)
+                row = line.split(",")
                 body += template.body_content_item(
-                    utils.iget(row, 0), utils.iget(row, 1), utils.iget(row, 2), False)
+                    utils.iget(row, 0), utils.iget(row, 1), utils.iget(row, 2), utils.iget(row, 3), False)
             body += template.body_content_item(
-                utils.iget(lastrow, 0), utils.iget(lastrow, 1), utils.iget(lastrow, 2), True)
+                utils.iget(lastrow, 0), utils.iget(lastrow, 1), utils.iget(lastrow, 2), utils.iget(lastrow, 3), True)
         body += template.body_content_summary(True)
         html = template.header + body + template.footer(email=sender)
 

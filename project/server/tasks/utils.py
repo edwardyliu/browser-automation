@@ -64,12 +64,13 @@ def get_tasklist(log:logging.Logger=None, prefix:list=None, suffix:list=None)->l
     for filepath in list(Path(config.JOURNAL_DIRPATH).rglob("*.[jJ][sS][oO][nN]")):
         if log: log.info(f"parsing task: {filepath}")
         task = parse_json(filepath)
-        if prefix: task.extendleft(prefix)
-        if suffix: task.extend(suffix)
-        task.pushleft(ina.Command("printf", f"[{task.key.env}] {task.key.name}", None))
+        if task.key.env != "ALL":
+            if prefix: task.extendleft(prefix)
+            if suffix: task.extend(suffix)
+            task.pushleft(ina.Command("printf", f"{task.key.env},{task.key.name}", None))
 
         tasks.append(task)
-
+    
     return tasks
 
 def get_taskdict(log:logging.Logger=None, prefix:list=None, suffix:list=None)->dict:
@@ -84,10 +85,11 @@ def get_taskdict(log:logging.Logger=None, prefix:list=None, suffix:list=None)->d
     for filepath in list(Path(config.JOURNAL_DIRPATH).rglob("*.[jJ][sS][oO][nN]")):
         if log: log.info(f"parsing task: {filepath}")
         task = parse_json(filepath)
-        if prefix: task.extendleft(prefix)
-        if suffix: task.extend(suffix)
-        task.pushleft(ina.Command("printf", f"[{task.key.env}] {task.key.name}", None))
-
+        if task.key.env != "ALL":
+            if prefix: task.extendleft(prefix)
+            if suffix: task.extend(suffix)
+            task.pushleft(ina.Command("printf", f"{task.key.env},{task.key.name}", None))
+        
         tasks[task.key] = task
 
     return tasks

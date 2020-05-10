@@ -41,6 +41,10 @@ class Driver(object):
         return f"INA.Driver(uid={self.uid})"
 
     # == Getter(s) ==
+    def id(self)->str:
+        if hasattr(self, "lut"): return self.lut.get('usrId')
+        else: return None
+    
     def key(self)->models.Key: 
         if hasattr(self, "task"): return self.task.key 
         else: return None
@@ -62,7 +66,7 @@ class Driver(object):
 
         self.lut = {}
         self.results = {}
-
+    
     # == Functional ==
     def run(self, lut:dict=None)->dict:
         """Run (i.e. work) on the task
@@ -487,15 +491,28 @@ class Driver(object):
     
     # => Dynamic Command Function(s): Commands w/ User-Specified Input(s)
     def dget(self, target:str, argv:list=None):
-        """Dynamic get <=> self.get(self.lut.get(target))
+        """Dynamic get
+        Supports user dictionary & web element look-ups.
 
         Parameters
         ----------
         target: str
-            A key value
+            The string format
         """
 
-        if self.lut and self.lut.get(target): self.get(self.lut[target])
+        self.get(self.scan(target))
+
+    def dclick(self, target:str, argv:list=None):
+        """Dynamic click
+        Supports user dictionary & web element look-ups.
+
+        Parameters
+        ----------
+        target: str
+            The string format
+        """
+
+        self.click(self.scan(target))
 
     def dsend_keys(self, target:str, argv:list):
         """Dynamic send keys

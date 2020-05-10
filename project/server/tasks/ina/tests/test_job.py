@@ -24,7 +24,7 @@ class TestJob(unittest.TestCase):
         ]))
 
         handler = job.Job()
-        handler.push(task, fmt="Hello world and ${noun}", lut={"usrId": "webauto", "city": "Toronto"})
+        handler.push(task, fmt="Hello world and ${noun}", lut={"usrId": "webauto", "location": "Toronto"})
         self.assertEqual(len(handler.queue), 1)
 
         handler.exec()

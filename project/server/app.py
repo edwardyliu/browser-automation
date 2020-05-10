@@ -12,18 +12,21 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 
 # == Application ==
+# => Flask
 app = Flask("__main__")
 cors = CORS(app, resources={r"/api/*": {"origins": "*"}})
 
-@app.route("/api/tasks", methods=["GET"])
-def get_tasks():
-    return jsonify(tasks.get_task_keys())
+# == HTTP Request(s) ==
+@app.route("/api/keys", methods=["GET"])
+def get_keys():
+    return jsonify(tasks.get_keys())
 
 @app.route("/api/scan", methods=["POST"])
 def create_scan():
     message = request.json
     print(f"Message: {message}")
 
+    # TODO: change fmt, do not use default format
     scanId = str(uuid.uuid4())
     return jsonify({ "scanId": scanId })
 
@@ -44,6 +47,6 @@ def create_job():
         jobId = str(uuid.uuid4())
         if job: tasks.create_job(job, receipt, jobId)
         return jsonify({ "jobId": jobId })
-    return "Invalid 'package' Data", 400
+    return "Invalid Request: 'package'", 400
 
 app.run()

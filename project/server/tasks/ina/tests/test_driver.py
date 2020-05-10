@@ -36,15 +36,15 @@ class TestDriver(unittest.TestCase):
         key = models.Key("TEST", "test_write")
         task = models.Task(key, deque([
             models.Command("get", "https://www.google.com/", None),
-            models.Command("write", "//input[@name='q']", ["Wow ${/html/body/div/div[4]/span/center/div[3]/div[1]/div/a}! ${user} is typing..."]),
-            models.Command("printf", "Wow ${/html/body/div/div[4]/span/center/div[3]/div[1]/div/a}! ${user} is typing...", None),
+            models.Command("write", "//input[@name='q']", ["Wow ${/html/body/div/div[4]/span/center/div[3]/div[1]/div/a}! ${usrId} is typing..."]),
+            models.Command("printf", "Wow ${/html/body/div/div[4]/span/center/div[3]/div[1]/div/a}! ${usrId} is typing...", None),
             models.Command("send_keys", None, ["${ENTER}"]),
             models.Command("pause", "2.0", None)
         ]))
         worker.assign(task)
         self.assertEqual(worker.key(), key)
 
-        response = worker.run({"user": "Edward"})
+        response = worker.run({"usrId": "Edward"})
         self.assertEqual("Edward is typing..." in response["${1}"], True)
 
     def test_write_all(self):
@@ -58,7 +58,7 @@ class TestDriver(unittest.TestCase):
         worker.assign(task)
         self.assertEqual(worker.key(), key)
         
-        worker.run({"user": "Edward", "city": "Toronto"})
+        worker.run({"usrId": "Edward", "location": "Toronto"})
 
 if __name__ == "__main__":
     unittest.main()

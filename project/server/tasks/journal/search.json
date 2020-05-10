@@ -1,0 +1,17 @@
+{
+    "name": "SEARCH",
+    "env": "ALL",
+    "commands": [
+        ["GET", "https://www.bing.com/"],
+        ["DSEND_KEYS", {
+            "target": "//input[@name='q']",
+            "argv": "${usrId}"
+        }],
+        ["SEND_KEYS", {
+            "argv": "${ENTER}"
+        }],
+        ["PRINTF", 
+            "orderId###,Approval: ; Pending: "
+        ]
+    ]
+}

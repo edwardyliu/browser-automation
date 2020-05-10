@@ -48,7 +48,7 @@ header = """\
     padding: 5px;
     vertical-align: top;
   }
-  .task-box table tr td:nth-child(3) {
+  .task-box table tr td:nth-child(4) {
     text-align: right;
   }
   .task-box table tr.top table td {
@@ -76,19 +76,19 @@ header = """\
   .task-box table tr.item.last td {
     border-bottom: none;
   }
-  .task-box table tr.summary td:nth-child(3) {
+  .task-box table tr.summary td:nth-child(4) {
     border-top: 2px solid #eee;
   }
   @media only screen and (max-width: 600px) {
     .task-box table tr.top table td {
-      width: 100%;
-      display: block;
-      text-align: center;
-    }
+        width: 100%;
+        display: block;
+        text-align: center;
+    }    
     .task-box table tr.information table td {
-      width: 100%;
-      display: block;
-      text-align: center;
+        width: 100%;
+        display: block;
+        text-align: center;
     }
   }
 
@@ -103,7 +103,7 @@ header = """\
   .rtl table {
     text-align: right;
   }
-  .rtl table tr td:nth-child(3) {
+  .rtl table tr td:nth-child(4) {
     text-align: left;
   }
   </style>
@@ -116,7 +116,7 @@ header = """\
 body_meta = lambda taskid, dt: f"""\
       <!-- Metadata: Task ID, Date, Enqueue & Dequeue Time -->
       <tr class="top">
-        <td colspan="3">
+        <td colspan="4">
           <table>
             <tr>
               <td class="title">
@@ -139,7 +139,7 @@ body_meta = lambda taskid, dt: f"""\
 body_information = lambda email: f"""\
       <!-- Information: Sender -->
       <tr class="information">
-        <td colspan="3">
+        <td colspan="4">
           <table>
             <tr>
               <td>
@@ -159,34 +159,38 @@ body_information = lambda email: f"""\
       </tr>\n
 """
 
-body_content_head = lambda i,j,k: f"""\
+body_content_head = lambda i,j,k,l: f"""\
       <!-- Content Head -->
       <tr class="heading">
         <td>{i}</td>
         <td>{j}</td>
         <td>{k}</td>
+        <td>{l}</td>
       </tr>
 
       <!-- Content Items -->\n
 """
 
-body_content_item = lambda i,j,k,last: f"""\
+body_content_item = lambda i,j,k,l,last: f"""\
       <tr class="item last">
           <td>{i}</td>
           <td>{j}</td>
           <td>{k}</td>
+          <td>{l}</td>
       </tr>\n
 """ if last else f"""\
       <tr class="item">
           <td>{i}</td>
           <td>{j}</td>
           <td>{k}</td>
+          <td>{l}</td>
       </tr>\n
 """
 
 body_content_summary = lambda status: """\
       <!-- Content Summary -->
       <tr class="summary">
+        <td></td>
         <td></td>
         <td></td>
         <td>
@@ -196,6 +200,7 @@ body_content_summary = lambda status: """\
 """ if status else """\
       <!-- Content Summary -->
       <tr class="summary">
+        <td></td>
         <td></td>
         <td></td>
         <td>

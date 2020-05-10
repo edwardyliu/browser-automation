@@ -24,7 +24,7 @@
         padding: 5px;
         vertical-align: top;
     }
-    .task-box table tr td:nth-child(3) {
+    .task-box table tr td:nth-child(4) {
         text-align: right;
     }
     .task-box table tr.top table td {
@@ -52,7 +52,7 @@
     .task-box table tr.item.last td {
         border-bottom: none;
     }
-    .task-box table tr.summary td:nth-child(3) {
+    .task-box table tr.summary td:nth-child(4) {
         border-top: 2px solid #eee;
     }
     @media only screen and (max-width: 600px) {
@@ -79,7 +79,7 @@
     .rtl table {
         text-align: right;
     }
-    .rtl table tr td:nth-child(3) {
+    .rtl table tr td:nth-child(4) {
         text-align: left;
     }
     </style>
@@ -90,12 +90,13 @@
             
             <!-- Metadata: Task ID, Date, Enqueue & Dequeue Time -->
             <tr class="top">
-                <td colspan="3">
+                <td colspan="4">
                     <table>
                         <tr>
                             <td class="title">
                                 <span style="color: #010100;">N</span><span style="color: #FD7F20;">a</span><span style="color: #4d4d4d;">u</span><span style="color: #FC2E20;">to</span>
                             </td>
+                            <td></td>
                             <td></td>
                             <td>
                                 <span style="font-weight: bold;">Date:</span> January 1, 0000<br>
@@ -111,7 +112,7 @@
             
             <!-- Information: Sender -->
             <tr class="information">
-                <td colspan="3">
+                <td colspan="4">
                     <table>
                         <tr>
                             <td>
@@ -119,6 +120,7 @@
                                 123 Maven Road<br>
                                 Mavenville, ON A1B2C3
                             </td>
+                            <td></td>
                             <td></td>
                             <td>
                                 ABC Corp.<br>
@@ -133,43 +135,50 @@
             <!-- Content Head -->
             <tr class="heading">
                 <td>User ID</td>
-                <td>Order</td>
+                <td>Env</td>
+                <td>Name</td>
                 <td>Order ID</td>
             </tr>
             
             <!-- Content Items -->
             <tr class="item">
                 <td>Edward Liu</td>
+                <td>TEST</td>
                 <td>INA</td>
                 <td>#12345678901</td>
             </tr>
 
             <tr class="item">
                 <td>Edward Liu</td>
+                <td>TEST</td>
                 <td>E-mail Design</td>
                 <td>#12345678902</td>
             </tr>
             
             <tr class="item">
                 <td>Edward Liu</td>
+                <td>TEST</td>
                 <td>Async w/ Redis Queue Longer..................Text</td>
                 <td>#12345678903</td>
             </tr>
 
             <tr class="item">
                 <td>Edward Liu</td>
+                <td>TEST</td>
                 <td>React Frontend</td>
                 <td>#12345678904</td>
             </tr>
 
             <tr class="item last">
                 <td>Edward Liu</td>
+                <td>TEST</td>
                 <td>Micro-Service</td>
                 <td>#12345678905</td>
             </tr>
             
             <!-- Content Summary -->
             <tr class="summary">
+                <td></td>
                 <td></td>
                 <td></td>
                 <td>

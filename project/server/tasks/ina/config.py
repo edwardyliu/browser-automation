@@ -30,11 +30,11 @@ LAST="-1"
 DEFAULT_WAIT=1.5
 DEFAULT_TIMEOUT=15.
 
-DEFAULT_DELIMITER=","
 DEFAULT_STRING_FORMAT=(
-    "${usrId}" + DEFAULT_DELIMITER +    # user ID
-    "${1}" + DEFAULT_DELIMITER +        # order
-    "${" + LAST + "}")                  # order ID
+    "${usrId}," +       # user ID
+    "${1}," +           # env, name
+    "${" + LAST + "}"   # order ID, [Optionally] memos
+)
 
 DEFAULT_SMTP_SERVER="localhost"
 DEFAULT_SMTP_PORT=1025

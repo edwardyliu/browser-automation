@@ -1,0 +1,10 @@
+{
+    "name": "FIND",
+    "env": "ALL",
+    "commands": [
+        ["DGET", "https://www.bing.com/search?q=${orderId}"],
+        ["PRINTF", 
+            "${//li[@class='b_algo' and @data-bm='15']/div/div/cite},Approval: ; Pending: "
+        ]
+    ]
+}
