@@ -42,7 +42,7 @@ const NautoNotification = ({
 
     return (
         <Snackbar
-            // autoHideDuration={6000}
+            autoHideDuration={3000}
             onClose={handleCloseNotification}
             open={notification}
         >
