@@ -1,8 +1,7 @@
 import React from 'react'
 
-import axios from 'axios'
 import Button from '@material-ui/core/Button'
-import CenterFocusWeakIcon from '@material-ui/icons/CenterFocusWeak';
+import CenterFocusWeakIcon from '@material-ui/icons/CenterFocusWeak'
 import FileSaver from "file-saver"
 import Papa from "papaparse"
 import PropTypes from 'prop-types'
@@ -36,11 +35,11 @@ const defaultColumn = {
 }
 
 const useStyles = makeStyles((theme) => ({
-    actionButton: {
+    button: {
         margin: theme.spacing(1),
         float: 'right',
     },
-    actionCell: {
+    eMail: {
         display: 'flex',
         float: 'right',
     },
@@ -49,16 +48,17 @@ const useStyles = makeStyles((theme) => ({
 const NautoTable = ({
     columns,
     data,
+    handleRequestScan,
+    handleRequestSend,
+    marketplace,
+    receipt,
     setData,
+    setReceipt,
     skipPageReset,
     updateData,
 }) => {
-
-    const url = "http://127.0.0.1:5000/api"
+    
     const classes = useStyles()
-    const [possibleItems, setPossibleItems] = React.useState([])
-    const [receipt, setReceipt] = React.useState("")
-
     const {
         getTableProps,
         gotoPage,
@@ -114,18 +114,7 @@ const NautoTable = ({
             ])
         }
     )
-
-    // == Effects ==
-    // => Only Once
-    React.useEffect(() => {
-        axios.get(url.concat('/tasks'))
-            .then(response => {
-                setPossibleItems(response.data)
-            }, error => {
-                console.log(error)
-            })
-    }, [])
-
+    
     // == Utils ==
     const selectByIndexs = (array, indexs) => 
         array.filter((_, i) => indexs.includes(i))
@@ -144,22 +133,21 @@ const NautoTable = ({
 
     const handleChangeReceipt = event => {
         setReceipt(event.target.value)
-        console.log(receipt)
     }
 
     const handleAddOrder = cart => {
         const orders = cart['items'].map(item => ({
             "usrId": cart['usrId'],
             "orderId": "",
+            "lut": cart['lut'],
             "env": item['env'],
             "name": item['name'],
-            "lut": cart['lut'],
         }))        
         const newData = data.concat(orders)
         setData(newData)
     }
 
-    const handleDeleteOrder = event => {
+    const handleDeleteOrder = () => {
         const newData = removeByIndexs(
             data,
             Object.keys(selectedRowIds).map(x => parseInt(x, 10))
@@ -167,7 +155,7 @@ const NautoTable = ({
         setData(newData)
     }
 
-    const handleClear = event => {
+    const handleClear = () => {
         setData([])
     }
 
@@ -182,14 +170,14 @@ const NautoTable = ({
         reader.readAsText(file)
     }
 
-    const handleExportOrder = event => {
+    const handleExportOrder = () => {
         const newData = data
         const csvRaw = Papa.unparse(newData)
         const csvData = new Blob([csvRaw], { type: "text/csv;charset=utf-8;" })
         FileSaver.saveAs(csvData, "nauto.csv")
     }
 
-    const handleExportSelection = event => {
+    const handleExportSelection = () => {
         const newData = selectByIndexs(
             data,
             Object.keys(selectedRowIds).map(x => parseInt(x, 10))
@@ -197,28 +185,6 @@ const NautoTable = ({
         const csvRaw = Papa.unparse(newData)
         const csvData = new Blob([csvRaw], { type: "text/csv;charset=utf-8;" })
         FileSaver.saveAs(csvData, "nauto-selection.csv")
-    }
-
-    const handleSend = event => {
-        axios.post(url.concat('/job'), {
-                'receipt': receipt,
-                'package': data,
-            }).then(response => {
-                console.log(response)
-            }, error => {
-                console.log(error)
-            })
-    }
-
-    const handleScan = event => {
-        axios.post(url.concat('/scan'), {
-                'receipt': receipt,
-                'package': data,
-            }).then(response => {
-                console.log(response)
-            }, error => {
-                console.log(error)
-            })
     }
 
     return (
@@ -231,8 +197,8 @@ const NautoTable = ({
                 handleExportOrder={handleExportOrder}
                 handleExportSelection={handleExportSelection}
                 handleImportOrder={handleImportOrder}
+                marketplace={marketplace}
                 numSelected={Object.keys(selectedRowIds).length}
-                possibleItems={possibleItems}
                 preGlobalFilteredRows={preGlobalFilteredRows}
                 setGlobalFilter={setGlobalFilter}
             />
@@ -299,7 +265,7 @@ const NautoTable = ({
                         />
                         <TableCell />
                         <TableCell />
-                        <TableCell className={classes.actionCell}>
+                        <TableCell className={classes.eMail}>
                             <TextField
                                 label='E-mail Receipt'
                                 onChange={handleChangeReceipt}
@@ -309,19 +275,19 @@ const NautoTable = ({
                             />
                             <div>
                                 <Button
-                                    className={classes.actionButton}
+                                    className={classes.button}
                                     color="secondary"
                                     endIcon={<SendIcon />}
-                                    onClick={handleSend}
+                                    onClick={handleRequestSend}
                                     variant="contained"
                                 >
                                     Send
                                 </Button>
                                 <Button
-                                    className={classes.actionButton}
+                                    className={classes.button}
                                     color="primary"
                                     endIcon={<CenterFocusWeakIcon />}
-                                    onClick={handleScan}
+                                    onClick={handleRequestScan}
                                     variant="contained"
                                 >
                                     Scan
@@ -338,7 +304,12 @@ const NautoTable = ({
 NautoTable.propTypes = {
     columns: PropTypes.array.isRequired,
     data: PropTypes.array.isRequired,
+    handleRequestScan: PropTypes.func.isRequired,
+    handleRequestSend: PropTypes.func.isRequired,
+    marketplace: PropTypes.array.isRequired,
+    receipt: PropTypes.string.isRequired,
     setData: PropTypes.func.isRequired,
+    setReceipt: PropTypes.func.isRequired,
     skipPageReset: PropTypes.bool.isRequired,
     updateData: PropTypes.func.isRequired,
 }

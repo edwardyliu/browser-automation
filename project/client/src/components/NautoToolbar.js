@@ -61,22 +61,22 @@ const useStyles = makeStyles(theme => ({
     },
 }))
 
-const NautoToolbar = props => {
-    const classes = useStyles()
-    const {
-        globalFilter,
-        handleAddOrder,
-        handleClear,
-        handleDeleteOrder,
-        handleExportOrder,
-        handleExportSelection,
-        handleImportOrder,
-        numSelected,
-        possibleItems,
-        preGlobalFilteredRows,
-        setGlobalFilter,
-    } = props
+const NautoToolbar = ({
+    globalFilter,
+    handleAddOrder,
+    handleClear,
+    handleDeleteOrder,
+    handleExportOrder,
+    handleExportSelection,
+    handleImportOrder,
+    marketplace,
+    numSelected,
+    preGlobalFilteredRows,
+    setGlobalFilter,
+}) => {
 
+    const classes = useStyles()
+    
     return (
         <Toolbar
             className={clsx(classes.root, {
@@ -85,7 +85,7 @@ const NautoToolbar = props => {
         >
             <NautoAddDialog 
                 handleAddOrder={handleAddOrder}
-                possibleItems={possibleItems}
+                marketplace={marketplace}
             />
             {numSelected > 0 ? (
                 <Typography
@@ -185,8 +185,8 @@ NautoToolbar.propTypes = {
     handleExportOrder: PropTypes.func.isRequired,
     handleExportSelection: PropTypes.func.isRequired,
     handleImportOrder: PropTypes.func.isRequired,
+    marketplace: PropTypes.array.isRequired,
     numSelected: PropTypes.number.isRequired,
-    possibleItems: PropTypes.array.isRequired,
     preGlobalFilteredRows: PropTypes.array,
     setGlobalFilter: PropTypes.func.isRequired,
 }
