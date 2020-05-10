@@ -24,8 +24,8 @@ def create_scan():
     message = request.json
     print(f"Message: {message}")
 
-    jobId = str(uuid.uuid4())
-    return jsonify({ "jobId": jobId })
+    scanId = str(uuid.uuid4())
+    return jsonify({ "scanId": scanId })
 
 @app.route("/api/job", methods=["POST"])
 def create_job():
