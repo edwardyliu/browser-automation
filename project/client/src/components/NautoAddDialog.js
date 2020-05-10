@@ -1,11 +1,11 @@
 import React from "react"
 
-import AddBoxIcon from '@material-ui/icons/AddBox';
+import AddBoxIcon from '@material-ui/icons/AddBox'
 import Autocomplete from '@material-ui/lab/Autocomplete'
 import Button from '@material-ui/core/Button'
 import Checkbox from '@material-ui/core/Checkbox'
 import CheckBoxIcon from '@material-ui/icons/CheckBox'
-import CheckBoxOutlineBlankIcon from '@material-ui/icons/CheckBoxOutlineBlank';
+import CheckBoxOutlineBlankIcon from '@material-ui/icons/CheckBoxOutlineBlank'
 import Dialog from '@material-ui/core/Dialog'
 import DialogActions from '@material-ui/core/DialogActions'
 import DialogContent from '@material-ui/core/DialogContent'
@@ -30,13 +30,13 @@ const useStyles = makeStyles(theme => ({
     },
 }))
 
-const NautoAddDialog = props => {
-    const classes = useStyles()
-    const {
-        handleAddOrder,
-        possibleItems,
-    } = props
+const NautoAddDialog = ({
+    handleAddOrder,
+    marketplace,
+}) => {
 
+    const classes = useStyles()
+    
     const [cart, setCart] = React.useState(newCart)
     const [open, setOpen] = React.useState(false)
     const [switchState, setSwitchState] = React.useState({
@@ -108,7 +108,7 @@ const NautoAddDialog = props => {
                         disableCloseOnSelect
                         fullWidth
                         multiple
-                        options={possibleItems}
+                        options={marketplace}
                         getOptionLabel={(option) => (option.env + ": " + option.name)}
                         onChange={(event, value) => handleChangeAutocomplete(event, value, 'items')}
                         value={cart.items}
@@ -166,7 +166,7 @@ const NautoAddDialog = props => {
 
 NautoAddDialog.propTypes = {
     handleAddOrder: PropTypes.func.isRequired,
-    possibleItems: PropTypes.array.isRequired,
+    marketplace: PropTypes.array.isRequired,
 }
 
 export default NautoAddDialog
