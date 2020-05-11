@@ -1,4 +1,6 @@
-# SMTP Server
-```python
-python -m smtpd -n -c DebuggingServer localhost:1025
+# Quick Start: Development
+```bash
+bash nauto --make
+(cd project/server && flask run) &
+(cd project/client && npm start) &
 ```
