@@ -92,8 +92,8 @@ class Job(object):
                     line = self.parse_task(config.DEFAULT_FORMAT, elut, ilut)
                 self.lines.append(line)
     
-    def deploy(self, receiver:str=None):
-        """Pop until the queue is empty, then respond back to <receiver>
+    def deploy(self, receipt:str=None):
+        """Pop until the queue is empty, then respond back to <receipt>
 
         """
 
@@ -102,7 +102,7 @@ class Job(object):
                 self.driver = driver.Driver(self.id)
             
             while len(self.queue) > 0: self.pop()
-            if receiver: self.notify(receiver)
+            if receipt: self.notify(receipt)
 
     # == Utility Function(s) ==
     def parse_task(self, fmt:str, elut:dict, ilut:dict):
@@ -173,13 +173,13 @@ class Job(object):
         
         return part
 
-    def send_mail(self, receiver:str, attachment=None):
+    def send_mail(self, receipt:str, attachment=None):
         """Send mail
         
         Parameters
         ----------
-        receiver: str
-            The receiver's e-mail address
+        receipt: str
+            The receipt's e-mail address
         content: list
             A list of strings
         """
@@ -188,7 +188,7 @@ class Job(object):
 
         message = MIMEMultipart()
         message["From"] = sender
-        message["To"] = receiver
+        message["To"] = receipt
         message["Subject"] = "Nauto Report"
 
         # == HTML E-mail ==
@@ -219,20 +219,20 @@ class Job(object):
         # == Send The E-mail ==
         text = message.as_string()
         with smtplib.SMTP(config.DEFAULT_SMTP_SERVER, config.DEFAULT_SMTP_PORT) as server:
-            server.sendmail(sender, receiver, text)
+            server.sendmail(sender, receipt, text)
 
-    def notify(self, receiver:str):
-        """Notify the receiver of job
+    def notify(self, receipt:str):
+        """Notify the receipt of job
 
         Parameters
         ----------
-        receiver: str
+        receipt: str
             An E-mail address
         """
         
         filepath = os.path.join(config.CACHE_DIRPATH, f"{self.id}.csv")
         utils.write(self.lines, filepath)
         attachment = self.make_attachment(filepath)
-        self.send_mail(receiver, attachment=attachment)
+        self.send_mail(receipt, attachment=attachment)
         utils.remove(filepath)
     
