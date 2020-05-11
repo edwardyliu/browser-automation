@@ -1,6 +1,6 @@
 {
     "name": "SEARCH",
-    "env": "ALL",
+    "env": "STATE CHANGE",
     "commands": [
         ["GET", "https://www.bing.com/"],
         ["DSEND_KEYS", {

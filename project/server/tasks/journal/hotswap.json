@@ -1,6 +1,6 @@
 {
-    "name": "SWITCH",
-    "env": "ALL",
+    "name": "HOTSWAP",
+    "env": "STATE CHANGE",
     "commands": [
         ["GET", "https://www.bing.com/"],
         ["DSEND_KEYS", {

@@ -2,8 +2,8 @@
 
 # == Import(s) ==
 # => Local
-from . import config
 from . import ina
+from . import config
 
 # => System
 import json
@@ -64,17 +64,16 @@ def get_tasklist(log:logging.Logger=None, prefix:list=None, suffix:list=None)->l
     for filepath in list(Path(config.JOURNAL_DIRPATH).rglob("*.[jJ][sS][oO][nN]")):
         if log: log.info(f"parsing task: {filepath}")
         task = parse_json(filepath)
-        if task.key.env != "ALL":
+        if task.key.env != config.NOT_APPLICABLE:
             if prefix: task.extendleft(prefix)
             if suffix: task.extend(suffix)
             task.pushleft(ina.Command("printf", f"{task.key.env},{task.key.name}", None))
 
         tasks.append(task)
-    
     return tasks
 
 def get_taskdict(log:logging.Logger=None, prefix:list=None, suffix:list=None)->dict:
-    """Get a list of task objects from "<basedir>/journal/.../*.json"
+    """Get a dictionary of task objects from "<basedir>/journal/.../*.json"
 
     Returns
     -------
@@ -85,13 +84,33 @@ def get_taskdict(log:logging.Logger=None, prefix:list=None, suffix:list=None)->d
     for filepath in list(Path(config.JOURNAL_DIRPATH).rglob("*.[jJ][sS][oO][nN]")):
         if log: log.info(f"parsing task: {filepath}")
         task = parse_json(filepath)
-        if task.key.env != "ALL":
+        if task.key.env != config.NOT_APPLICABLE:
             if prefix: task.extendleft(prefix)
             if suffix: task.extend(suffix)
             task.pushleft(ina.Command("printf", f"{task.key.env},{task.key.name}", None))
         
         tasks[task.key] = task
+    return tasks
 
+def get_tuplekey_taskdict(log:logging.Logger=None, prefix:list=None, suffix:list=None)->dict:
+    """Get a dictionary of task objects from "<basedir>/journal/.../*.json"
+    Use a tuple2(env, name) as the key value
+    
+    Returns
+    -------
+    dict: A dictionary of task objects
+    """
+
+    tasks = {}
+    for filepath in list(Path(config.JOURNAL_DIRPATH).rglob("*.[jJ][sS][oO][nN]")):
+        if log: log.info(f"parsing task: {filepath}")
+        task = parse_json(filepath)
+        if task.key.env != config.NOT_APPLICABLE:
+            if prefix: task.extendleft(prefix)
+            if suffix: task.extend(suffix)
+            task.pushleft(ina.Command("printf", f"{task.key.env},{task.key.name}", None))
+        
+        tasks[(task.key.env, task.key.name)] = task
     return tasks
 
 # => Parser(s)

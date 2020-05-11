@@ -3,7 +3,7 @@
 # == Import(s) ==
 # => Local
 from project.server.tasks import ina
-from project.server.tasks import constant
+from project.server.tasks import const
 
 # => System
 import unittest
@@ -12,7 +12,7 @@ import unittest
 class TestConstant(unittest.TestCase):
     
     def test_task_dict(self):
-        tasks = constant.TASK_DICT
+        tasks = const.TASKDICT
         self.assertEqual(len(tasks), 6)
         self.assertEqual(ina.Key("TEST", "TEST ALL") in tasks, True)
         self.assertEqual(ina.Key("TEST", "TEST EXPECTED CONDITION") in tasks, True)
@@ -22,7 +22,7 @@ class TestConstant(unittest.TestCase):
         self.assertEqual(ina.Key("TEST", "TEST PRINTF") in tasks, True)
 
     def test_task_keys(self):
-        tasks = constant.TASK_KEYS
+        tasks = const.TASKKEYS
         self.assertEqual(len(tasks), 6)
         self.assertEqual(ina.Key("TEST", "TEST ALL") in tasks, True)
         self.assertEqual(ina.Key("TEST", "TEST EXPECTED CONDITION") in tasks, True)

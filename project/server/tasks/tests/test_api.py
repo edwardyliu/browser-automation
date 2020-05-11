@@ -12,7 +12,7 @@ class TestAPI(unittest.TestCase):
     
     def test_create_task(self):
         message = {
-            "receiver": "edward.yifengliu@gmail.com",
+            "receipt": "edward.yifengliu@gmail.com",
             "parcel": [
                 {
                     "env": "TEST",

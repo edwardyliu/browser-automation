@@ -18,6 +18,7 @@ JOURNAL_DIRPATH=os.path.join(Path(__file__).parents[0], "journal/")
 
 # => Default(s)
 DEFAULT_URL="https://www.google.com/"
+NOT_APPLICABLE="STATE CHANGE"
 PREFIX=[]
 SUFFIX=[
     ina.Command("GET", DEFAULT_URL, None)

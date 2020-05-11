@@ -3,32 +3,54 @@
 # == Import(s) ==
 # => Local
 from . import ina
-from . import constant
+from . import const
 
 # => System
 import copy
 
-# == INA API ==
+# == Tasks API ==
 def get_keys()->list:
-    return constant.TASK_KEYS
+    return const.TASKKEYS
 
-def create_job(tasks:list, receipt:str=None, uid:str=None):
-    try:
-        job = ina.Job(uid)
+def create_scan(raw:dict, uid:str=None)->bool:
+    return False
 
-        prev = None
-        for task in tasks:
-            key = ina.Key(task["env"], task["name"]); fmt = task.get("fmt"); lut = task.get("lut")
-            task = constant.TASK_DICT.get(key); curr = lut.get("usrId")
-            if task: 
-                if curr != prev: 
-                    task = copy.deepcopy(task)
-                    task = task.extendleft(constant.TASK_SWITCH.cmds)
-                job.push(task, fmt, lut)
-            prev = curr
-        
-        job.exec(receipt)
-        return True
+def create_job(raw:dict, uid:str=None)->bool:
+    """Create & deploy a job instance
     
-    except KeyError: return False
+    Returns
+    -------
+    bool: Success or failure
+    """
     
+    receipt:str = raw.get("receipt"); data:list = raw.get("data")
+    if data:
+        try:
+            data.sort(key = lambda row: row["usrId"])
+            tasks = map(
+                lambda row: {
+                    "env": row["env"],
+                    "name": row["name"],
+                    "lut": {**{
+                        "usrId": row["usrId"]
+                    }, **row["lut"]}
+                },
+                data
+            )
+
+            handler = ina.Job(uid); prev_id = None
+            for task in tasks:
+                key = ina.Key(task["env"], task["name"]); lut = task["lut"]
+                task = const.TASKDICT.get(key); curr_id = lut["usrId"]
+
+                if task:
+                    if prev_id != curr_id:
+                        handler.push(const.TASK_HOTSWAP, elut = lut, trace = False)
+                    handler.push(task, elut = lut)
+                
+                prev_id = curr_id
+            handler.deploy(receipt)
+            return True
+
+        except KeyError: pass
+    return False
