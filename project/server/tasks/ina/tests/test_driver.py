@@ -2,37 +2,34 @@
 
 # == Import(s) ==
 # => Local
-from project.server.tasks.ina import utils
 from project.server.tasks.ina import models
 from project.server.tasks.ina import driver
 
 # => System
-import os
 import unittest
-from pathlib import Path
 from collections import deque
 
 # == Test Object ==
 class TestDriver(unittest.TestCase):
     
     def test_run(self):
-        worker = driver.Driver("test_run")
-        self.assertEqual(worker.key(), None)
+        instance = driver.Driver("test_run")
+        self.assertEqual(instance.taskkey(), None)
 
         key = models.Key("TEST", "test_run")
         task = models.Task(key, deque([
             models.Command("get", "https://www.google.com/", None),
-            models.Command("printf", "Hello world, name's ${1}", ["Beau"])
+            models.Command("printf", "I am alive! Muhahahaha ${usrId}", None)
         ]))
-        worker.assign(task)
-        self.assertEqual(worker.key(), key)
+        instance.assign(task)
+        self.assertEqual(instance.key(), key)
         
-        response = worker.run()
-        self.assertEqual(response, worker.results)
-        self.assertEqual(response["${1}"], "Hello world, name's Beau")
+        ilut = instance.exec({"usrId": "Edward"})
+        self.assertEqual(ilut, instance.results)
+        self.assertEqual(ilut["${0}"], "I am alive! Muhahahaha Edward")
 
     def test_write(self):
-        worker = driver.Driver("test_write")
+        instance = driver.Driver("test_write")
         key = models.Key("TEST", "test_write")
         task = models.Task(key, deque([
             models.Command("get", "https://www.google.com/", None),
@@ -41,24 +38,29 @@ class TestDriver(unittest.TestCase):
             models.Command("send_keys", None, ["${ENTER}"]),
             models.Command("pause", "2.0", None)
         ]))
-        worker.assign(task)
-        self.assertEqual(worker.key(), key)
+        instance.assign(task)
+        self.assertEqual(instance.key(), key)
 
-        response = worker.run({"usrId": "Edward"})
-        self.assertEqual("Edward is typing..." in response["${1}"], True)
+        ilut = instance.run({"usrId": "Edward"})
+        self.assertEqual("Edward is typing..." in ilut["${0}"], True)
 
     def test_write_all(self):
-        worker = driver.Driver("test_write_argv")
-        key = models.Key("Test", "Writer")
+        instance = driver.Driver("test_write_all")
+        key = models.Key("Test", "test_write_all")
         task = models.Task(key, deque([
             models.Command("get", "https://www.youtube.com/", None),
-            models.Command("write", "/html/body/ytd-app/div/div/ytd-masthead/div[3]/div[2]/ytd-searchbox/form/div/div[1]/input", ["${@//*[@id='video-title']}; lutv: ${@#};"]),
+            models.Command("write", 
+                "/html/body/ytd-app/div/div/ytd-masthead/div[3]/div[2]/ytd-searchbox/form/div/div[1]/input", 
+                ["${@//*[@id='video-title']}; lutv - ${@#};"]
+            ),
+            models.Command("printf", "${@//*[@id='video-title']}; lutv - ${@#};"),
             models.Command("pause", "2.0", None)
         ]))
-        worker.assign(task)
-        self.assertEqual(worker.key(), key)
+        instance.assign(task)
+        self.assertEqual(instance.key(), key)
         
-        worker.run({"usrId": "Edward", "location": "Toronto"})
+        ilut = instance.run({"usrId": "Edward", "orderId": "###3###542"})
+        self.assertEqual("lutv - usrId: Edward, orderId: ###3###542" in ilut["${0}"], True)
 
 if __name__ == "__main__":
     unittest.main()

@@ -13,42 +13,42 @@ from collections import deque
 class TestModels(unittest.TestCase):
     
     def test_command(self):
-        command = models.Command(label="printf", target="A beautiful mind ${1}", argv=["Edward"])
-        self.assertEqual(command.label, "printf")
-        self.assertEqual(command.target, "A beautiful mind ${1}")
+        command = models.Command(label="dsend_keys", target="AN_XPATH_VALUE", argv=["Edward", "John"])
+        self.assertEqual(command.label, "dsend_keys")
+        self.assertEqual(command.target, "AN_XPATH_VALUE")
         self.assertEqual("Edward" in command.argv, True)
 
         command.argv.append("Beau")
-        self.assertEqual(command.argv, ["Edward", "Beau"])
+        self.assertEqual(command.argv, ["Edward", "John", "Beau"])
         self.assertEqual(command.argv.pop(), "Beau")
-        self.assertEqual(command.argv, ["Edward"])
+        self.assertEqual(command.argv, ["Edward", "John"])
     
     def test_key(self):
-        keya = models.Key("TEST", "Test A")
-        keyb = models.Key("TEST", "Test B")
-        keyc = models.Key("TEST", "Test A")
-        self.assertEqual(keya, keyc)
+        key_a = models.Key("TEST", "TestA")
+        key_b = models.Key("TEST", "TestB")
+        key_c = models.Key("TEST", "TestA")
+        self.assertEqual(key_a, key_c)
 
-        lookup = {keya: "Hello Key A"}
-        self.assertEqual(lookup[keya], "Hello Key A")
-        self.assertEqual(lookup[keyc], "Hello Key A")
+        lut = {key_a: "Hello KeyA"}
+        self.assertEqual(lut[key_a], "Hello KeyA")
+        self.assertEqual(lut[key_c], "Hello KeyA")
         
-        lookup[keyb] = "Hello Key Model B"
-        self.assertEqual(lookup[keyb], "Hello Key Model B")
+        lut[key_b] = "Hello KeyB"
+        self.assertEqual(lut[key_b], "Hello KeyB")
 
     def test_task(self):
-        cmda = models.Command(label="printf", target="A beautiful mind ${2}", argv=["Beau", "Edward"])
-        cmdb = models.Command(label="printf", target="An amazing experience with ${1}", argv=["Jim"])
-        cmdc = models.Command(label="printf", target="A ${1} cause", argv=["noble"])
-        key = models.Key("DEV", "A Web Task")
-        task = models.Task(key=key, cmds=deque([cmda, cmdb]))
+        cmd_a = models.Command(label="dsend_keys", target="AN_XPATH_VALUE", argv=["Beau", "Edward"])
+        cmd_b = models.Command(label="dsend_keys", target="AN_XPATH_VALUE", argv=["Jim"])
+        cmd_c = models.Command(label="dsend_keys", target="AN_XPATH_VALUE", argv=["Noble"])
+        key = models.Key("TEST", "SomeKey")
+        task = models.Task(key=key, cmds=deque([cmd_a, cmd_b]))
         self.assertEqual(task.key, key)
-        self.assertEqual(task.cmds, deque([cmda, cmdb]))
+        self.assertEqual(task.cmds, deque([cmd_a, cmd_b]))
         
-        task.cmds.append(cmdc)
-        self.assertEqual(task.cmds, deque([cmda, cmdb, cmdc]))
-        self.assertEqual(task.cmds.pop(), cmdc)
-        self.assertEqual(task.cmds, deque([cmda, cmdb]))
+        task.cmds.append(cmd_c)
+        self.assertEqual(task.cmds, deque([cmd_a, cmd_b, cmd_c]))
+        self.assertEqual(task.cmds.pop(), cmd_c)
+        self.assertEqual(task.cmds, deque([cmd_a, cmd_b]))
         
 if __name__ == "__main__":
     unittest.main()

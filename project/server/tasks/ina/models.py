@@ -2,6 +2,7 @@
 
 # == Import(s) ==
 # => System
+import dataclasses
 from collections import deque
 from dataclasses import dataclass
 
@@ -52,6 +53,16 @@ class Key:
 
     def __str__(self):
         return f"INA.Key(env={self.env}, name={self.name})"
+
+    def asdict(self):
+        """Converts this dataclass instance into a dictionary
+
+        Returns
+        -------
+        dict
+        """
+
+        return dataclasses.asdict(self)
 
 @dataclass(frozen=True)
 class Task:

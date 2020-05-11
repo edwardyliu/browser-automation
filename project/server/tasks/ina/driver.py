@@ -13,6 +13,7 @@ import json
 # => External
 from selenium import webdriver
 from selenium.common import exceptions
+from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.action_chains import ActionChains
 
@@ -25,8 +26,9 @@ class Driver(object):
 
     def __init__(self, uid:str):
         self.uid = uid
-        self.log = utils.get_logger(f"ina.driver.{self.uid}")
-        self.driver = utils.get_webdriver()
+        self.log = utils.get_logger(f"INA.driver.{self.uid}")
+        self.driver = self.geckodriver()
+        self.actions = ActionChains(self.driver)
 
     def __del__(self):
         self.driver.quit()
@@ -41,11 +43,31 @@ class Driver(object):
         return f"INA.Driver(uid={self.uid})"
 
     # == Getter(s) ==
-    def id(self)->str:
-        if hasattr(self, "lut"): return self.lut.get('usrId')
-        else: return None
-    
-    def key(self)->models.Key: 
+    def geckodriver(self)->webdriver:
+        """Get a Selenium WebDriver: geckodriver
+
+        Returns
+        -------
+        webdriver
+        """
+
+        options = webdriver.FirefoxOptions()
+        options.add_argument("--disable-gpu")
+        options.add_argument("--no-sandbox")
+        options.add_argument("--disable-dev-shm-usage")
+
+        driver = webdriver.Firefox(executable_path=config.WEBDRIVER_EXEPATH, options=options)
+        driver.maximize_window()
+        return driver
+
+    def taskkey(self)->models.Key:
+        """Get task key
+
+        Returns
+        -------
+        models.Key
+        """
+
         if hasattr(self, "task"): return self.task.key 
         else: return None
 
@@ -68,8 +90,8 @@ class Driver(object):
         self.results = {}
     
     # == Functional ==
-    def run(self, lut:dict=None)->dict:
-        """Run (i.e. work) on the task
+    def exec(self, lut:dict=None)->dict:
+        """Mount (i.e. run) the task
         
         Parameters
         ----------
@@ -87,6 +109,21 @@ class Driver(object):
         for cmd in self.task.cmds: getattr(self, cmd.label.lower())(target=cmd.target, argv=cmd.argv)
         return self.results
     
+    # == Utility Function(s) ==
+    def argvkey(self)->str:
+        """Get available argvkey
+        
+        Returns
+        -------
+        str: The next available argvkey value
+        """
+
+        argvkey = "${0}"
+        while self.results.get(argvkey):
+            pattern = re.findall(config.RE_NUMERAL, argvkey)[0]
+            argvkey = argvkey.replace(pattern, str(int(pattern)+1))
+        return argvkey
+
     def find_element_by_xpath(self, target:str):
         """Find element by XPATH
 
@@ -130,7 +167,7 @@ class Driver(object):
         return elems
 
     def find(self, target:str)->str:
-        """Find the first WebElement by XPATH and retrieve its text value
+        """Find the first Selenium WebElement by XPATH and retrieve its text value
 
         Parameters
         ----------
@@ -142,14 +179,14 @@ class Driver(object):
         str: WebElement.text
         """
         
-        res = ""
+        res = "N/F"
         elem = self.find_element_by_xpath(target)
         if elem: res = elem.text
         
         return res
 
     def find_all(self, target:str)->str:
-        """Find all WebElements by XPATH and retrieve their text values
+        """Find all Selenium WebElements by XPATH and retrieve their text values
 
         Parameters
         ----------
@@ -158,7 +195,7 @@ class Driver(object):
         
         Returns
         -------
-        str: A comma separated string of WebElement.text
+        str: A semicolon separated string of WebElement.text
         """
 
         lst = []
@@ -166,7 +203,89 @@ class Driver(object):
         for elem in elems:
             if elem: lst.append(elem.text)
         
-        return ", ".join(lst)
+        if lst: return "; ".join(lst)
+        else: return "N/F"
+
+    def enqueue_key_command(self, logic:str, keys:str, target=None):
+        """Enqueue a key action, but do not perform
+
+        Parameters
+        ----------
+        logic: str
+            The key logic
+        keys: str
+            The key character(s)
+        target: WebElement, optional
+            A Selenium WebElement
+        """
+
+        if logic == config.KEY_DOWN: self.actions.key_down(keys, element=target)
+        elif logic == config.KEY_UP: self.actions.key_up(keys, element=target)
+        else:
+            if target: self.actions.send_keys_to_element(target, keys)
+            else: self.actions.send_keys(keys)
+    
+    def enact_key_actions(self, target, argv:list):
+        """Perform a series of key actions
+
+        Parameters
+        ----------
+        target: WebElement, optional
+            A Selenium WebElement
+        argv: list
+            A list of key inputs
+        """
+
+        for arg in argv:
+            if isinstance(arg, list) or isinstance(arg, tuple):
+                try:
+                    logic = arg[0]
+                    keys = self.parse_special_key(arg[1])
+                except IndexError: raise IndexError(f"INA.driver.enact_key_actions: IndexError '{argv}' =>{arg}")
+            else:
+                logic = "SEND"
+                keys = self.parse_special_key(str(arg))
+            
+            if logic == "SEND": 
+                self.enqueue_key_command(logic, keys, target)
+            else: 
+                for key in keys: self.enqueue_key_command(logic, key, target)
+        self.actions.perform()
+
+    def parse_expected_condition(self, target:str, arg:str):
+        """Parse expected condition
+
+        Parameters
+        ----------
+        target: str
+            An XPATH value, an Integer value, or a URL string
+        arg: str
+            A LOCATOR, an ELEMENT, or an INTEGER
+        """
+
+        if arg == "LOCATOR": result = (By.XPATH, target)
+        elif arg == "ELEMENT": result = self.find_element_by_xpath(target)
+        elif arg == "INTEGER": result = int(target)
+        else: result = target
+
+        return result
+
+    def parse_special_key(self, target:str)->str:
+        """Parse special key values, replace w/ corresponding special characters
+        
+        Parameters
+        ----------
+        target: str
+            The source string
+        
+        Returns
+        -------
+        str: The replacement string
+        """
+
+        for replacement in re.findall(config.RE_POSITIONAL, target):
+            target = target.replace(replacement, config.KEYS[replacement])
+        return target
 
     def peek(self, target:str)->str:
         """Peek into the look-up table and if not found, peek into the web page
@@ -181,47 +300,41 @@ class Driver(object):
         str: The look-up result
         """
 
-        if self.lut and self.lut.get(target): 
+        if self.lut.get(target): 
             res = self.lut[target]
             if isinstance(res, str): return res
-            elif isinstance(res, list): return ", ".join(str(res))
-            elif isinstance(res, dict): return json.dumps(str(res))
+            elif isinstance(res, list): return ", ".join(res)
+            elif isinstance(res, dict): return json.dumps(res)
             else: 
                 try: return str(res)
                 except Exception: return f"ERROR: Cannot STRINGIFY Type({type(res)})"
         else: return self.find(target)
     
-    def scan(self, fmt:str, argv:list=None)->str:
+    def scan(self, target:str)->str:
         """Scan: parse the input arguments into a formatted string
 
         Parameters
         ----------
-        fmt: str
+        target: str
             The string format
-        argv: [str]
-            A list of positional arguments
             
         Returns
         -------
         str: The formatted string
         """
         
-        for placeholder in re.findall(config.POSITIONAL, fmt):
+        for placeholder in re.findall(config.RE_POSITIONAL, target):
             value = placeholder[2:-1]
-            if value == config.LUTV: fmt = fmt.replace(placeholder, json.dumps(self.lut))
-            elif value == config.ARGV:
-                if argv: fmt = fmt.replace(placeholder, ", ".join(argv))
-                else: fmt = fmt.replace(placeholder, "None")
-            elif value.isdigit() and argv:
-                try: fmt = fmt.replace(placeholder, argv[int(value)-1])
-                except IndexError: 
-                    self.log.error("scan: Index Error")
-                    self.log.error(f"invalid task definition: {self.task}")
-                    raise IndexError(f"ina.driver.scan: Index Error - {argv}")
-            elif value[0] == config.FINDV: fmt = fmt.replace(placeholder, self.find_all(value[1:]))
-            else: fmt = fmt.replace(placeholder, self.peek(value))
+            if value == config.LUTV: 
+                span = []
+                for i, j in self.lut.items(): span.append(f"{i}: {j}")
+                target = target.replace(placeholder, ", ".join(span))
+            elif value == config.ARGV: target = target.replace(placeholder, ", ".join(self.results.values()))
+            elif value.isdigit(): target = target.replace(placeholder, self.results.get("${" + value + "}", "N/A"))
+            elif value[0] == config.FINDV: target = target.replace(placeholder, self.find_all(value[1:]))
+            else: target = target.replace(placeholder, self.peek(value))
         
-        return fmt
+        return target
     
     # == Command Function(s) ==
     def get(self, target:str, argv:list=None):
@@ -253,7 +366,7 @@ class Driver(object):
         self.driver.refresh()
     
     def click(self, target:str=None, argv:list=None):
-        """Click a WebElement
+        """Click a Selenium WebElement
 
         Parameters
         ----------
@@ -263,11 +376,11 @@ class Driver(object):
 
         if target:
             elem = self.find_element_by_xpath(target)
-            if elem: ActionChains(self.driver).click(on_element=elem).perform()
-        else: ActionChains(self.driver).click().perform()
+            if elem: self.actions.click(on_element=elem).perform()
+        else: self.actions.click().perform()
 
     def click_and_hold(self, target:str=None, argv:list=None):
-        """Click and hold a WebElement
+        """Click and hold a Selenium WebElement
 
         Parameters
         ----------
@@ -277,8 +390,8 @@ class Driver(object):
 
         if target:
             elem = self.find_element_by_xpath(target)
-            if elem: ActionChains(self.driver).click_and_hold(on_element=elem).perform()
-        else: ActionChains(self.driver).click_and_hold().perform()
+            if elem: self.actions.click_and_hold(on_element=elem).perform()
+        else: self.actions.click_and_hold().perform()
     
     def release(self, target:str=None, argv:list=None):
         """Release mouse click
@@ -291,11 +404,11 @@ class Driver(object):
 
         if target:
             elem = self.find_element_by_xpath(target)
-            if elem: ActionChains(self.driver).release(on_element=elem).perform()
-        else: ActionChains(self.driver).release().perform()
+            if elem: self.actions.release(on_element=elem).perform()
+        else: self.actions.release().perform()
 
     def context_click(self, target:str=None, argv:list=None):
-        """Context click (i.e. right-click) a WebElement
+        """Context click (i.e. right-click) a Selenium WebElement
 
         Parameters
         ----------
@@ -305,11 +418,11 @@ class Driver(object):
 
         if target:
             elem = self.find_element_by_xpath(target)
-            if elem: ActionChains(self.driver).context_click(on_element=elem).perform()
-        else: ActionChains(self.driver).context_click().perform()
+            if elem: self.actions.context_click(on_element=elem).perform()
+        else: self.actions.context_click().perform()
     
     def double_click(self, target:str=None, argv:list=None):
-        """Double click a WebElement
+        """Double click a Selenium WebElement
 
         Parameters
         ----------
@@ -319,8 +432,8 @@ class Driver(object):
 
         if target:
             elem = self.find_element_by_xpath(target)
-            if elem: ActionChains(self.driver).double_click(on_element=elem).perform()
-        else: ActionChains(self.driver).double_click().perform()
+            if elem: self.actions.double_click(on_element=elem).perform()
+        else: self.actions.double_click().perform()
     
     def drag_and_drop(self, target:str, argv:list):
         """Drag and drop from <source> (i.e. target) to <dest> (i.e. argv[0])
@@ -328,20 +441,20 @@ class Driver(object):
         Parameters
         ----------
         target: str
-            An XPATH value, the source WebElement
+            An XPATH value, the source Selenium WebElement
         argv: [str]
-            An XPATH value, the destination WebElement
+            An XPATH value, the destination Selenium WebElement
         """
 
         try:
             src = self.find_element_by_xpath(target)
             dest = self.find_element_by_xpath(argv[0])
-            if src and dest: ActionChains(self.driver).drag_and_drop(source=src, target=dest).perform()
+            if src and dest: self.actions.drag_and_drop(source=src, target=dest).perform()
             
         except IndexError:
             self.log.error(f"drag_and_drop: Index Error")
             self.log.error(f"invalid task definition: {self.task}")
-            raise IndexError(f"ina.driver.drag_and_drop: Index Error - {argv}")
+            raise IndexError(f"INA.driver.drag_and_drop: Index Error - {argv}")
 
     def drag_and_drop_by_offset(self, target:str, argv:list):
         """Drag and drop from <source> (i.e. target) to <xoffset>, <yoffset> (i.e. argv[0] & argv[1])
@@ -358,15 +471,15 @@ class Driver(object):
             src = self.find_element_by_xpath(target)
             xoffset = int(argv[0])
             yoffset = int(argv[1])
-            if src: ActionChains(self.driver).drag_and_drop_by_offset(source=src, xoffset=xoffset, yoffset=yoffset).perform()
+            if src: self.actions.drag_and_drop_by_offset(source=src, xoffset=xoffset, yoffset=yoffset).perform()
             
         except IndexError:
             self.log.error("drag_and_drop_by_offset: Index Error")
             self.log.error(f"invalid task definition: {self.task}")
-            raise IndexError(f"ina.driver.drag_and_drop_by_offset: Index Error - {argv}")
+            raise IndexError(f"INA.driver.drag_and_drop_by_offset: Index Error - {argv}")
     
     def move_to_element(self, target:str, argv:list=None):
-        """Move mouse cursor to WebElement
+        """Move mouse cursor to a Selenium WebElement
 
         Parameters
         ----------
@@ -375,10 +488,10 @@ class Driver(object):
         """
 
         elem = self.find_element_by_xpath(target)
-        if elem: ActionChains(self.driver).move_to_element(to_element=elem).perform()
+        if elem: self.actions.move_to_element(to_element=elem).perform()
         
     def move_to_element_with_offset(self, target:str, argv:list):
-        """Move mouse cursor to WebElement plus offset
+        """Move mouse cursor to a Selenium WebElement plus offset
 
         Parameters
         ----------
@@ -392,12 +505,12 @@ class Driver(object):
             elem = self.find_element_by_xpath(target)
             xoffset = int(argv[0])
             yoffset = int(argv[1])
-            if elem: ActionChains(self.driver).move_to_element_with_offset(to_element=elem, xoffset=xoffset, yoffset=yoffset).perform()
+            if elem: self.actions.move_to_element_with_offset(to_element=elem, xoffset=xoffset, yoffset=yoffset).perform()
 
         except IndexError:
             self.log.error("move_to_element_with_offset: Index Error")
             self.log.error(f"invalid task definition: {self.task}")
-            raise IndexError(f"ina.driver.move_to_element_with_offset: Index Error - {argv}")
+            raise IndexError(f"INA.driver.move_to_element_with_offset: Index Error - {argv}")
     
     def move_by_offset(self, target:str, argv:list):
         """Move mouse cursor to offset
@@ -411,16 +524,16 @@ class Driver(object):
         try:
             xoffset = int(argv[0])
             yoffset = int(argv[1])
-            ActionChains(self.driver).move_by_offset(xoffset=xoffset, yoffset=yoffset).perform()
+            self.actions.move_by_offset(xoffset=xoffset, yoffset=yoffset).perform()
 
         except IndexError:
             self.log.error("move_by_offset: Index Error")
             self.log.error(f"invalid task definition: {self.task}")
-            raise IndexError(f"ina.driver.move_by_offset: Index Error - {argv}")
+            raise IndexError(f"INA.driver.move_by_offset: Index Error - {argv}")
     
     def send_keys(self, target:str, argv:list):
         """Send keys
-        NOTE. Supports sending special keyboard characters e.g. ${ENTER}, ${ALT}, ${SHIFT}, etc.
+        NOTE. Supports sending special key characters e.g. ${ENTER}, ${ALT}, ${SHIFT}, etc.
         
         Parameters
         ----------
@@ -433,8 +546,8 @@ class Driver(object):
 
         if target:
             elem = self.find_element_by_xpath(target)
-            if elem: utils.send_keys(self.driver, elem, argv)
-        else: utils.send_keys(self.driver, None, argv)
+            if elem: self.enact_key_actions(elem, argv)
+        else: self.enact_key_actions(None, argv)
     
     def pause(self, target:str, argv:list=None):
         """Pause the WebDriver instance
@@ -447,12 +560,12 @@ class Driver(object):
         
         try:
             seconds = float(target)
-            ActionChains(self.driver).pause(seconds).perform()
+            self.actions.pause(seconds).perform()
 
         except ValueError:
             self.log.error("pause: Value Error")
             self.log.error(f"invalid task definition: {self.task}")
-            raise ValueError(f"ina.driver.pause: Value Error - {target}")
+            raise ValueError(f"INA.driver.pause: Value Error - {target}")
     
     def wait(self, target:str, argv:list)->bool:
         """Wait for an expected condition
@@ -470,7 +583,7 @@ class Driver(object):
             expected_condition = config.EXPECTED_CONDITIONS.get(argv[1])
 
             if expected_condition:
-                res = utils.parse_expected_condition(self.driver, target, expected_condition[1])
+                res = self.parse_expected_condition(target, expected_condition[1])
                 if operation == "UNTIL_NOT": WebDriverWait(self.driver, timeout=config.DEFAULT_TIMEOUT).until_not(expected_condition[0](res))
                 else: WebDriverWait(self.driver, timeout=config.DEFAULT_TIMEOUT).until(expected_condition[0](res))
                 
@@ -478,12 +591,12 @@ class Driver(object):
             else:
                 self.log.error("wait: Value Error")
                 self.log.error(f"invalid task definition: {self.task}")
-                raise ValueError(f"ina.driver.wait: Value Error - {argv[1]}")
+                raise ValueError(f"INA.driver.wait: Value Error - {argv[1]}")
 
         except IndexError:
             self.log.error("wait: Index Error")
             self.log.error(f"invalid task definition: {self.task}")
-            raise IndexError(f"ina.driver.wait: Index Error - {argv}")
+            raise IndexError(f"INA.driver.wait: Index Error - {argv}")
         
         except exceptions.TimeoutException:
             self.log.error("wait: Timeout Exception")
@@ -517,7 +630,7 @@ class Driver(object):
     def dsend_keys(self, target:str, argv:list):
         """Dynamic send keys
         NOTE. Supports sending user dictionary & web element look-ups. 
-        However, does not support keyboard logic & special characters.
+        However, does not support key logic & special characters.
 
         Parameters
         ----------
@@ -530,8 +643,8 @@ class Driver(object):
         values = map(lambda arg: self.scan(arg), filter(lambda arg: isinstance(arg, str), argv))
         if target:
             elem = self.find_element_by_xpath(target)
-            if elem: utils.send_keys(self.driver, elem, values)
-        else: utils.send_keys(self.driver, None, values)
+            if elem: self.enact_key_actions(elem, values)
+        else: self.enact_key_actions(None, values)
     
     def printf(self, target:str, argv:list=None):
         """Generate a formatted string
@@ -541,14 +654,12 @@ class Driver(object):
         ----------
         target: str
             The string format
-        argv: [str]
-            A list of positional arguments
         """
         
-        argvkey = utils.next_argv_key(self.results)
-        self.results[argvkey] = ""
+        key = self.argvkey()
+        self.results[key] = ""
         
-        if target: self.results[argvkey] = self.scan(fmt=target, argv=argv)
+        if target: self.results[key] = self.scan(target)
     
     # => Popular Command Combination(s)
     def write(self, target:str, argv:list=None):

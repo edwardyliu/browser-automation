@@ -1,1 +1,1 @@
-ina: Instruction-Based Navigation Apparatus
+INA: Instruction-Based Navigation Apparatus

@@ -20,17 +20,18 @@ WEBDRIVER_EXEPATH=os.path.join(Path(__file__).parents[0], "resources/geckodriver
 
 # => Regex(s)
 RE_NUMERAL=re.compile(r"([0-9]+)")
-POSITIONAL=re.compile(r"(\$\{.*?\})")
+RE_POSITIONAL=re.compile(r"(\$\{.*?\})")
+
+# => Default(s)
 ARGV="@"
 LUTV="@#"
 FINDV="@"
 LAST="-1"
 
-# => Default(s)
 DEFAULT_WAIT=1.5
 DEFAULT_TIMEOUT=15.
 
-DEFAULT_STRING_FORMAT=(
+DEFAULT_FORMAT=(
     "${usrId}," +       # user ID
     "${1}," +           # env, name
     "${" + LAST + "}"   # order ID, [Optionally] memos
