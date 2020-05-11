@@ -29,7 +29,7 @@ FINDV="@"
 LAST="-1"
 
 DEFAULT_WAIT=1.5
-DEFAULT_TIMEOUT=15.
+DEFAULT_TIMEOUT=7.5
 
 DEFAULT_FORMAT=(
     "${usrId}," +       # user ID

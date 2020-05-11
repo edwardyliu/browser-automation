@@ -1,0 +1,11 @@
+{
+    "name": "GET BY ID",
+    "env": "STATE CHANGE",
+    "commands": [
+        ["DGET", "https://www.bing.com/search?q=${orderId}"],
+        ["PRINTF", 
+            "orderId: ${//li[@class='b_algo' and @data-bm='15']/div/div/cite},Approval: ; Pending: "
+        ],
+        ["PAUSE", 3.0]
+    ]
+}

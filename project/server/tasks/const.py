@@ -6,7 +6,7 @@ from . import utils
 from . import config
 
 # == Constant(s) ==
-# => Task
+# => Task Collection(s)
 TASKDICT=utils.get_taskdict(prefix=config.PREFIX, suffix=config.SUFFIX)
 TASKKEYS=list(
     filter(
@@ -15,7 +15,7 @@ TASKKEYS=list(
     )
 )
 
-# => Task Key
-TASK_HOTSWAP=TASKDICT[ina.Key(config.NOT_APPLICABLE, "HOTSWAP")]
-TASK_SEARCH=TASKDICT[ina.Key(config.NOT_APPLICABLE, "SEARCH")]
-TASK_FIND=TASKDICT[ina.Key(config.NOT_APPLICABLE, "FIND")]
+# => Task(s)
+TASK_FINDBYORDER=TASKDICT[ina.Key(config.NOT_APPLICABLE, "FIND BY ORDER")]
+TASK_GETBYID=TASKDICT[ina.Key(config.NOT_APPLICABLE, "GET BY ID")]
+TASK_HOTSWAP=TASKDICT[ina.Key(config.NOT_APPLICABLE, "HOT SWAP")]

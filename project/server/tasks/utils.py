@@ -11,6 +11,7 @@ import logging
 import datetime
 from pathlib import Path
 from collections import deque
+from itertools import filterfalse, tee
 
 # => External
 import pytz
@@ -67,7 +68,7 @@ def get_tasklist(log:logging.Logger=None, prefix:list=None, suffix:list=None)->l
         if task.key.env != config.NOT_APPLICABLE:
             if prefix: task.extendleft(prefix)
             if suffix: task.extend(suffix)
-            task.pushleft(ina.Command("printf", f"{task.key.env},{task.key.name}", None))
+        task.pushleft(ina.Command("printf", f"{task.key.env},{task.key.name}", None))
 
         tasks.append(task)
     return tasks
@@ -87,7 +88,7 @@ def get_taskdict(log:logging.Logger=None, prefix:list=None, suffix:list=None)->d
         if task.key.env != config.NOT_APPLICABLE:
             if prefix: task.extendleft(prefix)
             if suffix: task.extend(suffix)
-            task.pushleft(ina.Command("printf", f"{task.key.env},{task.key.name}", None))
+        task.pushleft(ina.Command("printf", f"{task.key.env},{task.key.name}", None))
         
         tasks[task.key] = task
     return tasks
@@ -108,7 +109,7 @@ def get_tuplekey_taskdict(log:logging.Logger=None, prefix:list=None, suffix:list
         if task.key.env != config.NOT_APPLICABLE:
             if prefix: task.extendleft(prefix)
             if suffix: task.extend(suffix)
-            task.pushleft(ina.Command("printf", f"{task.key.env},{task.key.name}", None))
+        task.pushleft(ina.Command("printf", f"{task.key.env},{task.key.name}", None))
         
         tasks[(task.key.env, task.key.name)] = task
     return tasks
@@ -148,3 +149,21 @@ def parse_json(filepath:str)->ina.Task:
         return ina.Task(ina.Key(raw["env"], raw["name"]), cmds)
     
     except IndexError: raise IndexError(f"tasks.utils.parse_json: Index Error - {filepath}")
+
+def partition(pred, iterable):
+    """Use a predicate to partition entries into false entries and true entries
+
+    Parameters
+    ----------
+    pred: func
+        The predicate function
+    iterable: iter
+        An iterator object
+    
+    Returns
+    -------
+    tuple2 of iterators: (true, false)
+    """
+
+    t1, t2 = tee(iterable)
+    return filter(pred, t1), filterfalse(pred, t2)

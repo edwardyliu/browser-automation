@@ -1,17 +1,19 @@
 {
-    "name": "SEARCH",
+    "name": "FIND BY ORDER",
     "env": "STATE CHANGE",
     "commands": [
         ["GET", "https://www.bing.com/"],
         ["DSEND_KEYS", {
             "target": "//input[@name='q']",
-            "argv": "${usrId}"
+            "argv": "usrId: ${usrId} name: ${name}"
         }],
         ["SEND_KEYS", {
             "argv": "${ENTER}"
         }],
+        ["PAUSE", 1.5],
         ["PRINTF", 
-            "orderId###,Approval: ; Pending: "
-        ]
+            "orderId: ${//li[@class='b_algo' and @data-bm='15']/div/div/cite},Approval: ; Pending: ;"
+        ],
+        ["PAUSE", 3.0]
     ]
 }

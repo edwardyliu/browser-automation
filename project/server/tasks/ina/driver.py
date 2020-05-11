@@ -123,7 +123,7 @@ class Driver(object):
             argvkey = argvkey.replace(pattern, str(int(pattern)+1))
         return argvkey
 
-    def find_element_by_xpath(self, target:str):
+    def find_element_by_xpath(self, target:str, wait:bool=True):
         """Find element by XPATH
 
         Parameters
@@ -260,14 +260,18 @@ class Driver(object):
         Parameters
         ----------
         target: str
-            An XPATH value, an Integer value, or a URL string
+            An Integer value, An XPATH value, or a URL string
         arg: str
-            A LOCATOR, an ELEMENT, or an INTEGER
+            'INTEGER', 'LOCATOR' or 'ELEMENT'
+        
+        Returns
+        -------
+        expected_condition
         """
 
-        if arg == "LOCATOR": result = (By.XPATH, target)
+        if arg == "INTEGER": result = int(target)
+        elif arg == "LOCATOR": result = (By.XPATH, target)
         elif arg == "ELEMENT": result = self.find_element_by_xpath(target)
-        elif arg == "INTEGER": result = int(target)
         else: result = target
 
         return result
@@ -664,16 +668,16 @@ class Driver(object):
         if target: self.results[key] = self.scan(target)
     
     # => Popular Command Combination(s)
-    def write(self, target:str, argv:list=None):
-        """Write: a combination of self.wait(target) & self.dsend_keys(target, argv)
+    # def write(self, target:str, argv:list=None):
+    #     """Write: a combination of self.wait(target) & self.dsend_keys(target, argv)
 
-        Parameters
-        ----------
-        target: str
-            The XPATH value
-        argv: [str]
-            A list of strings
-        """
+    #     Parameters
+    #     ----------
+    #     target: str
+    #         The XPATH value
+    #     argv: [str]
+    #         A list of strings
+    #     """
         
-        if self.wait(target, ("UNTIL", "VISIBILITY_OF_ELEMENT_LOCATED")): self.dsend_keys(target, argv)
+    #     if self.wait(target, ("UNTIL", "PRESENCE_OF_ELEMENT_LOCATED")): self.dsend_keys(target, argv)
         
