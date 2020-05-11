@@ -20,12 +20,12 @@ class TestJob(unittest.TestCase):
                 "/html/body/ytd-app/div/div/ytd-masthead/div[3]/div[2]/ytd-searchbox/form/div/div[1]/input", 
                 ["${@//*[@id='video-title']}; lutv - ${@#};"]
             ),
-            models.Command("printf", "${@//*[@id='video-title']}; lutv - ${@#};"),
+            models.Command("printf", "${@//*[@id='video-title']}; lutv - ${@#};", None),
             models.Command("pause", "2.0", None)
         ]))
 
         handler = job.Job()
-        handler.push(task, fmt="Hello world and ${usrId}", lut={"usrId": "Edward"})
+        handler.push(task, fmt="Hello world and ${usrId}", elut={"usrId": "Edward"})
         self.assertEqual(len(handler.queue), 1)
 
         handler.deploy()
@@ -40,12 +40,12 @@ class TestJob(unittest.TestCase):
                 "/html/body/ytd-app/div/div/ytd-masthead/div[3]/div[2]/ytd-searchbox/form/div/div[1]/input", 
                 ["${@//*[@id='video-title']}; lutv - ${@#};"]
             ),
-            models.Command("printf", "${@//*[@id='video-title']}; lutv - ${@#};"),
+            models.Command("printf", "${@//*[@id='video-title']}; lutv - ${@#};", None),
             models.Command("pause", "2.0", None)
         ]))
 
         handler = job.Job()
-        handler.push(task_a, lut={"usrId": "Edward"})
+        handler.push(task_a, elut={"usrId": "Edward"}, trace=False)
         self.assertEqual(len(handler.queue), 1)
 
         key_b = models.Key("TEST", "test_bulk_push")
@@ -60,18 +60,18 @@ class TestJob(unittest.TestCase):
             models.Command("pause", "2.0", None)
         ]))
         names = ["Edward", "John", "Suri", "Kristen", "Han", "Steven", "Will"]
-        for name in names: handler.push(task_b, lut={"usrId": name})
+        for name in names: handler.push(task_b, elut={"usrId": name})
         self.assertEqual(len(handler.queue), len(names)+1)
         
         handler.deploy()
         self.assertEqual(len(handler.queue), 0)
-        self.assertEqual("Edward" in handler.lines[1], True)
-        self.assertEqual("John" in handler.lines[2], True)
-        self.assertEqual("Suri" in handler.lines[3], True)
-        self.assertEqual("Kristen" in handler.lines[4], True)
-        self.assertEqual("Han" in handler.lines[5], True)
-        self.assertEqual("Steven" in handler.lines[6], True)
-        self.assertEqual("Will" in handler.lines[7], True)
+        self.assertEqual("Edward" in handler.lines[0], True)
+        self.assertEqual("John" in handler.lines[1], True)
+        self.assertEqual("Suri" in handler.lines[2], True)
+        self.assertEqual("Kristen" in handler.lines[3], True)
+        self.assertEqual("Han" in handler.lines[4], True)
+        self.assertEqual("Steven" in handler.lines[5], True)
+        self.assertEqual("Will" in handler.lines[6], True)
     
     def test_email(self):
         key = models.Key("TEST", "test_email")
@@ -87,7 +87,7 @@ class TestJob(unittest.TestCase):
         ]))
 
         handler = job.Job()
-        handler.push(task, lut={"usrId": "Edward Y. Liu"})
+        handler.push(task, elut={"usrId": "Edward Y. Liu"})
         self.assertEqual(len(handler.queue), 1)
 
         handler.deploy("edward.yifengliu@gmail.com")

@@ -33,7 +33,7 @@ DEFAULT_TIMEOUT=15.
 
 DEFAULT_FORMAT=(
     "${usrId}," +       # user ID
-    "${1}," +           # env, name
+    "${0}," +           # env, name
     "${" + LAST + "}"   # order ID, [Optionally] memos
 )
 

@@ -121,9 +121,9 @@ def write(lines:[str], filepath:str):
     filepath: str
         The file path
     """
-    lines.insert(0, "usrId,env,name,orderId,memos")
-
-    with open(filepath, "w") as fp:    
+    
+    with open(filepath, "w") as fp:   
+        fp.write("usrId,env,name,orderId,memos\n") 
         fp.write("\n".join(lines))
 
 def remove(filepath:str):

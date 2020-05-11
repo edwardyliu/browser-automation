@@ -22,7 +22,7 @@ class TestDriver(unittest.TestCase):
             models.Command("printf", "I am alive! Muhahahaha ${usrId}", None)
         ]))
         instance.assign(task)
-        self.assertEqual(instance.key(), key)
+        self.assertEqual(instance.taskkey(), key)
         
         ilut = instance.exec({"usrId": "Edward"})
         self.assertEqual(ilut, instance.results)
@@ -33,15 +33,18 @@ class TestDriver(unittest.TestCase):
         key = models.Key("TEST", "test_write")
         task = models.Task(key, deque([
             models.Command("get", "https://www.google.com/", None),
-            models.Command("write", "//input[@name='q']", ["Wow ${/html/body/div/div[4]/span/center/div[3]/div[1]/div/a}! ${usrId} is typing..."]),
-            models.Command("printf", "Wow ${/html/body/div/div[4]/span/center/div[3]/div[1]/div/a}! ${usrId} is typing...", None),
+            models.Command("write", 
+                "//input[@name='q']", 
+                ["Wow ${usrId} is typing..."]
+            ),
+            models.Command("printf", "Wow ${usrId} is typing...", None),
             models.Command("send_keys", None, ["${ENTER}"]),
             models.Command("pause", "2.0", None)
         ]))
         instance.assign(task)
-        self.assertEqual(instance.key(), key)
+        self.assertEqual(instance.taskkey(), key)
 
-        ilut = instance.run({"usrId": "Edward"})
+        ilut = instance.exec({"usrId": "Edward"})
         self.assertEqual("Edward is typing..." in ilut["${0}"], True)
 
     def test_write_all(self):
@@ -53,13 +56,13 @@ class TestDriver(unittest.TestCase):
                 "/html/body/ytd-app/div/div/ytd-masthead/div[3]/div[2]/ytd-searchbox/form/div/div[1]/input", 
                 ["${@//*[@id='video-title']}; lutv - ${@#};"]
             ),
-            models.Command("printf", "${@//*[@id='video-title']}; lutv - ${@#};"),
+            models.Command("printf", "${@//*[@id='video-title']}; lutv - ${@#};", None),
             models.Command("pause", "2.0", None)
         ]))
         instance.assign(task)
-        self.assertEqual(instance.key(), key)
+        self.assertEqual(instance.taskkey(), key)
         
-        ilut = instance.run({"usrId": "Edward", "orderId": "###3###542"})
+        ilut = instance.exec({"usrId": "Edward", "orderId": "###3###542"})
         self.assertEqual("lutv - usrId: Edward, orderId: ###3###542" in ilut["${0}"], True)
 
 if __name__ == "__main__":

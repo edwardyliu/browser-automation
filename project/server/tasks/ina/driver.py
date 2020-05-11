@@ -28,7 +28,6 @@ class Driver(object):
         self.uid = uid
         self.log = utils.get_logger(f"INA.driver.{self.uid}")
         self.driver = self.geckodriver()
-        self.actions = ActionChains(self.driver)
 
     def __del__(self):
         self.driver.quit()
@@ -206,11 +205,13 @@ class Driver(object):
         if lst: return "; ".join(lst)
         else: return "N/F"
 
-    def enqueue_key_command(self, logic:str, keys:str, target=None):
+    def enqueue_key_action(self, ac, logic:str, keys:str, target=None):
         """Enqueue a key action, but do not perform
 
         Parameters
         ----------
+        ac: ActionChains
+            A Selenium ActionChains object
         logic: str
             The key logic
         keys: str
@@ -219,11 +220,11 @@ class Driver(object):
             A Selenium WebElement
         """
 
-        if logic == config.KEY_DOWN: self.actions.key_down(keys, element=target)
-        elif logic == config.KEY_UP: self.actions.key_up(keys, element=target)
+        if logic == config.KEY_DOWN: ac.key_down(keys, element=target)
+        elif logic == config.KEY_UP: ac.key_up(keys, element=target)
         else:
-            if target: self.actions.send_keys_to_element(target, keys)
-            else: self.actions.send_keys(keys)
+            if target: ac.send_keys_to_element(target, keys)
+            else: ac.send_keys(keys)
     
     def enact_key_actions(self, target, argv:list):
         """Perform a series of key actions
@@ -236,6 +237,7 @@ class Driver(object):
             A list of key inputs
         """
 
+        ac = ActionChains(self.driver)
         for arg in argv:
             if isinstance(arg, list) or isinstance(arg, tuple):
                 try:
@@ -247,10 +249,10 @@ class Driver(object):
                 keys = self.parse_special_key(str(arg))
             
             if logic == "SEND": 
-                self.enqueue_key_command(logic, keys, target)
+                self.enqueue_key_action(ac, logic, keys, target)
             else: 
-                for key in keys: self.enqueue_key_command(logic, key, target)
-        self.actions.perform()
+                for key in keys: self.enqueue_key_action(ac, logic, key, target)
+        ac.perform()
 
     def parse_expected_condition(self, target:str, arg:str):
         """Parse expected condition
@@ -330,7 +332,7 @@ class Driver(object):
                 for i, j in self.lut.items(): span.append(f"{i}: {j}")
                 target = target.replace(placeholder, ", ".join(span))
             elif value == config.ARGV: target = target.replace(placeholder, ", ".join(self.results.values()))
-            elif value.isdigit(): target = target.replace(placeholder, self.results.get("${" + value + "}", "N/A"))
+            elif value.isdigit(): target = target.replace(placeholder, self.results.get(placeholder, "N/A"))
             elif value[0] == config.FINDV: target = target.replace(placeholder, self.find_all(value[1:]))
             else: target = target.replace(placeholder, self.peek(value))
         
@@ -376,8 +378,8 @@ class Driver(object):
 
         if target:
             elem = self.find_element_by_xpath(target)
-            if elem: self.actions.click(on_element=elem).perform()
-        else: self.actions.click().perform()
+            if elem: ActionChains(self.driver).click(on_element=elem).perform()
+        else: ActionChains(self.driver).click().perform()
 
     def click_and_hold(self, target:str=None, argv:list=None):
         """Click and hold a Selenium WebElement
@@ -390,8 +392,8 @@ class Driver(object):
 
         if target:
             elem = self.find_element_by_xpath(target)
-            if elem: self.actions.click_and_hold(on_element=elem).perform()
-        else: self.actions.click_and_hold().perform()
+            if elem: ActionChains(self.driver).click_and_hold(on_element=elem).perform()
+        else: ActionChains(self.driver).click_and_hold().perform()
     
     def release(self, target:str=None, argv:list=None):
         """Release mouse click
@@ -404,8 +406,8 @@ class Driver(object):
 
         if target:
             elem = self.find_element_by_xpath(target)
-            if elem: self.actions.release(on_element=elem).perform()
-        else: self.actions.release().perform()
+            if elem: ActionChains(self.driver).release(on_element=elem).perform()
+        else: ActionChains(self.driver).release().perform()
 
     def context_click(self, target:str=None, argv:list=None):
         """Context click (i.e. right-click) a Selenium WebElement
@@ -418,8 +420,8 @@ class Driver(object):
 
         if target:
             elem = self.find_element_by_xpath(target)
-            if elem: self.actions.context_click(on_element=elem).perform()
-        else: self.actions.context_click().perform()
+            if elem: ActionChains(self.driver).context_click(on_element=elem).perform()
+        else: ActionChains(self.driver).context_click().perform()
     
     def double_click(self, target:str=None, argv:list=None):
         """Double click a Selenium WebElement
@@ -432,8 +434,8 @@ class Driver(object):
 
         if target:
             elem = self.find_element_by_xpath(target)
-            if elem: self.actions.double_click(on_element=elem).perform()
-        else: self.actions.double_click().perform()
+            if elem: ActionChains(self.driver).double_click(on_element=elem).perform()
+        else: ActionChains(self.driver).double_click().perform()
     
     def drag_and_drop(self, target:str, argv:list):
         """Drag and drop from <source> (i.e. target) to <dest> (i.e. argv[0])
@@ -449,7 +451,7 @@ class Driver(object):
         try:
             src = self.find_element_by_xpath(target)
             dest = self.find_element_by_xpath(argv[0])
-            if src and dest: self.actions.drag_and_drop(source=src, target=dest).perform()
+            if src and dest: ActionChains(self.driver).drag_and_drop(source=src, target=dest).perform()
             
         except IndexError:
             self.log.error(f"drag_and_drop: Index Error")
@@ -471,7 +473,7 @@ class Driver(object):
             src = self.find_element_by_xpath(target)
             xoffset = int(argv[0])
             yoffset = int(argv[1])
-            if src: self.actions.drag_and_drop_by_offset(source=src, xoffset=xoffset, yoffset=yoffset).perform()
+            if src: ActionChains(self.driver).drag_and_drop_by_offset(source=src, xoffset=xoffset, yoffset=yoffset).perform()
             
         except IndexError:
             self.log.error("drag_and_drop_by_offset: Index Error")
@@ -488,7 +490,7 @@ class Driver(object):
         """
 
         elem = self.find_element_by_xpath(target)
-        if elem: self.actions.move_to_element(to_element=elem).perform()
+        if elem: ActionChains(self.driver).move_to_element(to_element=elem).perform()
         
     def move_to_element_with_offset(self, target:str, argv:list):
         """Move mouse cursor to a Selenium WebElement plus offset
@@ -505,7 +507,7 @@ class Driver(object):
             elem = self.find_element_by_xpath(target)
             xoffset = int(argv[0])
             yoffset = int(argv[1])
-            if elem: self.actions.move_to_element_with_offset(to_element=elem, xoffset=xoffset, yoffset=yoffset).perform()
+            if elem: ActionChains(self.driver).move_to_element_with_offset(to_element=elem, xoffset=xoffset, yoffset=yoffset).perform()
 
         except IndexError:
             self.log.error("move_to_element_with_offset: Index Error")
@@ -524,7 +526,7 @@ class Driver(object):
         try:
             xoffset = int(argv[0])
             yoffset = int(argv[1])
-            self.actions.move_by_offset(xoffset=xoffset, yoffset=yoffset).perform()
+            ActionChains(self.driver).move_by_offset(xoffset=xoffset, yoffset=yoffset).perform()
 
         except IndexError:
             self.log.error("move_by_offset: Index Error")
@@ -560,7 +562,7 @@ class Driver(object):
         
         try:
             seconds = float(target)
-            self.actions.pause(seconds).perform()
+            ActionChains(self.driver).pause(seconds).perform()
 
         except ValueError:
             self.log.error("pause: Value Error")
