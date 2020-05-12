@@ -83,7 +83,7 @@ def create_job(raw:dict, uid:str=None)->bool:
     receipt:str = raw.get("receipt"); data:list = raw.get("data")
     if data:
         try:
-            data = list( filter(lambda row: row.get("usrId"), data) )
+            data = list( filter(lambda row: row.get("env") and row.get("name") and row.get("usrId"), data) )
             data.sort(key = lambda row: row["usrId"])
             tasks = map(
                 lambda row: {
