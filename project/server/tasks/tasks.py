@@ -36,6 +36,7 @@ def create_scan(raw:dict, uid:str=None)->bool:
             gets = map(
                 lambda row: {
                     "lut": {**{
+                        "usrId": row.get("usrId") or "N/F",
                         "orderId": row["orderId"]
                     }, **(row["lut"] or {})}
                 },
