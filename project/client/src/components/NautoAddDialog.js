@@ -92,7 +92,7 @@ const NautoAddDialog = ({
             >
                 <DialogTitle id='form-dialog-title'>Add Order</DialogTitle>
                 <DialogContent>
-                    <Tooltip title="Required Field(s): A 'User ID' or 'Order ID'">
+                    <Tooltip title="Required Field(s): 'Order ID' or 'User ID' & 'Order Selection'">
                         <DialogContentText>Add new order</DialogContentText>
                     </Tooltip>
                     <TextField
@@ -167,7 +167,7 @@ const NautoAddDialog = ({
                     <Button 
                         onClick={handleAdd}
                         color='secondary'
-                        disabled={!(cart.usrId || cart.orderId)}
+                        disabled={!((cart.usrId && cart.items.length) || cart.orderId)}
                     >
                         <strong>Add</strong>
                     </Button>
