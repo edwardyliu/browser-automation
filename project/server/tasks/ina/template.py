@@ -123,6 +123,7 @@ body_meta = lambda taskid, dt: f"""\
                 <span style="color: #010100;">N</span><span style="color: #FD7F20;">a</span><span style="color: #4d4d4d;">u</span><span style="color: #FC2E20;">to</span>
               </td>
               <td></td>
+              <td></td>
               <td>
                 <span style="font-weight: bold;">Date:</span> {dt.strftime("%B %d, %Y")}<br>
                 <span style="font-weight: bold;">Open:</span> <span style="font-style: italic;">T</span>{dt.strftime("%H:%M:%S")}<br>
@@ -147,6 +148,7 @@ body_information = lambda email: f"""\
                 123 Maven Road<br>
                 Mavenville, ON A1B2C3
               </td>
+              <td></td>
               <td></td>
               <td>
                 ABC Corp.<br>

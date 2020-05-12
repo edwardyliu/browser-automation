@@ -4,16 +4,14 @@
     "commands": [
         ["GET", "https://www.bing.com/"],
         ["DSEND_KEYS", {
-            "target": "//input[@name='q']",
+            "target": "//input[@id='sb_form_q']",
             "argv": "usrId: ${usrId} name: ${name}"
         }],
         ["SEND_KEYS", {
             "argv": "${ENTER}"
         }],
-        ["PAUSE", 1.5],
         ["PRINTF", 
-            "orderId: ${//li[@class='b_algo' and @data-bm='15']/div/div/cite},Approval: ; Pending: ;"
-        ],
-        ["PAUSE", 3.0]
+            "orderId: ${//li[@class='b_algo' and @data-bm='12']/div/div/cite},Approval: ; Pending: ;"
+        ]
     ]
 }

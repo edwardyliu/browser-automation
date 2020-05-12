@@ -11,7 +11,7 @@ import unittest
 class TestTasks(unittest.TestCase):
 
     def test_get_keys(self):
-        names = map(lambda row: row.name, tasks.get_keys())
+        names = list( map(lambda row: row.name, tasks.get_keys()) )
         self.assertEqual("TEST ALL" in names, True)
         self.assertEqual("TEST EXPECTED CONDITION" in names, True)
         self.assertEqual("TEST KEYBOARD" in names, True)
@@ -28,7 +28,8 @@ class TestTasks(unittest.TestCase):
             "receipt": "edward.yifengliu@gmail.com",
             "data": [
                 {
-                    "orderId": "EdwardOrderId",
+                    # "usrId": "Han",
+                    "orderId": "HanOrderId",
                     "lut": ""
                 },
                 {
@@ -47,7 +48,8 @@ class TestTasks(unittest.TestCase):
                     "lut": ""
                 },
                 {
-                    "orderId": "JimOrderId",
+                    # "usrId": "Steven",
+                    "orderId": "StevenOrderId",
                     "lut": ""
                 }
             ]

@@ -136,15 +136,18 @@ class Driver(object):
         WebElement: A Selenium WebElement
         """
 
-        elem = None
-        try: elem = self.driver.find_element_by_xpath(target)
-        except exceptions.NoSuchElementException:
-            self.log.error("find_element_by_xpath: No Such Element Exception")
-            self.log.error(f"invalid task definition: {self.task}")
-        
+        if wait and self.wait(target, ("UNTIL", "PRESENCE_OF_ELEMENT_LOCATED")):
+            elem = self.driver.find_element_by_xpath(target)
+        else:
+            elem = None
+            try: elem = self.driver.find_element_by_xpath(target)
+            except exceptions.NoSuchElementException:
+                self.log.error("find_element_by_xpath: No Such Element Exception")
+                self.log.error(f"invalid task definition: {self.task}")
+            
         return elem
 
-    def find_elements_by_xpath(self, target:str)->list:
+    def find_elements_by_xpath(self, target:str, wait:bool=True)->list:
         """Find element by XPATH
 
         Parameters
@@ -157,11 +160,14 @@ class Driver(object):
         list: A list of Selenium WebElements
         """
 
-        elems = []
-        try: elems = self.driver.find_elements_by_xpath(target)
-        except exceptions.NoSuchElementException:
-            self.log.error("find_elements_by_xpath: No Such Element Exception")
-            self.log.error(f"invalid task definition: {self.task}")
+        if wait and self.wait(target, ("UNTIL", "PRESENCE_OF_ELEMENT_LOCATED")):
+            elems = self.driver.find_elements_by_xpath(target)
+        else:
+            elems = []
+            try: elems = self.driver.find_elements_by_xpath(target)
+            except exceptions.NoSuchElementException:
+                self.log.error("find_elements_by_xpath: No Such Element Exception")
+                self.log.error(f"invalid task definition: {self.task}")
 
         return elems
 
@@ -667,17 +673,3 @@ class Driver(object):
         
         if target: self.results[key] = self.scan(target)
     
-    # => Popular Command Combination(s)
-    # def write(self, target:str, argv:list=None):
-    #     """Write: a combination of self.wait(target) & self.dsend_keys(target, argv)
-
-    #     Parameters
-    #     ----------
-    #     target: str
-    #         The XPATH value
-    #     argv: [str]
-    #         A list of strings
-    #     """
-        
-    #     if self.wait(target, ("UNTIL", "PRESENCE_OF_ELEMENT_LOCATED")): self.dsend_keys(target, argv)
-        

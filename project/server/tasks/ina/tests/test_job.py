@@ -16,7 +16,7 @@ class TestJob(unittest.TestCase):
         key = models.Key("Test", "test_lut")
         task = models.Task(key, deque([
             models.Command("get", "https://www.youtube.com/", None),
-            models.Command("write", 
+            models.Command("dsend_keys", 
                 "/html/body/ytd-app/div/div/ytd-masthead/div[3]/div[2]/ytd-searchbox/form/div/div[1]/input", 
                 ["${@//*[@id='video-title']}; lutv - ${@#};"]
             ),
@@ -36,7 +36,7 @@ class TestJob(unittest.TestCase):
         key_a = models.Key("Test", "test_bulk_push")
         task_a = models.Task(key_a, deque([
             models.Command("get", "https://www.youtube.com/", None),
-            models.Command("write", 
+            models.Command("dsend_keys", 
                 "/html/body/ytd-app/div/div/ytd-masthead/div[3]/div[2]/ytd-searchbox/form/div/div[1]/input", 
                 ["${@//*[@id='video-title']}; lutv - ${@#};"]
             ),
@@ -51,7 +51,7 @@ class TestJob(unittest.TestCase):
         key_b = models.Key("TEST", "test_bulk_push")
         task_b = models.Task(key_b, deque([
             models.Command("get", "https://www.google.com/", None),
-            models.Command("write", 
+            models.Command("dsend_keys", 
                 "//input[@name='q']", 
                 ["Wow ${/html/body/div/div[4]/span/center/div[3]/div[1]/div/a}! ${usrId} is typing..."]
             ),
@@ -77,7 +77,7 @@ class TestJob(unittest.TestCase):
         key = models.Key("TEST", "test_email")
         task = models.Task(key, deque([
             models.Command("get", "https://www.google.com/", None),
-            models.Command("write", 
+            models.Command("dsend_keys", 
                 "//input[@name='q']", 
                 ["Wow ${/html/body/div/div[4]/span/center/div[3]/div[1]/div/a}! ${usrId} is typing..."]
             ),

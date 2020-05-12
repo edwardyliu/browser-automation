@@ -28,12 +28,12 @@ class TestDriver(unittest.TestCase):
         self.assertEqual(ilut, instance.results)
         self.assertEqual(ilut["${0}"], "I am alive! Muhahahaha Edward")
 
-    def test_write(self):
-        instance = driver.Driver("test_write")
-        key = models.Key("TEST", "test_write")
+    def test_printf(self):
+        instance = driver.Driver("test_printf")
+        key = models.Key("TEST", "test_printf")
         task = models.Task(key, deque([
             models.Command("get", "https://www.google.com/", None),
-            models.Command("write", 
+            models.Command("dsend_keys", 
                 "//input[@name='q']", 
                 ["Wow ${usrId} is typing..."]
             ),
@@ -47,12 +47,12 @@ class TestDriver(unittest.TestCase):
         ilut = instance.exec({"usrId": "Edward"})
         self.assertEqual("Edward is typing..." in ilut["${0}"], True)
 
-    def test_write_all(self):
-        instance = driver.Driver("test_write_all")
-        key = models.Key("Test", "test_write_all")
+    def test_printf_all(self):
+        instance = driver.Driver("test_printf_all")
+        key = models.Key("Test", "test_printf_all")
         task = models.Task(key, deque([
             models.Command("get", "https://www.youtube.com/", None),
-            models.Command("write", 
+            models.Command("dsend_keys", 
                 "/html/body/ytd-app/div/div/ytd-masthead/div[3]/div[2]/ytd-searchbox/form/div/div[1]/input", 
                 ["${@//*[@id='video-title']}; lutv - ${@#};"]
             ),

@@ -23,30 +23,16 @@ def get_keys():
 
 @app.route("/api/scan", methods=["POST"])
 def create_scan():
-    message = request.json
-    print(f"Message: {message}")
-
-    # TODO: change fmt, do not use default format
     scanId = str(uuid.uuid4())
+    tasks.create_scan(request.json, scanId)
+    
     return jsonify({ "scanId": scanId })
 
 @app.route("/api/job", methods=["POST"])
 def create_job():
-    message = request.json
-    receipt:str = message.get("receipt"); package:list = message.get("package")
-    if package:
-        job = list(map(
-            lambda raw: {
-                "env": raw['env'],
-                "name": raw['name'],
-                "lut": {
-                    "usrId": raw['usrId']
-                }
-            }, package))
+    jobId = str(uuid.uuid4())
+    tasks.create_job(request.json, jobId)
 
-        jobId = str(uuid.uuid4())
-        if job: tasks.create_job(job, receipt, jobId)
-        return jsonify({ "jobId": jobId })
-    return "Invalid Request: 'package'", 400
+    return jsonify({ "jobId": jobId })
 
 app.run()
