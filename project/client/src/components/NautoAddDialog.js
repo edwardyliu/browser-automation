@@ -20,6 +20,7 @@ import Tooltip from '@material-ui/core/Tooltip'
 
 const newCart = {
     usrId: "",
+    orderId: "",
     items: [],
     lut: "",
 }
@@ -91,7 +92,9 @@ const NautoAddDialog = ({
             >
                 <DialogTitle id='form-dialog-title'>Add Order</DialogTitle>
                 <DialogContent>
-                    <DialogContentText>Add new order</DialogContentText>
+                    <Tooltip title="Required Field(s): A 'User ID' or 'Order ID'">
+                        <DialogContentText>Add new order</DialogContentText>
+                    </Tooltip>
                     <TextField
                         autoFocus
                         fullWidth
@@ -101,6 +104,16 @@ const NautoAddDialog = ({
                         required
                         type='text'
                         value={cart.usrId}
+                        variant='filled'
+                    />
+                    <TextField
+                        fullWidth
+                        label='Order ID'
+                        margin='normal'
+                        onChange={handleChangeTextField('orderId')}
+                        required
+                        type='text'
+                        value={cart.orderId}
                         variant='filled'
                     />
                     <Autocomplete
@@ -154,7 +167,7 @@ const NautoAddDialog = ({
                     <Button 
                         onClick={handleAdd}
                         color='secondary'
-                        disabled={!cart.usrId}
+                        disabled={!(cart.usrId || cart.orderId)}
                     >
                         <strong>Add</strong>
                     </Button>

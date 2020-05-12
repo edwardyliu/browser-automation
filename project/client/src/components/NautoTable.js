@@ -138,7 +138,7 @@ const NautoTable = ({
     const handleAddOrder = cart => {
         const orders = cart['items'].map(item => ({
             "usrId": cart['usrId'],
-            "orderId": "",
+            "orderId": cart['orderId'],
             "lut": cart['lut'],
             "env": item['env'],
             "name": item['name'],

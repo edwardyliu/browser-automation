@@ -82,7 +82,7 @@ const App = () => {
         setUID("")
         axios.post(server.concat('/scan'), {
                 'receipt': receipt,
-                'package': data,
+                'data': data,
             })
             .then(response => {
                 setUID(response.data.scanId)
@@ -97,7 +97,7 @@ const App = () => {
         setUID("")
         axios.post(server.concat('/job'), {
                 'receipt': receipt,
-                'package': data,
+                'data': data,
             })
             .then(response => {
                 setUID(response.data.jobId)
