@@ -37,7 +37,7 @@ DEFAULT_FORMAT=(
     "${" + LAST + "}"   # order ID, [Optionally] memos
 )
 
-DEFAULT_SMTP_SERVER="localhost"
+DEFAULT_SMTP_SERVER="127.0.0.1"
 DEFAULT_SMTP_PORT=1025
 DEFAULT_SENDER_EMAIL="support@nauto.com"
 
