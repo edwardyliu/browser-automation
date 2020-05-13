@@ -18,11 +18,7 @@ def create_app()->Flask:
     """
     
     # instantiate the app
-    app = Flask(
-        __name__,
-        static_folder="build",
-        template_folder="build"
-    )
+    app = Flask(__name__)
     CORS(app)
 
     # set configs

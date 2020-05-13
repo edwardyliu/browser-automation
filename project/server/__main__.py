@@ -12,4 +12,4 @@ os.environ["APP_SETTINGS"] = "project.server.LocalDevConfig"
 
 # === Run A Single-Instance Application ===
 app = create_app()
-app.run()
+app.run(debug=True)
