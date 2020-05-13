@@ -1,31 +1,30 @@
 # project/server/tasks/tasks.py
 
-# == Import(s) ==
-# => Local
+# === Import(s) ===
+# => Local <=
 from . import ina
 from . import const
 from . import utils
 
-# => System
-import copy
-
-# == Tasks API ==
-def get_keys()->list:
-    """Get a list of task key values
+# === Task Definition(s) ===
+def keys()->list:
+    """Get all available of Task.key values
 
     Returns
     -------
-    list: A list of task key values
+    list
     """
 
     return const.TASKKEYS
 
 def create_scan(raw:dict, uid:str=None)->bool:
-    """Create & deploy a scan instance
+    """Create & deploy an INA.Job instance
+    
+    Custom Job: Scan
 
     Returns
     -------
-    bool: Success or failure
+    bool: Status
     """
 
     receipt:str = raw.get("receipt"); data:list = raw.get("data")
@@ -69,15 +68,15 @@ def create_scan(raw:dict, uid:str=None)->bool:
             handler.deploy(receipt)
             return True
 
-        except KeyError: print(f"server.tasks.create_scan: Key Error - {raw}")
+        except KeyError: print(f"server.tasks.create_scan: Key Error - {raw}, {uid}")
     return False
 
 def create_job(raw:dict, uid:str=None)->bool:
-    """Create & deploy a job instance
+    """Create & deploy an INA.Job instance
     
     Returns
     -------
-    bool: Success or failure
+    bool: Status
     """
     
     receipt:str = raw.get("receipt"); data:list = raw.get("data")
@@ -110,5 +109,5 @@ def create_job(raw:dict, uid:str=None)->bool:
             handler.deploy(receipt)
             return True
 
-        except KeyError: print(f"server.tasks.create_job: Key Error - {raw}")
+        except KeyError: print(f"server.tasks.create_job: Key Error - {raw}, {uid}")
     return False

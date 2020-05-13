@@ -1,28 +1,28 @@
 # project/server/tasks/ina/config.py
 
-# == Import(s) ==
-# => System
+# === Import(s) ===
+# => System <=
 import os
 import re
 import logging
 from pathlib import Path
 
-# => External
+# => External <=
 from selenium.webdriver.support import expected_conditions as EC
 
-# == Configuration(s) ==
-# => Logging
+# === Configuration(s) ===
+# => Logging <=
 LOG_LEVEL=logging.ERROR
 
-# => Path & Directories
+# => Path & Directories <=
 CACHE_DIRPATH=os.path.join(Path(__file__).parents[0], "resources/cache/")
 WEBDRIVER_EXEPATH=os.path.join(Path(__file__).parents[0], "resources/geckodriver")
 
-# => Regex(s)
+# => Pattern(s) & Regex(s) <=
 RE_NUMERAL=re.compile(r"([0-9]+)")
 RE_POSITIONAL=re.compile(r"(\$\{.*?\})")
 
-# => Default(s)
+# => Default(s) <=
 ARGV="@"
 LUTV="@#"
 FINDV="@"
@@ -41,7 +41,7 @@ DEFAULT_SMTP_SERVER="localhost"
 DEFAULT_SMTP_PORT=1025
 DEFAULT_SENDER_EMAIL="support@nauto.com"
 
-# => Expected Condition(s)
+# => Expected Condition(s) <=
 EXPECTED_CONDITIONS={
     "ELEMENT_LOCATED_SELECTION_STATE_TO_BE": (EC.element_located_selection_state_to_be, "LOCATOR"),
     "ELEMENT_LOCATED_TO_BE_SELECTED": (EC.element_located_to_be_selected, "LOCATOR"),
@@ -69,7 +69,7 @@ EXPECTED_CONDITIONS={
     "VISIBILITY_OF_ELEMENT_LOCATED": (EC.visibility_of_element_located, "LOCATOR")
 }
 
-# => Special Keyboard Character(s)
+# => Special Key Character(s) <=
 KEY_UP="KEY_UP"
 KEY_DOWN="KEY_DOWN"
 KEYS={

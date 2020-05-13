@@ -1,14 +1,14 @@
 # project/server/tasks/ina/job.py
 
-# == Import(s) ==
-# => Local
+# === Import(s) ===
+# => Local <=
 from . import utils
 from . import config
 from . import models
 from . import driver
 from . import template
 
-# => System
+# => System <=
 import os
 import re
 import uuid
@@ -20,16 +20,16 @@ from email.mime.base import MIMEBase
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 
-# == Object Definition ==
+# === Object Definition ===
 class Job(object):
-    """ Define a job
+    """ Define a Job Object
 
-    A list of tasks
+    A list of Tasks objects
     """
 
     def __init__(self, uid:str=None):
         self.id = uid or str(uuid.uuid4())
-        self.log = utils.get_logger(f"INA.job.{self.id}")
+        self.log = utils.get_logger(f"INA.Job.{self.id}")
         self.dt = datetime.datetime.now()
 
         self.driver = None
@@ -45,35 +45,35 @@ class Job(object):
     def __exit__(self, exc_type, exc_value, traceback):
         self.__del__()
     
-    # == Setter(s) ==
+    # === Setter(s) ===
     def reset(self):
-        """Reset task list
+        """Reset Task list
 
         """
 
         self.queue.clear()
         self.lines.clear()
 
-    # == Functional ==
+    # === Functional ===
     def push(self, task:models.Task, fmt:str=None, elut:dict=None, trace:bool=True):
-        """Push (i.e. enqueue) a new task
+        """Enqueue new Task object
 
         Parameters
         ----------
         task: models.Task
-            The task
+            The Task object
         fmt: str, optional
             The string format
         elut: dict, optional
             An external lookup table
         trace: bool, optional
-            A bool for determining if 'lines' will be appended
+            If 'lines' will be appended
         """
 
         self.queue.append((task, fmt, elut, trace))
     
     def pop(self):
-        """Pop (i.e. dequeue - assign & exec) the oldest task
+        """Dequeue (i.e. assign & exec) the oldest Task object
 
         """
         
@@ -87,13 +87,13 @@ class Job(object):
 
             if trace:
                 if fmt: 
-                    line = self.parse_task(fmt, elut, ilut)
+                    line = self.task2str(fmt, elut, ilut)
                 else: 
-                    line = self.parse_task(config.DEFAULT_FORMAT, elut, ilut)
+                    line = self.task2str(config.DEFAULT_FORMAT, elut, ilut)
                 self.lines.append(line)
     
     def deploy(self, receipt:str=None):
-        """Pop until the queue is empty, then respond back to <receipt>
+        """Pop until the queue is empty and then notify the <receipt>
 
         """
 
@@ -104,18 +104,18 @@ class Job(object):
             while len(self.queue) > 0: self.pop()
             if receipt: self.notify(receipt)
 
-    # == Utility Function(s) ==
-    def parse_task(self, fmt:str, elut:dict, ilut:dict):
-        """Parse task response
+    # === Utility Function(s) ===
+    def task2str(self, fmt:str, elut:dict, ilut:dict)->str:
+        """Parse the Task response to a formatted string
 
         Parameters
         ----------
         fmt: str
             The string format
         elut: dict
-            The external look-up table
+            An external look-up table
         ilut: dict
-            The internal look-up table
+            An internal look-up table
 
         Returns
         -------
@@ -139,24 +139,34 @@ class Job(object):
         return fmt
 
     def ig(self, lst:list, idx:int):
-        try: return lst[idx]
-        except IndexError: return "N/A"
-
-    def make_attachment(self, filepath:str):
-        """Make an E-mail attachment via file fetched from <filepath>
+        """Safe Index Get
 
         Parameters
         ----------
-        filepath: str
+        lst: list
+            A list of objects
+        idx: int
+            An index
+        """
+
+        try: return lst[idx]
+        except IndexError: return "N/A"
+
+    def make_attachment(self, path:str):
+        """Make an E-mail attachment via the file fetched from <path>
+
+        Parameters
+        ----------
+        path: str
             The file path
 
         Returns
         -------
-        MIMEBase: Multi-Purpose Internet Mail Extensions
+        MIMEBase
         """
 
         # Open the file in binary mode
-        with open(filepath, "rb") as attachment:
+        with open(path, "rb") as attachment:
             # Add file as application/octet-stream
             # Most E-mail client can download this automatically as an attachment
             part = MIMEBase("application", "octet-stream")
@@ -168,20 +178,20 @@ class Job(object):
         # Add header as key-value pair to the attachment part
         part.add_header(
             "Content-Disposition",
-            f"attachment; filename={os.path.basename(filepath)}",
+            f"attachment; filename={os.path.basename(path)}",
         )
         
         return part
 
-    def send_mail(self, receipt:str, attachment=None):
-        """Send mail
+    def send_email(self, receipt:str, attachment=None):
+        """Send <receipt> an e-mail w/ <attachment>
         
         Parameters
         ----------
         receipt: str
-            The receipt's e-mail address
-        content: list
-            A list of strings
+            An e-mail address
+        attachment: MIMEBase
+            A file attachment
         """
 
         sender = config.DEFAULT_SENDER_EMAIL
@@ -191,7 +201,7 @@ class Job(object):
         message["To"] = receipt
         message["Subject"] = "Nauto Report"
 
-        # == HTML E-mail ==
+        # === Build HTML Content ===
         body = template.body_meta(taskid=self.id, dt=self.dt)
         body += template.body_information(email=sender)
         body += template.body_content_head("User ID", "Env", "Name", "Order ID")
@@ -213,16 +223,16 @@ class Job(object):
         message.attach(MIMEText(template.text(True), "plain"))
         message.attach(MIMEText(html, "html"))
 
-        # == Add Attachment ==
+        # === Add The Attachment ===
         if attachment: message.attach(attachment)
 
-        # == Send The E-mail ==
+        # === Send The E-mail ===
         text = message.as_string()
         with smtplib.SMTP(config.DEFAULT_SMTP_SERVER, config.DEFAULT_SMTP_PORT) as server:
             server.sendmail(sender, receipt, text)
 
     def notify(self, receipt:str):
-        """Notify the receipt of job
+        """Notify <receipt> of Job results
 
         Parameters
         ----------
@@ -230,9 +240,9 @@ class Job(object):
             An E-mail address
         """
         
-        filepath = os.path.join(config.CACHE_DIRPATH, f"{self.id}.csv")
-        utils.write(self.lines, filepath)
-        attachment = self.make_attachment(filepath)
-        self.send_mail(receipt, attachment=attachment)
-        utils.remove(filepath)
+        path = os.path.join(config.CACHE_DIRPATH, f"{self.id}.csv")
+        utils.write(self.lines, path)
+        attachment = self.make_attachment(path)
+        self.send_email(receipt, attachment=attachment)
+        utils.remove(path)
     

@@ -1,15 +1,15 @@
 # project/server/tasks/ina/tests/test_job.py
 
-# == Import(s) ==
-# => Local
+# === Import(s) ===
+# => Local <=
 from project.server.tasks.ina import models
 from project.server.tasks.ina import job
 
-# => System
+# => System <=
 import unittest
 from collections import deque
 
-# == Test Object ==
+# === Test Object ===
 class TestJob(unittest.TestCase):
     
     def test_lut(self):

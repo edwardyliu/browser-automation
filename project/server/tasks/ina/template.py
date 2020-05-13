@@ -1,11 +1,11 @@
 # project/server/tasks/ina/template.py
 
-# == Import(s) ==
-# => System
+# === Import(s) ===
+# => System <=
 import datetime
 
-# == E-mail Template ==
-# => Plain-text version
+# === E-mail Template ===
+# => Plain-Text Version <=
 text = lambda status: """\
 Nauto Report:
 
@@ -20,7 +20,7 @@ Dear Valued Customer,
   Task Status: Failure
 """
 
-# => HTML version
+# => HTML Version <=
 header = """\
 <!doctype html>
 <html>

@@ -1,38 +1,42 @@
 # project/server/app.py
 
-# == Import(s) ==
-# => Local
-from . import tasks
+# === Import(s) ===
+# => System <=
+import os
 
-# => System
-import uuid
-
-# => External
-from flask import Flask, request, jsonify
+# => External <=
+from flask import Flask
 from flask_cors import CORS
 
-# == Application ==
-# => Flask
-app = Flask("__main__")
-cors = CORS(app, resources={r"/api/*": {"origins": "*"}})
+# === Flask Application ===
+def create_app()->Flask:
+    """Create & return a Flask app instance
 
-# == HTTP Request(s) ==
-@app.route("/api/keys", methods=["GET"])
-def get_keys():
-    return jsonify(tasks.get_keys())
-
-@app.route("/api/scan", methods=["POST"])
-def create_scan():
-    scanId = str(uuid.uuid4())
-    tasks.create_scan(request.json, scanId)
+    Returns
+    -------
+    Flask
+    """
     
-    return jsonify({ "scanId": scanId })
+    # instantiate the app
+    app = Flask(
+        __name__,
+        static_folder="build",
+        template_folder="build"
+    )
+    CORS(app)
 
-@app.route("/api/job", methods=["POST"])
-def create_job():
-    jobId = str(uuid.uuid4())
-    tasks.create_job(request.json, jobId)
+    # set configs
+    app_settings = os.getenv("APP_SETTINGS")
+    app.config.from_object(app_settings)
 
-    return jsonify({ "jobId": jobId })
+    # register blueprints
+    from project.server.views import site
+    from project.server.views import api
+    
+    app.register_blueprint(site)
+    app.register_blueprint(api, url_prefix="/api")
 
-app.run()
+    # shell context for flask cli
+    app.shell_context_processor( {"app": app} )
+
+    return app

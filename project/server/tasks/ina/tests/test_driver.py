@@ -1,15 +1,15 @@
 # project/server/tasks/ina/tests/test_driver.py
 
-# == Import(s) ==
-# => Local
+# === Import(s) ===
+# => Local <=
 from project.server.tasks.ina import models
 from project.server.tasks.ina import driver
 
-# => System
+# => System <=
 import unittest
 from collections import deque
 
-# == Test Object ==
+# === Test Object ===
 class TestDriver(unittest.TestCase):
     
     def test_run(self):

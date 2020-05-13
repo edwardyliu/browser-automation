@@ -1,22 +1,22 @@
 # project/server/tasks/config.py
 
-# == Import(s) ==
-# => Local
+# === Import(s) ===
+# => Local <=
 from . import ina
 
-# => System
+# => System <=
 import os
 import logging
 from pathlib import Path
 
-# == Configuration(s) ==
-# => Logging
+# === Configuration(s) ===
+# => Logging <=
 LOG_LEVEL=logging.ERROR
 
-# => Path & Directories
+# => Path & Directories <=
 JOURNAL_DIRPATH=os.path.join(Path(__file__).parents[0], "journal/")
 
-# => Default(s)
+# => Default(s) <=
 DEFAULT_URL="https://www.google.com/"
 NOT_APPLICABLE="STATE CHANGE"
 PREFIX=[]

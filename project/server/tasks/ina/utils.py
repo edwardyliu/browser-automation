@@ -1,25 +1,25 @@
 # project/server/tasks/ina/utils.py
 
-# == Import(s) ==
-# => Local
+# === Import(s) ===
+# => Local <=
 from . import config
 
-# => System
+# => System <=
 import os
 import re
 import json
 import logging
 import datetime
 
-# => External
+# => External <=
 import pytz
 from selenium import webdriver
 from selenium.webdriver.common.action_chains import ActionChains
 
-# == Utility Function(s) ==
-# => Getter(s)
+# === Utility Function(s) ===
+# => Converter(s) <=
 def timezone_converter_est(*args):
-    """A timezone converter that converts from UTC to EST
+    """A timezone converter: from UTC to EST
 
     """
 
@@ -28,17 +28,18 @@ def timezone_converter_est(*args):
     converted = utc_datetime.astimezone(est_timezone)
     return converted.timetuple()
 
+# => Getter(s) <=
 def get_logger(uid:str)->logging.Logger:
-    """Get logging object
+    """Get a Logger object
 
     Parameters
     ----------
     uid: str
-        The logger's UID
+        A UID for the Logger object
 
     Returns
     -------
-    Logger: The logging object
+    Logger
     """
 
     log = logging.getLogger(uid)
@@ -53,9 +54,9 @@ def get_logger(uid:str)->logging.Logger:
     log.addHandler(handle)
     return log
 
-def cachekey(prefix:str, postfix:str)->str:
-    """Get next available file path of the format:
-    <prefix>r"([0-9]+)"<postfix> starting from '1'
+def cache_key(prefix:str, postfix:str)->str:
+    """Get next available file path of the format: <prefix>r"([0-9]+)"<postfix>
+    Starting with the numerical number of '1'
 
     Parameters
     ----------
@@ -66,74 +67,74 @@ def cachekey(prefix:str, postfix:str)->str:
 
     Returns
     -------
-    str: The next available file path 
+    str
     """
 
-    filepath = os.path.join(config.CACHE_DIRPATH, f"{prefix}1{postfix}")
-    while os.path.isfile(filepath):
-        pattern = re.findall(config.RE_NUMERAL, filepath)[0]
-        filepath = filepath.replace(pattern, str(int(pattern)+1))
-    return filepath
+    path = os.path.join(config.CACHE_DIRPATH, f"{prefix}1{postfix}")
+    while os.path.isfile(path):
+        pattern = re.findall(config.RE_NUMERAL, path)[0]
+        path = path.replace(pattern, str(int(pattern)+1))
+    return path
 
-# => Functional
+# => Functional <=
 def cache(results:list)->str:
-    """Cache <results>
+    """Cache content of <results>
     
     Parameters
     ----------
     results: list
-        A list of printf strings
+        A list of printf statements
 
     Returns
     -------
-    str: The cached file path
+    str: The file path
     """
 
-    filepath = cachekey("cache", ".json")
-    with open(filepath, "w") as fp:
+    path = cache_key("cache", ".json")
+    with open(path, "w") as fp:
         json.dump(results, fp)
-    return filepath
+    return path
 
-def cacheload(filepath:str)->list:
-    """Load the cached results
+def load_cache(path:str)->list:
+    """Load cached content
     
     Parameters
     ----------
-    filepath: str
-        The file path of the cached content
+    path: str
+        File path of cached content
 
     Returns
     -------
     list: The cached content
     """
     
-    with open(filepath, "r") as fp:
+    with open(path, "r") as fp:
         results = json.load(fp)
     return results
 
-def write(lines:[str], filepath:str):
-    """Write lines to file
+def write(lines:[str], path:str):
+    """Write <lines> to file located at <path>
 
     Parameters
     ----------
     lines: [str]
         A list of strings
-    filepath: str
+    path: str
         The file path
     """
     
-    with open(filepath, "w") as fp:   
+    with open(path, "w") as fp:   
         fp.write("usrId,env,name,orderId,memos\n") 
         fp.write("\n".join(lines))
 
-def remove(filepath:str):
-    """Remove file
+def remove(path:str):
+    """Remove a file
 
     Parameters
     ----------
-    filepath: str
+    path: str
         The file path
     """
 
-    try: os.remove(filepath)
+    try: os.remove(path)
     except FileNotFoundError: pass

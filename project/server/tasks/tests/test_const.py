@@ -1,18 +1,19 @@
-# project/server/tasks/tests/test_constant.py
+# project/server/tasks/tests/test_const.py
 
-# == Import(s) ==
-# => Local
+# === Import(s) ===
+# => Local <=
 from project.server.tasks import ina
 from project.server.tasks import const
 
-# => System
+# => System <=
 import unittest
 
-# == Test Object ==
+# === Test Object ===
 class TestConst(unittest.TestCase):
     
     def test_taskdict(self):
         tasks = const.TASKDICT
+
         self.assertEqual(ina.Key("TEST", "TEST ALL") in tasks, True)
         self.assertEqual(ina.Key("TEST", "TEST EXPECTED CONDITION") in tasks, True)
         self.assertEqual(ina.Key("TEST", "TEST KEYBOARD") in tasks, True)
@@ -22,6 +23,7 @@ class TestConst(unittest.TestCase):
 
     def test_taskkeys(self):
         tasks = const.TASKKEYS
+
         self.assertEqual(ina.Key("TEST", "TEST ALL") in tasks, True)
         self.assertEqual(ina.Key("TEST", "TEST EXPECTED CONDITION") in tasks, True)
         self.assertEqual(ina.Key("TEST", "TEST KEYBOARD") in tasks, True)

@@ -1,11 +1,11 @@
 # project/server/tasks/utils.py
 
-# == Import(s) ==
-# => Local
+# === Import(s) ===
+# => Local <=
 from . import ina
 from . import config
 
-# => System
+# => System <=
 import json
 import logging
 import datetime
@@ -13,13 +13,13 @@ from pathlib import Path
 from collections import deque
 from itertools import filterfalse, tee
 
-# => External
+# => External <=
 import pytz
 
-# == Utility Function(s) ==
-# => Getter(s)
+# === Utility Function(s) ===
+# => Converter(s) <=
 def timezone_converter_est(*args):
-    """A timezone converter that converts from UTC to EST
+    """A timezone converter: from UTC to EST
 
     """
 
@@ -28,17 +28,18 @@ def timezone_converter_est(*args):
     converted = utc_datetime.astimezone(est_timezone)
     return converted.timetuple()
 
+# => Getter(s) <=
 def get_logger(uid:str)->logging.Logger:
-    """Get logging object
+    """Get a Logger object
 
     Parameters
     ----------
     uid: str
-        The logger's UID
+        A UID for the Logger object
 
     Returns
     -------
-    Logger: The logging object
+    Logger
     """
 
     log = logging.getLogger(uid)
@@ -54,17 +55,17 @@ def get_logger(uid:str)->logging.Logger:
     return log
 
 def get_tasklist(log:logging.Logger=None, prefix:list=None, suffix:list=None)->list:
-    """Get a list of task objects from "<basedir>/journal/.../*.json"
+    """Get a list of Task objects via parsing JSON files from "<thisdir>/journal/*.json"
 
     Returns
     -------
-    list: A list of task objects
+    list
     """
 
     tasks = []
-    for filepath in list(Path(config.JOURNAL_DIRPATH).rglob("*.[jJ][sS][oO][nN]")):
-        if log: log.info(f"parsing task: {filepath}")
-        task = parse_json(filepath)
+    for jsonpath in list(Path(config.JOURNAL_DIRPATH).rglob("*.[jJ][sS][oO][nN]")):
+        if log: log.info(f"parsing task: {jsonpath}")
+        task = json2task(jsonpath)
         if task.key.env != config.NOT_APPLICABLE:
             if prefix: task.extendleft(prefix)
             if suffix: task.extend(suffix)
@@ -74,17 +75,19 @@ def get_tasklist(log:logging.Logger=None, prefix:list=None, suffix:list=None)->l
     return tasks
 
 def get_taskdict(log:logging.Logger=None, prefix:list=None, suffix:list=None)->dict:
-    """Get a dictionary of task objects from "<basedir>/journal/.../*.json"
+    """Get a dictionary of Task objects via parsing JSON files from "<thisdir>/journal/*.json"
+    
+    The dictionary keys are Task.key(s)
 
     Returns
     -------
-    dict: A dictionary of task objects
+    dict
     """
     
     tasks = {}
-    for filepath in list(Path(config.JOURNAL_DIRPATH).rglob("*.[jJ][sS][oO][nN]")):
-        if log: log.info(f"parsing task: {filepath}")
-        task = parse_json(filepath)
+    for jsonpath in list(Path(config.JOURNAL_DIRPATH).rglob("*.[jJ][sS][oO][nN]")):
+        if log: log.info(f"parsing task: {jsonpath}")
+        task = json2task(jsonpath)
         if task.key.env != config.NOT_APPLICABLE:
             if prefix: task.extendleft(prefix)
             if suffix: task.extend(suffix)
@@ -94,18 +97,19 @@ def get_taskdict(log:logging.Logger=None, prefix:list=None, suffix:list=None)->d
     return tasks
 
 def get_tuplekey_taskdict(log:logging.Logger=None, prefix:list=None, suffix:list=None)->dict:
-    """Get a dictionary of task objects from "<basedir>/journal/.../*.json"
-    Use a tuple2(env, name) as the key value
-    
+    """Get a dictionary of Task objects via parsing JSON files from "<thisdir>/journal/*.json"
+
+    The dictionary keys are tuple2(s) of <env> and <name>
+
     Returns
     -------
-    dict: A dictionary of task objects
+    dict
     """
 
     tasks = {}
-    for filepath in list(Path(config.JOURNAL_DIRPATH).rglob("*.[jJ][sS][oO][nN]")):
-        if log: log.info(f"parsing task: {filepath}")
-        task = parse_json(filepath)
+    for jsonpath in list(Path(config.JOURNAL_DIRPATH).rglob("*.[jJ][sS][oO][nN]")):
+        if log: log.info(f"parsing task: {jsonpath}")
+        task = json2task(jsonpath)
         if task.key.env != config.NOT_APPLICABLE:
             if prefix: task.extendleft(prefix)
             if suffix: task.extend(suffix)
@@ -114,22 +118,22 @@ def get_tuplekey_taskdict(log:logging.Logger=None, prefix:list=None, suffix:list
         tasks[(task.key.env, task.key.name)] = task
     return tasks
 
-# => Parser(s)
-def parse_json(filepath:str)->ina.Task:
-    """Parse JSON file into task object
+# => Parser(s) <=
+def json2task(jsonpath:str)->ina.Task:
+    """Parse a JSON file into a Task object
 
     Parameters
     ----------
-    filepath: str
+    jsonpath: str
         The JSON file path
 
     Returns
     -------
-    model.Task: The task object
+    Task
     """
     
     try:
-        with open(filepath) as fp:
+        with open(jsonpath) as fp:
             raw = json.load(fp)
         
         cmds = deque([])
@@ -148,10 +152,10 @@ def parse_json(filepath:str)->ina.Task:
             cmds.append(ina.Command(label, target, argv))
         return ina.Task(ina.Key(raw["env"], raw["name"]), cmds)
     
-    except IndexError: raise IndexError(f"tasks.utils.parse_json: Index Error - {filepath}")
+    except IndexError: raise IndexError(f"server.tasks.json2task: Index Error - {jsonpath}")
 
 def partition(pred, iterable):
-    """Use a predicate to partition entries into false entries and true entries
+    """Use a predicate to partition entries into true entries and false entries
 
     Parameters
     ----------
@@ -162,7 +166,7 @@ def partition(pred, iterable):
     
     Returns
     -------
-    tuple2 of iterators: (true, false)
+    A tuple2, both are iterators: trues, falses
     """
 
     t1, t2 = tee(iterable)

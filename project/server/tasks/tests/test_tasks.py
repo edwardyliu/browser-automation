@@ -1,17 +1,18 @@
-# project/server/tasks/tests/test_api.py
+# project/server/tasks/tests/test_tasks.py
 
-# == Import(s) ==
-# => Local
-from project.server.tasks import tasks
+# === Import(s) ===
+# => Local <=
+from project.server import tasks
 
-# => System
+# => System <=
 import unittest
 
-# == Test Object ==
+# === Test Object ===
 class TestTasks(unittest.TestCase):
 
     def test_get_keys(self):
-        names = list( map(lambda row: row.name, tasks.get_keys()) )
+        names = list( map(lambda row: row.name, tasks.keys()) )
+        
         self.assertEqual("TEST ALL" in names, True)
         self.assertEqual("TEST EXPECTED CONDITION" in names, True)
         self.assertEqual("TEST KEYBOARD" in names, True)

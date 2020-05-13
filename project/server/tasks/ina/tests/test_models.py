@@ -1,15 +1,15 @@
 # project/server/tasks/ina/tests/test_models.py
 
-# == Import(s) ==
-# => Local
+# === Import(s) ===
+# => Local <=
 from project.server.tasks.ina import utils
 from project.server.tasks.ina import models
 
-# => System
+# => System <=
 import unittest
 from collections import deque
 
-# == Test Object ==
+# === Test Object ===
 class TestModels(unittest.TestCase):
     
     def test_command(self):

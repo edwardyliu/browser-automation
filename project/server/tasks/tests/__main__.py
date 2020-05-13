@@ -1,10 +1,10 @@
 # project/server/tasks/tests/__main__.py
 
-# == Import(s) ==
-# => System
+# === Import(s) ===
+# => System <=
 import unittest
 
-# == Module Test: Tasks ==
+# === Module Test: Tasks ===
 def tests()->bool:
     tests = unittest.TestLoader().discover("project/server/tasks/", pattern="test*.py")
     result = unittest.TextTestRunner(verbosity=2).run(tests)
