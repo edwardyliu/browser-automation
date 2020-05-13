@@ -33,8 +33,9 @@ case $key in
         find "${DIR}"/project/server/tasks/ -type f -name "*.csv" -exec rm -r {} +
         
         # client
-        rm -r "${DIR}"/project/server/build
-
+        rm -r "${DIR}"/project/server/static/react
+        rm -r "${DIR}"/project/server/templates/*
+        
         exit 0
     ;;
     -m|--make)
