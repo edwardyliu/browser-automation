@@ -3,6 +3,9 @@
 *.yml
 *.xlsx#
 
+# Exclude docker-compose.yml
+!docker-compose.yml
+
 # File dumps
 tmp/
 resources/
