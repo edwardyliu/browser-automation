@@ -1,0 +1,9 @@
+.vscode
+*.log
+*.csv
+nauto.sh
+__pycache__/
+docs
+project/client
+project/dashboard
+project/server/tasks/ina/resources

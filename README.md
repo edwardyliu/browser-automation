@@ -1,4 +1,17 @@
-# Requirements:
+# Quick Start: Docker Development Environment
+## Requirements:
+```bash
+docker 19.03.6
+docker-compose 1.25.5
+```
+
+## Run:
+```bash
+$ docker-compose up -d --build
+```
+
+# Quick Start: Local Development Environment
+## Requirements:
 ```bash
 OS: Linux
 
@@ -6,29 +19,28 @@ npm 6.14.5      => React (Front-End)
 python 3.7.7    => Flask (Back-End)
 ```
 
-# Setup:
+## Run:
 ```bash
 $ pip install -r ./project/server/requirements.txt
 $ bash nauto.sh --make
 ```
 
-# Quick Start: Local Development Environment
-## 1. Serve a Redis Server
+### Serve Local Redis Server
 ```bash
 $ redis-server
 ```
 
-## 2. Serve Redis Worker(s)
+### Serve Local SMTP Server
+```bash
+$ python -m smtpd -n -c DebuggingServer 127.0.0.1:25
+```
+
+### Serve Local Redis Worker(s)
 ```bash
 rq worker
 ```
 
-## 3. Serve an SMTP Server
-```bash
-$ python -m smtpd -n -c DebuggingServer 127.0.0.1:1025
-```
-
-## 4. Run Flask Application
+### Serve Python Flask Application
 ```bash
 $ python -m project.server
 ```
