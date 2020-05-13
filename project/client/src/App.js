@@ -69,7 +69,7 @@ const App = () => {
 
     // == Effects ==
     React.useEffect(() => {
-        axios.get(server.concat('/tasks'))
+        axios.get(server.concat('/keys'))
             .then(response => {
                 setMarketplace(response.data)
             }, error => {
@@ -82,10 +82,10 @@ const App = () => {
         setUID("")
         axios.post(server.concat('/scan'), {
                 'receipt': receipt,
-                'package': data,
+                'data': data,
             })
             .then(response => {
-                setUID(response.data.scanId)
+                setUID(response.data.data.job_id)
                 setNotification(true)
             }, error => {
                 console.log(error)
@@ -97,10 +97,10 @@ const App = () => {
         setUID("")
         axios.post(server.concat('/job'), {
                 'receipt': receipt,
-                'package': data,
+                'data': data,
             })
             .then(response => {
-                setUID(response.data.jobId)
+                setUID(response.data.data.job_id)
                 setNotification(true)
             }, error => {
                 console.log(error)

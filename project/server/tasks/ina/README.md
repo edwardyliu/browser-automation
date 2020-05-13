@@ -1,1 +1,8 @@
-ina: Instruction-Based Navigation Apparatus
+# INA: 
+```bash
+Instruction-Based Navigation Apparatus
+
+OR
+
+Instruction-Based Navigation Automata
+```

@@ -1,0 +1,15 @@
+{
+    "name": "HOT SWAP",
+    "env": "STATE CHANGE",
+    "commands": [
+        ["GET", "https://www.bing.com/"],
+        ["DSEND_KEYS", {
+            "target": "//input[@name='q']",
+            "argv": "${usrId}"
+        }],
+        ["SEND_KEYS", {
+            "argv": "${ENTER}"
+        }],
+        ["PAUSE", 3.0]
+    ]
+}

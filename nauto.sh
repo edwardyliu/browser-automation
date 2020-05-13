@@ -26,14 +26,14 @@ case $key in
     ;;
     -c|--clean)
         find "${DIR}"/ -type f -name "*.log" -exec rm -r {} +
+        find "${DIR}"/ -type d -name "__pycache__" -exec rm -r {} +
 
         # server
         rm -r "${DIR}"/project/server/tasks/ina/resources
         find "${DIR}"/project/server/tasks/ -type f -name "*.csv" -exec rm -r {} +
-        find "${DIR}"/project/server/ -type d -name "__pycache__" -exec rm -r {} +
         
         # client
-        rm -r "${DIR}"/project/client/build
+        rm -r "${DIR}"/project/server/build
 
         exit 0
     ;;
@@ -43,6 +43,7 @@ case $key in
 
         # client
         (cd "${DIR}/project/client" && npm install --save && npm run build)
+        
         exit 0
     ;;
     *)

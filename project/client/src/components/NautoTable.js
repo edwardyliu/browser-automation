@@ -136,15 +136,29 @@ const NautoTable = ({
     }
 
     const handleAddOrder = cart => {
-        const orders = cart['items'].map(item => ({
-            "usrId": cart['usrId'],
-            "orderId": "",
-            "lut": cart['lut'],
-            "env": item['env'],
-            "name": item['name'],
-        }))        
-        const newData = data.concat(orders)
-        setData(newData)
+        if (cart['items'].length === 0) {
+            const order = {
+                "usrId": cart['usrId'],
+                "orderId": cart['orderId'],
+                "lut": cart['lut'],
+                "env": "",
+                "name": "",
+            }
+            const newData = data.concat(order)
+            setData(newData)
+
+        } else {
+            const orders = cart['items'].map(item => ({
+                "usrId": cart['usrId'],
+                "orderId": cart['orderId'],
+                "lut": cart['lut'],
+                "env": item['env'],
+                "name": item['name'],
+            }))
+            const newData = data.concat(orders)
+            setData(newData)
+
+        }
     }
 
     const handleDeleteOrder = () => {

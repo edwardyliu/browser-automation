@@ -1,6 +1,7 @@
 # project/server/tasks/__init__.py
 
-# == Export(s) ==
-# => API
-from .api import get_task_keys
-from .api import create_job
+# === Export(s) ===
+# => Task(s) <=
+from .tasks import keys
+from .tasks import create_scan
+from .tasks import create_job

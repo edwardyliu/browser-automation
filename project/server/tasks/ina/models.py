@@ -1,23 +1,25 @@
 # project/server/tasks/ina/models.py
 
-# == Import(s) ==
-# => System
+# === Import(s) ===
+# => System <=
 from collections import deque
 from dataclasses import dataclass
 
-# == Data Model(s) ==
+# === Data Model(s) ===
 @dataclass(frozen=True)
 class Command:
-    """Define a Command: Execute a command
+    """Define a Command Object
+    
+    For executing a command
 
     Parameters
     ----------
     label: str
-        Command label
+        A command label
     target: str
-        Primary command argument
+        The primary command argument
     argv: list
-        Secondary command arguments
+        A list of secondary command arguments
     """
 
     label: str
@@ -29,14 +31,16 @@ class Command:
 
 @dataclass(frozen=True)
 class Key:
-    """Define a Key: The ID of a sequence object
+    """Define a Key Object
+    
+    ID of Task object
 
     Parameters
     ----------
     env: str
-        The task environment
+        The Task environment
     name: str
-        The task name
+        The Task name
     """
 
     env: str
@@ -55,14 +59,16 @@ class Key:
 
 @dataclass(frozen=True)
 class Task:
-    """Define a Task: A sequence is a list of Command(s) to be executed linearly
+    """Define a Task Object
+    
+    A sequence of Command objects to be executed linearly
 
     Parameters
     ----------
-    key: models.Key
-        The ID
-    cmds: deque of models.Command(s)
-        A queue of commands
+    key: Key
+        The Task ID
+    cmds: deque
+        A deque list of Command objects
     """
 
     key: Key
@@ -72,7 +78,7 @@ class Task:
         return f"INA.Task(key={self.key})"
 
     def push(self, cmd:Command):
-        """Push a new command to the rightmost position
+        """Push new command to rightmost position
 
         Parameters
         ----------
@@ -83,7 +89,7 @@ class Task:
         self.cmds.append(cmd)
 
     def pushleft(self, cmd:Command):
-        """Push a new command to the leftmost position
+        """Push new command to leftmost position
         
         Parameters
         ----------
@@ -94,7 +100,7 @@ class Task:
         self.cmds.appendleft(cmd)
 
     def extend(self, cmds:list):
-        """Extend a list of new commands, in order, to the rightmost position
+        """Extend a list of new commands to rightmost position
         
         Parameters
         ----------
@@ -105,7 +111,7 @@ class Task:
         self.cmds.extend(cmds)
 
     def extendleft(self, cmds:list):
-        """Extend a list of new commands, in order, to the leftmost position
+        """Extend a list of new commands, in-order, to leftmost position
         
         Parameters
         ----------
@@ -116,7 +122,7 @@ class Task:
         for cmd in reversed(cmds): self.cmds.appendleft(cmd)
 
     def pop(self)->Command:
-        """Pop the rightmost command away from the command list
+        """Pop rightmost command from command list
         
         Returns
         -------
@@ -126,7 +132,7 @@ class Task:
         return self.cmds.pop()
 
     def popleft(self)->Command:
-        """Pop the leftmost command away from the command list
+        """Pop leftmost command from command list
         
         Returns
         -------

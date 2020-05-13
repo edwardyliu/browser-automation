@@ -1,49 +1,38 @@
 # project/server/app.py
 
-# == Import(s) ==
-# => Local
-from . import tasks
+# === Import(s) ===
+# => System <=
+import os
 
-# => System
-import uuid
-
-# => External
-from flask import Flask, request, jsonify
+# => External <=
+from flask import Flask
 from flask_cors import CORS
 
-# == Application ==
-app = Flask("__main__")
-cors = CORS(app, resources={r"/api/*": {"origins": "*"}})
+# === Flask Application ===
+def create_app()->Flask:
+    """Create & return a Flask app instance
 
-@app.route("/api/tasks", methods=["GET"])
-def get_tasks():
-    return jsonify(tasks.get_task_keys())
+    Returns
+    -------
+    Flask
+    """
+    
+    # instantiate the app
+    app = Flask(__name__)
+    CORS(app)
 
-@app.route("/api/scan", methods=["POST"])
-def create_scan():
-    message = request.json
-    print(f"Message: {message}")
+    # set configs
+    app_settings = os.getenv("APP_SETTINGS")
+    app.config.from_object(app_settings)
 
-    scanId = str(uuid.uuid4())
-    return jsonify({ "scanId": scanId })
+    # register blueprints
+    from project.server.views import site
+    from project.server.views import api
+    
+    app.register_blueprint(site)
+    app.register_blueprint(api, url_prefix="/api")
 
-@app.route("/api/job", methods=["POST"])
-def create_job():
-    message = request.json
-    receipt:str = message.get("receipt"); package:list = message.get("package")
-    if package:
-        job = list(map(
-            lambda raw: {
-                "env": raw['env'],
-                "name": raw['name'],
-                "lut": {
-                    "usrId": raw['usrId']
-                }
-            }, package))
+    # shell context for flask cli
+    app.shell_context_processor( {"app": app} )
 
-        jobId = str(uuid.uuid4())
-        if job: tasks.create_job(job, receipt, jobId)
-        return jsonify({ "jobId": jobId })
-    return "Invalid 'package' Data", 400
-
-app.run()
+    return app

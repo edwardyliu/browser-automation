@@ -1,11 +1,11 @@
 # project/server/tasks/ina/template.py
 
-# == Import(s) ==
-# => System
+# === Import(s) ===
+# => System <=
 import datetime
 
-# == E-mail Template ==
-# => Plain-text version
+# === E-mail Template ===
+# => Plain-Text Version <=
 text = lambda status: """\
 Nauto Report:
 
@@ -20,7 +20,7 @@ Dear Valued Customer,
   Task Status: Failure
 """
 
-# => HTML version
+# => HTML Version <=
 header = """\
 <!doctype html>
 <html>
@@ -48,7 +48,7 @@ header = """\
     padding: 5px;
     vertical-align: top;
   }
-  .task-box table tr td:nth-child(3) {
+  .task-box table tr td:nth-child(4) {
     text-align: right;
   }
   .task-box table tr.top table td {
@@ -76,19 +76,19 @@ header = """\
   .task-box table tr.item.last td {
     border-bottom: none;
   }
-  .task-box table tr.summary td:nth-child(3) {
+  .task-box table tr.summary td:nth-child(4) {
     border-top: 2px solid #eee;
   }
   @media only screen and (max-width: 600px) {
     .task-box table tr.top table td {
-      width: 100%;
-      display: block;
-      text-align: center;
-    }
+        width: 100%;
+        display: block;
+        text-align: center;
+    }    
     .task-box table tr.information table td {
-      width: 100%;
-      display: block;
-      text-align: center;
+        width: 100%;
+        display: block;
+        text-align: center;
     }
   }
 
@@ -103,7 +103,7 @@ header = """\
   .rtl table {
     text-align: right;
   }
-  .rtl table tr td:nth-child(3) {
+  .rtl table tr td:nth-child(4) {
     text-align: left;
   }
   </style>
@@ -116,12 +116,13 @@ header = """\
 body_meta = lambda taskid, dt: f"""\
       <!-- Metadata: Task ID, Date, Enqueue & Dequeue Time -->
       <tr class="top">
-        <td colspan="3">
+        <td colspan="4">
           <table>
             <tr>
               <td class="title">
                 <span style="color: #010100;">N</span><span style="color: #FD7F20;">a</span><span style="color: #4d4d4d;">u</span><span style="color: #FC2E20;">to</span>
               </td>
+              <td></td>
               <td></td>
               <td>
                 <span style="font-weight: bold;">Date:</span> {dt.strftime("%B %d, %Y")}<br>
@@ -139,7 +140,7 @@ body_meta = lambda taskid, dt: f"""\
 body_information = lambda email: f"""\
       <!-- Information: Sender -->
       <tr class="information">
-        <td colspan="3">
+        <td colspan="4">
           <table>
             <tr>
               <td>
@@ -147,6 +148,7 @@ body_information = lambda email: f"""\
                 123 Maven Road<br>
                 Mavenville, ON A1B2C3
               </td>
+              <td></td>
               <td></td>
               <td>
                 ABC Corp.<br>
@@ -159,34 +161,38 @@ body_information = lambda email: f"""\
       </tr>\n
 """
 
-body_content_head = lambda i,j,k: f"""\
+body_content_head = lambda i,j,k,l: f"""\
       <!-- Content Head -->
       <tr class="heading">
         <td>{i}</td>
         <td>{j}</td>
         <td>{k}</td>
+        <td>{l}</td>
       </tr>
 
       <!-- Content Items -->\n
 """
 
-body_content_item = lambda i,j,k,last: f"""\
+body_content_item = lambda i,j,k,l,last: f"""\
       <tr class="item last">
           <td>{i}</td>
           <td>{j}</td>
           <td>{k}</td>
+          <td>{l}</td>
       </tr>\n
 """ if last else f"""\
       <tr class="item">
           <td>{i}</td>
           <td>{j}</td>
           <td>{k}</td>
+          <td>{l}</td>
       </tr>\n
 """
 
 body_content_summary = lambda status: """\
       <!-- Content Summary -->
       <tr class="summary">
+        <td></td>
         <td></td>
         <td></td>
         <td>
@@ -196,6 +202,7 @@ body_content_summary = lambda status: """\
 """ if status else """\
       <!-- Content Summary -->
       <tr class="summary">
+        <td></td>
         <td></td>
         <td></td>
         <td>

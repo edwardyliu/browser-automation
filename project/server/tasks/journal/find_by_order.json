@@ -1,0 +1,17 @@
+{
+    "name": "FIND BY ORDER",
+    "env": "STATE CHANGE",
+    "commands": [
+        ["GET", "https://www.bing.com/"],
+        ["DSEND_KEYS", {
+            "target": "//input[@id='sb_form_q']",
+            "argv": "usrId: ${usrId} name: ${name}"
+        }],
+        ["SEND_KEYS", {
+            "argv": "${ENTER}"
+        }],
+        ["PRINTF", 
+            "orderId: ${//li[@class='b_algo' and @data-bm='12']/div/div/cite},Approval: ; Pending: ;"
+        ]
+    ]
+}
