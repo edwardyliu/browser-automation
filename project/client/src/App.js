@@ -85,7 +85,7 @@ const App = () => {
                 'data': data,
             })
             .then(response => {
-                setUID(response.data.scanId)
+                setUID(response.data.data.job_id)
                 setNotification(true)
             }, error => {
                 console.log(error)
@@ -100,7 +100,7 @@ const App = () => {
                 'data': data,
             })
             .then(response => {
-                setUID(response.data.jobId)
+                setUID(response.data.data.job_id)
                 setNotification(true)
             }, error => {
                 console.log(error)
