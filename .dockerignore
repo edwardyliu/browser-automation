@@ -1,9 +1,10 @@
-.vscode
 *.log
 *.csv
-nauto.sh
-__pycache__/
+
+.vscode
+
 docs
+__pycache__
 project/client
 project/dashboard
 project/server/tasks/ina/resources

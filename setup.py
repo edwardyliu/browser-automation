@@ -1,14 +1,11 @@
 # setup.py
 
-# == Import(s) ==
+# === Import(s) ===
+# => System <=
 import os
 import subprocess
-from pathlib import Path
 
-# == Local Constant(s) ==
-ROOTPATH = Path(__file__).parents[0]
-
-# == Utility Function(s) ==
+# === Utility Function(s) ===
 def shell(cmd, show=True):
     """Execute shell <cmd>
 
@@ -36,13 +33,13 @@ def shell(cmd, show=True):
         pass
     return stdout
 
-# == Main Function ==
+# === Main Function ===
 def main(env="linux"):
     print("========================================================")
     print("=== Make Folder(s): ")
     print("========================================================")
-    resources = os.path.join(ROOTPATH, "project/server/tasks/ina/resources/")
-    cache = os.path.join(ROOTPATH, "project/server/tasks/ina/resources/cache/")
+    resources = "./project/server/tasks/ina/resources/"
+    cache = "./project/server/tasks/ina/resources/cache/"
     print(resources)
     if not os.path.exists(resources):
         shell("mkdir -p {0}".format(resources), show=False)

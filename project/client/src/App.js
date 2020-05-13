@@ -7,7 +7,8 @@ import NautoTable from './components/NautoTable'
 
 const App = () => {
 
-    const server = "http://127.0.0.1:5000/api"
+    const server = "http://127.0.0.1:5000/api"  // Local
+    // const server = "http://webapp:5000/api"     // Docker
     const columns = React.useMemo(
         () => [
             {

@@ -26,11 +26,10 @@ def create_app()->Flask:
     app.config.from_object(app_settings)
 
     # register blueprints
-    from project.server.views import site
-    from project.server.views import api
+    from . import views
     
-    app.register_blueprint(site)
-    app.register_blueprint(api, url_prefix="/api")
+    app.register_blueprint(views.static, url_prefix="/static")
+    app.register_blueprint(views.api, url_prefix="/api")
 
     # shell context for flask cli
     app.shell_context_processor( {"app": app} )

@@ -6,5 +6,5 @@ RUN apt-get update && apt-get install -y firefox-esr \
 
 WORKDIR "${APP_HOME}"
 COPY . "${APP_HOME}"
-RUN pip install -r requirements.txt \
+RUN pip install -r ./project/server/requirements.txt \
  && python setup.py
