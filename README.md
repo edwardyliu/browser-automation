@@ -1,6 +1,6 @@
-# Quick Start: Development
+# Quick Start: Development Environment
 ```bash
-bash nauto --make
-(cd project/server && flask run) &
-(cd project/client && npm start) &
+bash nauto.sh --make
+conda activate nauto
+python -m project.server
 ```
