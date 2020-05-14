@@ -7,7 +7,13 @@ docker-compose 1.25.5
 
 ## Run:
 ```bash
+$ bash nauto.sh --make Chrome
 $ docker-compose up -d --build
+```
+
+# Quick Start: Kubernetes & Openshift
+```bash
+$ kompose convert -f docker-compose.yml --provider=openshift
 ```
 
 # Quick Start: Local Development Environment

@@ -18,7 +18,7 @@ DIR="$( cd -P "$( dirname "$SOURCE" )" >/dev/null 2>&1 && pwd )"
 POSITIONAL=()
 while [[ $# -gt 0 ]]
 do
-key="$1"
+key="${1}"
 
 case $key in
     -h|--help)
@@ -40,7 +40,12 @@ case $key in
     -m|--make)
 
         # server
-        python setup.py FireFox
+        if [[ "${2}" == "Chrome" ]]
+        then
+            python setup.py Chrome
+        else
+            python setup.py FireFox
+        fi
         
         # client
         (cd "${DIR}"/project/client && npm install --save && npm run build)
@@ -48,7 +53,7 @@ case $key in
         exit 0
     ;;
     *)
-    POSITIONAL+=("$1")
+    POSITIONAL+=("${1}")
     shift
     ;;
 esac
