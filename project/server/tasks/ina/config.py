@@ -24,7 +24,7 @@ RE_POSITIONAL=re.compile(r"(\$\{.*?\})")
 
 # => Default(s) <=
 ARGV="@"
-LUTV="@#"
+ELUTV="@#"
 FINDV="@"
 LAST="-1"
 

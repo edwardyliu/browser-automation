@@ -125,7 +125,7 @@ class Job(object):
 
         for placeholder in re.findall(config.RE_POSITIONAL, fmt):
             value = placeholder[2:-1]
-            if value == config.LUTV: 
+            if value == config.ELUTV: 
                 span = []
                 for i, j in elut.items(): span.append(f"{i}: {j}")
                 fmt = fmt.replace(placeholder, ", ".join(span))

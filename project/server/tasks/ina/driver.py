@@ -359,7 +359,7 @@ class Driver(object):
         
         for placeholder in re.findall(config.RE_POSITIONAL, target):
             value = placeholder[2:-1]
-            if value == config.LUTV: 
+            if value == config.ELUTV: 
                 span = []
                 for i, j in self.lut.items(): span.append(f"{i}: {j}")
                 target = target.replace(placeholder, ", ".join(span))
