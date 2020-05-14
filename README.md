@@ -15,7 +15,7 @@ $ docker-compose up -d --build
 ```bash
 OS: Linux
 
-npm 6.14.5      => React (Front-End)
+npm 6.14.5       => React (Front-End)
 python 3.6.10    => Flask (Back-End)
 ```
 
@@ -37,7 +37,7 @@ $ redis-server
 
 ### Serve Local Redis Worker(s)
 ```bash
-rq worker
+$ rq worker
 ```
 
 ### Serve Python Flask Application

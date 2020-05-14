@@ -28,20 +28,19 @@ case $key in
         find "${DIR}"/ -type f -name "*.log" -exec rm -r {} +
         
         # server
-        rm -r "${DIR}"/project/server/tasks/ina/resources
+        find "${DIR}"/project/ -type d -name "__pycache__" -exec rm -r {} +
         find "${DIR}"/project/server/tasks/ -type f -name "*.csv" -exec rm -r {} +
-        find "${DIR}"/project/server -type d -name "__pycache__" -exec rm -r {} +
+        rm -r "${DIR}"/project/server/tasks/ina/resources
         
         # client
-        rm -r "${DIR}"/project/server/static
-        rm -r "${DIR}"/project/server/templates
+        rm -r "${DIR}"/project/server/build
         
         exit 0
     ;;
     -m|--make)
 
         # server
-        python setup.py
+        python setup.py FireFox
         
         # client
         (cd "${DIR}"/project/client && npm install --save && npm run build)
