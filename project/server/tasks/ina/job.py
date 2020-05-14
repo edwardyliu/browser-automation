@@ -24,7 +24,7 @@ from email.mime.multipart import MIMEMultipart
 class Job(object):
     """ Define a Job Object
 
-    A list of Tasks objects
+    A List of Task Objects Executed Linearly
     """
 
     def __init__(self, uid:str=None, browser:str=None):

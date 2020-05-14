@@ -10,7 +10,7 @@ from dataclasses import dataclass
 class Command:
     """Define a Command Object
     
-    For executing a command
+    For executing a particular command
 
     Parameters
     ----------
@@ -33,7 +33,7 @@ class Command:
 class Key:
     """Define a Key Object
     
-    ID of Task object
+    Is the unique ID of a Task object
 
     Parameters
     ----------
@@ -61,7 +61,7 @@ class Key:
 class Task:
     """Define a Task Object
     
-    A sequence of Command objects to be executed linearly
+    Is a sequence of Command objects executed linearly
 
     Parameters
     ----------
