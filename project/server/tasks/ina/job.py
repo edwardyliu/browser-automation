@@ -27,11 +27,12 @@ class Job(object):
     A list of Tasks objects
     """
 
-    def __init__(self, uid:str=None):
+    def __init__(self, uid:str=None, browser:str=None):
         self.id = uid or str(uuid.uuid4())
         self.log = utils.get_logger(f"INA.Job.{self.id}")
         self.dt = datetime.datetime.now()
 
+        self.browser = browser
         self.driver = None
         self.queue = deque([])
         self.lines = []
@@ -99,7 +100,7 @@ class Job(object):
 
         if len(self.queue) > 0:
             if not self.driver: 
-                self.driver = driver.Driver(self.id)
+                self.driver = driver.Driver(self.id, browser=self.browser)
             
             while len(self.queue) > 0: self.pop()
             if receipt: self.notify(receipt)

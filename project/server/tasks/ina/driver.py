@@ -24,10 +24,14 @@ class Driver(object):
     A Selenium WebDriver Instance
     """
 
-    def __init__(self, uid:str):
+    def __init__(self, uid:str, browser:str=None):
         self.uid = uid
         self.log = utils.get_logger(f"INA.Driver.{self.uid}")
-        self.driver = self.geckodriver()
+
+        if browser == "Chrome":
+            self.driver = self.chromedriver()
+        else:
+            self.driver = self.geckodriver()
 
     def __del__(self):
         self.driver.quit()
@@ -42,6 +46,23 @@ class Driver(object):
         return f"INA.Driver(uid={self.uid})"
 
     # === Getter(s) ===
+    def chromedriver(self)->webdriver:
+        """Get a Selenium WebDriver instance: chromedriver
+
+        Returns
+        -------
+        webdriver
+        """
+
+        options = webdriver.ChromeOptions()
+        options.add_argument("--headless")
+        options.add_argument("--disable-gpu")
+        options.add_argument("--no-sandbox")
+        options.add_argument("--disable-dev-shm-usage")
+
+        driver = webdriver.Chrome(options=options)
+        return driver
+    
     def geckodriver(self)->webdriver:
         """Get a Selenium WebDriver instance: geckodriver
 
@@ -56,9 +77,8 @@ class Driver(object):
         options.add_argument("--disable-dev-shm-usage")
 
         driver = webdriver.Firefox(executable_path=config.WEBDRIVER_EXEPATH, options=options)
-        driver.maximize_window()
         return driver
-
+    
     def taskkey(self)->models.Key:
         """Get task key
 
@@ -103,7 +123,9 @@ class Driver(object):
         """
 
         self.lut = lut
-        for cmd in self.task.cmds: getattr(self, cmd.label.lower())(target=cmd.target, argv=cmd.argv)
+        for cmd in self.task.cmds: 
+            try: getattr(self, cmd.label.lower())(target=cmd.target, argv=cmd.argv)
+            except Exception: pass
         return self.results
     
     # === Utility Function(s) ===

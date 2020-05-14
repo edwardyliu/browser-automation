@@ -3,9 +3,7 @@
     "env": "TEST",
     "commands": [
         ["GET", {"target": "https://www.google.com/"}],
-        ["MOVE_BY_OFFSET", {"argv": [100, 200]}],
         ["CLICK"],
-        ["MOVE_BY_OFFSET", {"argv": [400, 400]}],
         ["DOUBLE_CLICK"],
         ["CLICK_AND_HOLD"],
         ["PAUSE", 1.0],

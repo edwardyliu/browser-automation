@@ -46,7 +46,7 @@ def run_job():
     with Connection(redis.from_url(current_app.config["REDIS_URL"])):
         job_id = str(uuid.uuid4())
         q = Queue()
-        job = q.enqueue(tasks.create_job, args=(request.json, job_id,), job_id=job_id)
+        job = q.enqueue(tasks.create_job, args=(request.json, job_id, current_app.config["WEBDRIVER"],), job_id=job_id)
 
     response = {
         "status": "success",
@@ -62,7 +62,7 @@ def run_scan():
     with Connection(redis.from_url(current_app.config["REDIS_URL"])):
         job_id = str(uuid.uuid4())
         q = Queue()
-        job = q.enqueue(tasks.create_scan, args=(request.json, job_id,), job_id=job_id)
+        job = q.enqueue(tasks.create_scan, args=(request.json, job_id, current_app.config["WEBDRIVER"],), job_id=job_id)
     
     response = {
         "status": "success",

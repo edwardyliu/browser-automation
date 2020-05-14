@@ -17,7 +17,7 @@ def keys()->list:
 
     return const.TASKKEYS
 
-def create_scan(raw:dict, uid:str=None)->bool:
+def create_scan(raw:dict, uid:str=None, browser:str=None)->bool:
     """Create & deploy an INA.Job instance
     
     Custom Job: Scan
@@ -51,7 +51,7 @@ def create_scan(raw:dict, uid:str=None)->bool:
                 falses
             )
 
-            handler = ina.Job(uid)
+            handler = ina.Job(uid, browser=browser)
             for get in gets:
                 lut = get["lut"]
                 handler.push(const.TASK_GETBYID, elut = lut)
@@ -71,7 +71,7 @@ def create_scan(raw:dict, uid:str=None)->bool:
         except KeyError: print(f"server.tasks.create_scan: Key Error - {raw}, {uid}")
     return False
 
-def create_job(raw:dict, uid:str=None)->bool:
+def create_job(raw:dict, uid:str=None, browser:str=None)->bool:
     """Create & deploy an INA.Job instance
     
     Returns
@@ -95,7 +95,7 @@ def create_job(raw:dict, uid:str=None)->bool:
                 data
             )
 
-            handler = ina.Job(uid); prev_id = None
+            handler = ina.Job(uid, browser=browser); prev_id = None
             for task in tasks:
                 key = ina.Key(task["env"], task["name"]); lut = task["lut"]
                 task = const.TASKDICT.get(key); curr_id = lut["usrId"]

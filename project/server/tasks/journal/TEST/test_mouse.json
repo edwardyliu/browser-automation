@@ -13,10 +13,6 @@
         ["PAUSE", 1.5],
 
         ["GET", {"target": "https://www.youtube.com/"}],
-        ["MOVE_TO_ELEMENT", "/html/body/ytd-app/div/ytd-page-manager/ytd-browse/ytd-two-column-browse-results-renderer/div[1]/ytd-rich-grid-renderer/div[6]/ytd-rich-item-renderer[3]/div/ytd-rich-grid-video-renderer/div[1]/ytd-thumbnail/a"],
-        ["MOVE_TO_ELEMENT_WITH_OFFSET", {
-            "target": "/html/body/ytd-app/div/ytd-page-manager/ytd-browse/ytd-two-column-browse-results-renderer/div[1]/ytd-rich-grid-renderer/div[6]/ytd-rich-item-renderer[3]/div/ytd-rich-grid-video-renderer/div[1]/ytd-thumbnail/a",
-            "argv": [100, 100]}],
         ["PAUSE", 1.5],
 
         ["GET", {"target": "https://www.youtube.com/"}],
