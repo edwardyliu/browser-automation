@@ -11,9 +11,15 @@ $ bash nauto.sh --make Chrome
 $ docker-compose up -d --build
 ```
 
-# Quick Start: Kubernetes & Openshift
+# Quick Start: Openshift
+## Convert:
 ```bash
 $ kompose convert -f docker-compose.yml --provider=openshift
+```
+
+## Up:
+```bash
+$ kompose -f docker-compose.yml --provider=openshift up
 ```
 
 # Quick Start: Local Development Environment
