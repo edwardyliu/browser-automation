@@ -20,8 +20,8 @@ def create_app()->Flask:
     # instantiate the app
     app = Flask(
         __name__,
-        static_folder="./build/static",
-        template_folder="./build"
+        # static_folder="./build/static",
+        # template_folder="./build"
     )
     CORS(app)
 
@@ -32,7 +32,7 @@ def create_app()->Flask:
     # register blueprints
     from . import views
     
-    app.register_blueprint(views.static)
+    # app.register_blueprint(views.static)
     app.register_blueprint(views.api, url_prefix="/api")
 
     # shell context for flask cli
