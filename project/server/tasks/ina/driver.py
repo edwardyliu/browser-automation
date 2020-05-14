@@ -21,7 +21,8 @@ from selenium.webdriver.common.action_chains import ActionChains
 class Driver(object):
     """Define a Driver Object
     
-    A Selenium WebDriver Instance
+    A Selenium-Driven WebDriver Instance
+    The Task Executor
     """
 
     def __init__(self, uid:str, browser:str=None):
@@ -639,18 +640,6 @@ class Driver(object):
         """
 
         self.get(self.scan(target))
-
-    def dclick(self, target:str, argv:list=None):
-        """Dynamic click
-        Support dictionary & web element look-up
-
-        Parameters
-        ----------
-        target: str
-            The string format
-        """
-
-        self.click(self.scan(target))
 
     def dsend_keys(self, target:str, argv:list):
         """Dynamic send keys
