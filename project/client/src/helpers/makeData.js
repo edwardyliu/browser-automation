@@ -1,5 +1,3 @@
-import namor from 'namor'
-
 const range = len => {
     const arr = []
     for (let i = 0; i < len; i++) {
@@ -10,11 +8,11 @@ const range = len => {
 
 const newOrder = () => {
     return {
-        usrId: namor.generate({ words: 1, numbers: 0 }),
+        usrId: "TestID",
         orderId: "",
         lut: "",
-        env: namor.generate({ words: 1, numbers: 0 }),
-        name: namor.generate({ words: 1, numbers: 0 }),
+        env: "TEST",
+        name: "N/A",
     }
 }
 
