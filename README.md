@@ -19,6 +19,7 @@ $ kompose convert -f docker-compose.yml --provider=openshift
 
 ## Up:
 ```bash
+$ bash nauto.sh --make Chrome
 $ kompose -f docker-compose.yml --provider=openshift up
 ```
 
