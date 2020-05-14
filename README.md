@@ -44,3 +44,9 @@ $ rq worker
 ```bash
 $ python -m project.server
 ```
+
+# Reference(s):
+## docker-compose.yml
+```bash
+https://github.com/aanand/compose-file/blob/master/loader/full-example.yml
+```
