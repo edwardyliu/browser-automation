@@ -244,6 +244,9 @@ class Job(object):
         path = os.path.join(config.CACHE_DIRPATH, f"{self.id}.csv")
         utils.write(self.lines, path)
         attachment = self.make_attachment(path)
-        self.send_email(receipt, attachment=attachment)
+        
+        try: self.send_email(receipt, attachment=attachment)
+        except Exception: pass
+
         utils.remove(path)
     
