@@ -1,7 +1,9 @@
+nauto.sh
+
 *.log
 *.csv
 
-.vscode
+.*
 
 docs
 __pycache__

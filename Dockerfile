@@ -1,10 +1,38 @@
-FROM python:3.6-buster
+FROM python:3.6-alpine
 
-ENV APP_HOME="/usr/src/app"
-RUN apt-get update && apt-get install -y firefox-esr \
- && mkdir -p "${APP_HOME}"
+RUN apk update && apk add --no-cache bash \
+        alsa-lib \
+        at-spi2-atk \
+        atk \
+        cairo \
+        cups-libs \
+        dbus-libs \
+        eudev-libs \
+        expat \
+        flac \
+        gdk-pixbuf \
+        glib \
+        libgcc \
+        libjpeg-turbo \
+        libpng \
+        libwebp \
+        libx11 \
+        libxcomposite \
+        libxdamage \
+        libxext \
+        libxfixes \
+        tzdata \
+        libexif \
+        udev \
+        xvfb \
+        zlib-dev \
+        chromium \
+        chromium-chromedriver \
+        && mkdir -p /usr/src/app
+WORKDIR /usr/src/app
+COPY . /usr/src/app
 
-WORKDIR "${APP_HOME}"
-COPY . "${APP_HOME}"
+ENV PATH="/usr/bin/chromedriver:${PATH}"
 RUN pip install -r ./project/server/requirements.txt \
- && python setup.py
+ && python setup.py Chrome
+EXPOSE 5000
