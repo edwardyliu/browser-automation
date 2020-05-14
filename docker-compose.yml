@@ -2,55 +2,55 @@ version: '3'
 
 services:
 
-####################################
+################################################################
 # Queue Container(s):
 #
 #   1. Redis Server Container
 #              &&
 #   2. Redis Dashboard Container
-####################################
+################################################################
   redis:
-    image: redis:5-alpine
     container_name: nauto-redis
+    image: redis:5-alpine
   
   dashboard:
     build: ./project/dashboard
-    image: redis-dashboard
-    container_name: nauto-dashboard
-    ports:
-      - "9181:9181"
     command: rq-dashboard -H redis
+    container_name: nauto-dashboard
     depends_on:
       - redis
+    image: redis-dashboard
+    ports:
+      - "9181:9181"
 
-####################################
+################################################################
 # Server Container(s):
 #
 #   1. Python Flask Container
 #              &&
 #   2. Redis Worker Container(s)
-####################################
+################################################################
   flask:
     build: .
-    image: nauto-server
+    command: python manage.py run -h 0.0.0.0
     container_name: nauto-flask
+    depends_on:
+      - redis
+    environment:
+      - APP_SETTINGS=project.server.DockerDevConfig
+    image: nauto-server
     ports:
       - "5000:5000"
-    command: python manage.py run -h 0.0.0.0
     volumes:
       - .:/usr/src/app
-    environment:
-      - APP_SETTINGS=project.server.DockerDevConfig
-    depends_on:
-      - redis
   
   worker:
-    image: nauto-server
-    container_name: nauto-worker
     command: python manage.py run_worker
-    volumes:
-      - .:/usr/src/app
-    environment:
-      - APP_SETTINGS=project.server.DockerDevConfig
+    container_name: nauto-worker
     depends_on:
       - redis
+    environment:
+      - APP_SETTINGS=project.server.DockerDevConfig
+    image: nauto-server
+    volumes:
+      - .:/usr/src/app
