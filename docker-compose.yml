@@ -54,3 +54,20 @@ services:
       - APP_SETTINGS=project.server.DockerDevConfig
     depends_on:
       - redis
+
+################################ Optionally
+# Client Container(s):
+#
+#   1. React WebApp
+################################
+  react:
+    build: ./project/client
+    image: nauto-client
+    container_name: nauto-react
+    ports:
+      - "80:3000"
+    command: npm run start
+    volumes:
+      - ./project/client:/usr/src/app
+    depends_on:
+      - flask
