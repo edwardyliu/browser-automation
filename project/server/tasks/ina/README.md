@@ -12,6 +12,7 @@ A Selenium-Driven Finite State Machine For Automating Web Jobs.
     1. [job.py](#file-job.py)
     1. [template.py](#file-template.py)
 1. [Requirements](#requirements)
+    1. [Local SMTP Server](#local-smtp-server)
 1. [Usage](#usage)
 1. [Credits](#credits)
 
@@ -232,8 +233,8 @@ class Key:
 ### Available Wait Operations:
 * Operation
     ```bash
-    'UNTIL'
-    'UNTIL_NOT'
+    "UNTIL"
+    "UNTIL_NOT"
     ```
 
 * Expected Conditions
@@ -289,7 +290,7 @@ class Job:
 Consist of Multiple lambda Functions - All used to Construct an E-mail Template
 ```
 
-# Requirements
+# Requirements:
 Python 3.6.10
 ```python
 dataclasses==0.7
@@ -297,7 +298,12 @@ pytz==2019.3
 selenium==3.141.0
 ```
 
-# Usage
+## Local SMTP Server:
+```bash
+$ python -m smtpd -n -c DebuggingServer 127.0.0.1:25
+```
+
+# Usage:
 Simple Use-Case
 ```python
 import ina
@@ -340,5 +346,5 @@ job.deploy()
 del job
 ```
 
-# Credits
+# Credits:
 * [Edward Y. Liu](edwardy.liu@mail.utoronto.ca)

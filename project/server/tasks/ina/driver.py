@@ -3,6 +3,7 @@
 # === Import(s) ===
 # => Local <=
 from . import utils
+from . import const
 from . import config
 from . import models
 
@@ -77,7 +78,7 @@ class Driver(object):
         options.add_argument("--no-sandbox")
         options.add_argument("--disable-dev-shm-usage")
 
-        driver = webdriver.Firefox(executable_path=config.WEBDRIVER_EXEPATH, options=options)
+        driver = webdriver.Firefox(executable_path=config.PATH_WEBDRIVER, options=options)
         return driver
     
     def taskkey(self)->models.Key:
@@ -140,7 +141,7 @@ class Driver(object):
 
         argv_key = "${0}"
         while self.results.get(argv_key):
-            pattern = re.findall(config.RE_NUMERAL, argv_key)[0]
+            pattern = re.findall(const.RE_NUMERAL, argv_key)[0]
             argv_key = argv_key.replace(pattern, str(int(pattern)+1))
         return argv_key
 
@@ -157,7 +158,7 @@ class Driver(object):
         WebElement
         """
 
-        if wait and self.wait(target, ("UNTIL", "PRESENCE_OF_ELEMENT_LOCATED")):
+        if wait and self.wait(target, (const.UNTIL, "PRESENCE_OF_ELEMENT_LOCATED")):
             elem = self.driver.find_element_by_xpath(target)
         else:
             elem = None
@@ -180,7 +181,7 @@ class Driver(object):
         list: A list of Selenium WebElement(s)
         """
 
-        if wait and self.wait(target, ("UNTIL", "PRESENCE_OF_ELEMENT_LOCATED")):
+        if wait and self.wait(target, (const.UNTIL, "PRESENCE_OF_ELEMENT_LOCATED")):
             elems = self.driver.find_elements_by_xpath(target)
         else:
             elems = []
@@ -245,8 +246,8 @@ class Driver(object):
             A Selenium WebElement
         """
 
-        if logic == config.KEY_DOWN: ac.key_down(keys, element=target)
-        elif logic == config.KEY_UP: ac.key_up(keys, element=target)
+        if logic == const.KEY_DOWN: ac.key_down(keys, element=target)
+        elif logic == const.KEY_UP: ac.key_up(keys, element=target)
         else:
             if target: ac.send_keys_to_element(target, keys)
             else: ac.send_keys(keys)
@@ -316,8 +317,8 @@ class Driver(object):
         str
         """
 
-        for replacement in re.findall(config.RE_POSITIONAL, target):
-            target = target.replace(replacement, config.KEYS[replacement])
+        for replacement in re.findall(const.RE_POSITIONAL, target):
+            target = target.replace(replacement, const.KEYS[replacement])
         return target
 
     def peek(self, target:str)->str:
@@ -357,15 +358,15 @@ class Driver(object):
         str
         """
         
-        for placeholder in re.findall(config.RE_POSITIONAL, target):
+        for placeholder in re.findall(const.RE_POSITIONAL, target):
             value = placeholder[2:-1]
-            if value == config.ELUTV: 
+            if value == const.ELUTV: 
                 span = []
                 for i, j in self.lut.items(): span.append(f"{i}: {j}")
                 target = target.replace(placeholder, ", ".join(span))
-            elif value == config.ARGV: target = target.replace(placeholder, ", ".join(self.results.values()))
+            elif value == const.ARGV: target = target.replace(placeholder, ", ".join(self.results.values()))
             elif value.isdigit(): target = target.replace(placeholder, self.results.get(placeholder, "N/A"))
-            elif value[0] == config.FINDV: target = target.replace(placeholder, self.find_all(value[1:]))
+            elif value[0] == const.FINDV: target = target.replace(placeholder, self.find_all(value[1:]))
             else: target = target.replace(placeholder, self.peek(value))
         
         return target
@@ -607,11 +608,11 @@ class Driver(object):
 
         try:
             operation = argv[0]
-            expected_condition = config.EXPECTED_CONDITIONS.get(argv[1])
+            expected_condition = const.EXPECTED_CONDITIONS.get(argv[1])
 
             if expected_condition:
                 res = self.raw2ec(target, expected_condition[1])
-                if operation == "UNTIL_NOT": WebDriverWait(self.driver, timeout=config.DEFAULT_TIMEOUT).until_not(expected_condition[0](res))
+                if operation == const.UNTIL_NOT: WebDriverWait(self.driver, timeout=config.DEFAULT_TIMEOUT).until_not(expected_condition[0](res))
                 else: WebDriverWait(self.driver, timeout=config.DEFAULT_TIMEOUT).until(expected_condition[0](res))
                 
                 return True

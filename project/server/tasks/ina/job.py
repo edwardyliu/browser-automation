@@ -3,6 +3,7 @@
 # === Import(s) ===
 # => Local <=
 from . import utils
+from . import const
 from . import config
 from . import models
 from . import driver
@@ -123,15 +124,15 @@ class Job(object):
         str: The formatted string
         """
 
-        for placeholder in re.findall(config.RE_POSITIONAL, fmt):
+        for placeholder in re.findall(const.RE_POSITIONAL, fmt):
             value = placeholder[2:-1]
-            if value == config.ELUTV: 
+            if value == const.ELUTV: 
                 span = []
                 for i, j in elut.items(): span.append(f"{i}: {j}")
                 fmt = fmt.replace(placeholder, ", ".join(span))
 
-            elif value == config.ARGV: fmt = fmt.replace(placeholder, ", ".join(ilut.values()))
-            elif value == config.LAST: fmt = fmt.replace(placeholder, ilut.get(list(ilut.keys())[-1], "N/A"))
+            elif value == const.ARGV: fmt = fmt.replace(placeholder, ", ".join(ilut.values()))
+            elif value == const.LAST: fmt = fmt.replace(placeholder, ilut.get(list(ilut.keys())[-1], "N/A"))
             elif value.isdigit(): fmt = fmt.replace(placeholder, ilut.get(placeholder, "N/A"))
             else: 
                 if isinstance(elut, dict): fmt = fmt.replace(placeholder, elut.get(value, "N/F"))
@@ -241,7 +242,7 @@ class Job(object):
             An E-mail address
         """
         
-        path = os.path.join(config.CACHE_DIRPATH, f"{self.id}.csv")
+        path = os.path.join(config.PATH_CACHE, f"{self.id}.csv")
         utils.write(self.lines, path)
         attachment = self.make_attachment(path)
         
