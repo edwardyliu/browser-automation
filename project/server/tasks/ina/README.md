@@ -1,7 +1,22 @@
-# Instructed Navigator Auto
-A Selenium-Driven Finite State Machine For Automating Web-Tasks.
+# Instructed Navigator Auto:
+A Selenium-Driven Finite State Machine For Automating Web Jobs.
 
-## models.py
+# Table of Contents:
+1. [Description](#description)
+    1. [models.py](#file-models.py)
+        * [Available Commands](#available-commands)
+        * [Available Finds](#available-finds)
+        * [Available Keys](#available-keys)
+        * [Available Wait Operations](#available-wait-operations)
+    1. [driver.py](#file-driver.py)
+    1. [job.py](#file-job.py)
+    1. [template.py](#file-template.py)
+1. [Requirements](#requirements)
+1. [Usage](#usage)
+1. [Credits](#credits)
+
+# Description:
+## File models.py
 ```python
 class Command:
     """Define a Command Object
@@ -22,8 +37,8 @@ class Key:
     """
 ```
 
-#### Available Command(s):
-```python
+### Available Commands:
+```json
 1. CLICK
     Left Mouse Click
     { "target": optional <XPATH> }
@@ -43,14 +58,14 @@ class Key:
 5. DRAG_AND_DROP
     Mouse Drag & Drop From <SRC> To <DEST>
     { 
-        "target": <XPATH>
+        "target": <XPATH>,
         "argv": <XPATH>
     }
 
 6. DRAG_AND_DROP_BY_OFFSET
     Mouse Drag & Drop From <SRC> To [<XOFFSET>, <YOFFSET>]
     { 
-        "target": <XPATH>
+        "target": <XPATH>,
         "argv": [<XOFFSET>, <YOFFSET>]
     }
 
@@ -60,7 +75,7 @@ class Key:
 
 8. DGET
     Dynamic GET
-    *Supports Dictionary & Web Element Finds
+    **Supports Find via Dictionary & Web Element Look-Up
     { "target": <FORMAT> }
 
 9. MOVE_TO_ELEMENT
@@ -72,7 +87,7 @@ class Key:
     FireFox: Move Mouse Cursor to WebElement Plus [<XOFFSET>, <YOFFSET>]
     Others: Maneuver to WebElement Plus [<XOFFSET>, <YOFFSET>] (i.e. Scroll & Cursor)
     { 
-        "target": <XPATH>
+        "target": <XPATH>,
         "argv": [<XOFFSET>, <YOFFSET>]
     }
 
@@ -87,6 +102,7 @@ class Key:
 
 13. PRINTF
     Print Formatted String
+    **Supports Find via Dictionary & Web Element Look-Up
     { "target": <FORMAT> }
 
 14. REFRESH
@@ -99,20 +115,20 @@ class Key:
 
 16. SEND_KEYS
     Send Keyboard Actions To The Browser Instance
-    *Supports Key Logic
-    *Supports Special Key Characters
+    **Supports Key Logic
+    **Supports Special Key Characters
     { 
-        "target": optional <XPATH>
+        "target": optional <XPATH>,
         "argv": [ [<KEY_LOGIC>, <KEY>] OR <KEY>, ... ]
     }
 
 17. DSEND_KEYS
     Dynamic Send Keys
-    *Supports Dictionary & Web Element Finds
-    *Removed Key Logic Support
-    *Removed Special Key Character Support
+    **Supports Find via Dictionary & Web Element Look-Up
+    **Removed Key Logic Support
+    **Removed Special Key Character Support
     { 
-        "target": optional <XPATH>
+        "target": optional <XPATH>,
         "argv": [ <KEY>, ... ]
     }
 
@@ -124,14 +140,25 @@ class Key:
     }
 ```
 
-#### Available Key Logic & Special Key Character(s):
+### Available Finds:
+* Look-Ups via Dictionary & Web Element Search:
+    ```bash
+    All Driver Argument:    ${@}
+    All Job Argument:       ${@#}
+    All Web Element Find:   ${@<XPATH>}
+
+    One Driver Arument:     ${<NUMBER>}
+    One Job Argument:       ${<KEY>}
+    One Web Element Find:   ${<XPATH>}
+    Last Driver Argument:   ${-1}
+    ```
+
+### Available Keys:
 * Key Logic
     ```bash
-    <KEY_LOGIC>
-
-        'KEY_DOWN'
-        'KEY_UP'
-        'SEND'
+    "KEY_DOWN"
+    "KEY_UP"
+    "SEND"
     ```
 
 * Special Key Characters
@@ -202,13 +229,11 @@ class Key:
     ${UP}
     ```
 
-#### Available Operation & Expected Condition(s):
+### Available Wait Operations:
 * Operation
     ```bash
-    <OPERATION>
-        
-        'UNTIL'
-        'UNTIL_NOT'
+    'UNTIL'
+    'UNTIL_NOT'
     ```
 
 * Expected Conditions
@@ -239,7 +264,7 @@ class Key:
     "VISIBILITY_OF_ELEMENT_LOCATED"
     ```
 
-## driver.py
+## File driver.py
 ```python
 class Driver:
     """Define a Driver Object
@@ -249,7 +274,7 @@ class Driver:
     """
 ```
 
-## job.py
+## File job.py
 ```python
 class Job:
     """ Define a Job Object
@@ -259,7 +284,61 @@ class Job:
     """
 ```
 
-## template.py
+## File template.py
 ```python
-Multiple lambda Functions - Used to Construct an E-mail Template
+Consist of Multiple lambda Functions - All used to Construct an E-mail Template
 ```
+
+# Requirements
+Python 3.6.10
+```python
+dataclasses==0.7
+pytz==2019.3
+selenium==3.141.0
+```
+
+# Usage
+Simple Use-Case
+```python
+import ina
+from collections import deque
+
+# Define Job
+job = ina.Job()
+
+# Define Tasks
+task = ina.Task(
+    key=ina.Key(env="TEST", name="Unique Value"),
+    cmds=deque([
+        ina.Command(
+            label="SEND_KEYS",
+            target="<XPATH>",
+            argv=[ ["KEY_DOWN", "${UP}"] ]
+        ),
+        ina.Command(
+            label="PAUSE",
+            target="5",
+            argv=None
+        ),
+        ina.Command(
+            label="SEND_KEYS",
+            target="<XPATH>",
+            argv=[ ["KEY_UP", "${UP}"] ]
+        )
+    ])
+)
+
+# Enqueue Tasks
+job.push(task)
+job.push(task)
+job.push(task)
+
+# Deploy Job
+job.deploy()
+
+# Delete WebDriver Instance
+del job
+```
+
+# Credits
+* [Edward Y. Liu](edwardy.liu@mail.utoronto.ca)
