@@ -41,8 +41,6 @@ services:
     image: nauto-server
     ports:
       - "5000:5000"
-    volumes:
-      - .:/usr/src/app
   
   worker:
     command: python manage.py run_worker
@@ -52,8 +50,6 @@ services:
     environment:
       - APP_SETTINGS=project.server.DockerDevConfig
     image: nauto-server
-    volumes:
-      - .:/usr/src/app
 
 # Optionally ###################################################
 # Client Container(s):
@@ -75,5 +71,3 @@ services:
     ports:
       - "80:3000"
     stdin_open: true
-    volumes:
-      - ./project/client:/usr/src/app
