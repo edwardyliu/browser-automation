@@ -2,6 +2,7 @@
 
 # === Import(s) ===
 # => Local <=
+from . import const
 from . import config
 
 # => System <=
@@ -70,9 +71,9 @@ def cache_key(prefix:str, postfix:str)->str:
     str
     """
 
-    path = os.path.join(config.CACHE_DIRPATH, f"{prefix}1{postfix}")
+    path = os.path.join(config.PATH_CACHE, f"{prefix}1{postfix}")
     while os.path.isfile(path):
-        pattern = re.findall(config.RE_NUMERAL, path)[0]
+        pattern = re.findall(const.RE_NUMERAL, path)[0]
         path = path.replace(pattern, str(int(pattern)+1))
     return path
 

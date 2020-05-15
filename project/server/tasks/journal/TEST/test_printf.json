@@ -9,10 +9,10 @@
 
         ["GET", "https://www.youtube.com/"],
         ["PRINTF", {
-            "target": "Hello Video: ${//*[@id='video-title']}, my name is ${1} and I am ${2}!",
+            "target": "my name is ${1} and I am ${2}!",
             "argv": ["Edward Y. Liu", "Happy"]}],
         ["PRINTF", {
-            "target": "Hello Videos: ${@//*[@id='video-title']}, I am ${2}! my name is ${1}! LOL ${@}!",
+            "target": "I am ${2}! my name is ${1}! LOL ${@}!",
             "argv": ["Edward Y. Liu", "Hyper"]}]
     ]
 }

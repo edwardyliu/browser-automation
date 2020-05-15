@@ -17,10 +17,10 @@ class TestJob(unittest.TestCase):
         task = models.Task(key, deque([
             models.Command("get", "https://www.youtube.com/", None),
             models.Command("dsend_keys", 
-                "/html/body/ytd-app/div/div/ytd-masthead/div[3]/div[2]/ytd-searchbox/form/div/div[1]/input", 
-                ["${@//*[@id='video-title']}; lutv - ${@#};"]
+                "//input[@id='search']", 
+                ["lutv - ${@#};"]
             ),
-            models.Command("printf", "${@//*[@id='video-title']}; lutv - ${@#};", None),
+            models.Command("printf", "lutv - ${@#};", None),
             models.Command("pause", "2.0", None)
         ]))
 
@@ -37,10 +37,10 @@ class TestJob(unittest.TestCase):
         task_a = models.Task(key_a, deque([
             models.Command("get", "https://www.youtube.com/", None),
             models.Command("dsend_keys", 
-                "/html/body/ytd-app/div/div/ytd-masthead/div[3]/div[2]/ytd-searchbox/form/div/div[1]/input", 
-                ["${@//*[@id='video-title']}; lutv - ${@#};"]
+                "//input[@id='search']", 
+                ["lutv - ${@#};"]
             ),
-            models.Command("printf", "${@//*[@id='video-title']}; lutv - ${@#};", None),
+            models.Command("printf", "lutv - ${@#};", None),
             models.Command("pause", "2.0", None)
         ]))
 
