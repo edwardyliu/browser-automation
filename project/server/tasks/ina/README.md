@@ -304,47 +304,47 @@ $ python -m smtpd -n -c DebuggingServer 127.0.0.1:25
 ```
 
 # Usage:
-Simple Use-Case
-```python
-import ina
-from collections import deque
+* Simple Use-Case
+    ```python
+    import ina
+    from collections import deque
 
-# Define Job
-job = ina.Job()
+    # Define Job
+    job = ina.Job()
 
-# Define Tasks
-task = ina.Task(
-    key=ina.Key(env="TEST", name="Unique Value"),
-    cmds=deque([
-        ina.Command(
-            label="SEND_KEYS",
-            target="<XPATH>",
-            argv=[ ["KEY_DOWN", "${UP}"] ]
-        ),
-        ina.Command(
-            label="PAUSE",
-            target="5",
-            argv=None
-        ),
-        ina.Command(
-            label="SEND_KEYS",
-            target="<XPATH>",
-            argv=[ ["KEY_UP", "${UP}"] ]
-        )
-    ])
-)
+    # Define Tasks
+    task = ina.Task(
+        key=ina.Key(env="TEST", name="Unique Value"),
+        cmds=deque([
+            ina.Command(
+                label="SEND_KEYS",
+                target="<XPATH>",
+                argv=[ ["KEY_DOWN", "${UP}"] ]
+            ),
+            ina.Command(
+                label="PAUSE",
+                target="5",
+                argv=None
+            ),
+            ina.Command(
+                label="SEND_KEYS",
+                target="<XPATH>",
+                argv=[ ["KEY_UP", "${UP}"] ]
+            )
+        ])
+    )
 
-# Enqueue Tasks
-job.push(task)
-job.push(task)
-job.push(task)
+    # Enqueue Tasks
+    job.push(task)
+    job.push(task)
+    job.push(task)
 
-# Deploy Job
-job.deploy()
+    # Deploy Job
+    job.deploy()
 
-# Delete WebDriver Instance
-del job
-```
+    # Delete WebDriver Instance
+    del job
+    ```
 
 # Credits:
 * [Edward Y. Liu](edwardy.liu@mail.utoronto.ca)
