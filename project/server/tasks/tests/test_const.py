@@ -12,7 +12,7 @@ import unittest
 class TestConst(unittest.TestCase):
     
     def test_taskdict(self):
-        tasks = const.TASKDICT
+        tasks = const.TASKS_DICT
 
         self.assertEqual(ina.Key("TEST", "TEST ALL") in tasks, True)
         self.assertEqual(ina.Key("TEST", "TEST EXPECTED CONDITION") in tasks, True)
@@ -22,7 +22,7 @@ class TestConst(unittest.TestCase):
         self.assertEqual(ina.Key("TEST", "TEST PRINTF") in tasks, True)
 
     def test_taskkeys(self):
-        tasks = const.TASKKEYS
+        tasks = const.TASKS_KEYS
 
         self.assertEqual(ina.Key("TEST", "TEST ALL") in tasks, True)
         self.assertEqual(ina.Key("TEST", "TEST EXPECTED CONDITION") in tasks, True)

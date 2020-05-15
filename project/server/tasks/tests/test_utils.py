@@ -11,8 +11,8 @@ import unittest
 # === Test Object ===
 class TestUtils(unittest.TestCase):
     
-    def test_get_tasklist(self):
-        tasks = utils.get_tasklist()
+    def test_get_task_list(self):
+        tasks = utils.get_task_list()
         task_keys = list(map(lambda task: task.key, tasks))
 
         self.assertEqual(ina.Key("TEST", "TEST ALL") in task_keys, True)
@@ -22,8 +22,8 @@ class TestUtils(unittest.TestCase):
         self.assertEqual(ina.Key("TEST", "TEST MOUSE") in task_keys, True)
         self.assertEqual(ina.Key("TEST", "TEST PRINTF") in task_keys, True)
 
-    def test_get_taskdict(self):
-        tasks = utils.get_taskdict()
+    def test_get_task_dict(self):
+        tasks = utils.get_task_dict()
 
         self.assertEqual(ina.Key("TEST", "TEST ALL") in tasks, True)
         self.assertEqual(ina.Key("TEST", "TEST EXPECTED CONDITION") in tasks, True)
