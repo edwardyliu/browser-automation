@@ -12,7 +12,7 @@ A Selenium-Driven Finite State Machine For Automating Web Jobs.
     1. [job.py](#file-job.py)
     1. [template.py](#file-template.py)
 1. [Requirements](#requirements)
-    1. [Local SMTP Server](#local-smtp-server)
+    * [Local SMTP Server](#local-smtp-server)
 1. [Usage](#usage)
 1. [Credits](#credits)
 
