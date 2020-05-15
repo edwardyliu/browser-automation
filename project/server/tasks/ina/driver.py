@@ -3,6 +3,7 @@
 # === Import(s) ===
 # => Local <=
 from . import utils
+from . import const
 from . import config
 from . import models
 
@@ -21,7 +22,8 @@ from selenium.webdriver.common.action_chains import ActionChains
 class Driver(object):
     """Define a Driver Object
     
-    A Selenium WebDriver Instance
+    A Selenium-Driven WebDriver Instance
+    The Task Executor
     """
 
     def __init__(self, uid:str, browser:str=None):
@@ -76,7 +78,7 @@ class Driver(object):
         options.add_argument("--no-sandbox")
         options.add_argument("--disable-dev-shm-usage")
 
-        driver = webdriver.Firefox(executable_path=config.WEBDRIVER_EXEPATH, options=options)
+        driver = webdriver.Firefox(executable_path=config.PATH_WEBDRIVER, options=options)
         return driver
     
     def taskkey(self)->models.Key:
@@ -139,7 +141,7 @@ class Driver(object):
 
         argv_key = "${0}"
         while self.results.get(argv_key):
-            pattern = re.findall(config.RE_NUMERAL, argv_key)[0]
+            pattern = re.findall(const.RE_NUMERAL, argv_key)[0]
             argv_key = argv_key.replace(pattern, str(int(pattern)+1))
         return argv_key
 
@@ -156,7 +158,7 @@ class Driver(object):
         WebElement
         """
 
-        if wait and self.wait(target, ("UNTIL", "PRESENCE_OF_ELEMENT_LOCATED")):
+        if wait and self.wait(target, (const.UNTIL, "PRESENCE_OF_ELEMENT_LOCATED")):
             elem = self.driver.find_element_by_xpath(target)
         else:
             elem = None
@@ -179,7 +181,7 @@ class Driver(object):
         list: A list of Selenium WebElement(s)
         """
 
-        if wait and self.wait(target, ("UNTIL", "PRESENCE_OF_ELEMENT_LOCATED")):
+        if wait and self.wait(target, (const.UNTIL, "PRESENCE_OF_ELEMENT_LOCATED")):
             elems = self.driver.find_elements_by_xpath(target)
         else:
             elems = []
@@ -244,8 +246,8 @@ class Driver(object):
             A Selenium WebElement
         """
 
-        if logic == config.KEY_DOWN: ac.key_down(keys, element=target)
-        elif logic == config.KEY_UP: ac.key_up(keys, element=target)
+        if logic == const.KEY_DOWN: ac.key_down(keys, element=target)
+        elif logic == const.KEY_UP: ac.key_up(keys, element=target)
         else:
             if target: ac.send_keys_to_element(target, keys)
             else: ac.send_keys(keys)
@@ -315,8 +317,8 @@ class Driver(object):
         str
         """
 
-        for replacement in re.findall(config.RE_POSITIONAL, target):
-            target = target.replace(replacement, config.KEYS[replacement])
+        for replacement in re.findall(const.RE_POSITIONAL, target):
+            target = target.replace(replacement, const.KEYS[replacement])
         return target
 
     def peek(self, target:str)->str:
@@ -356,20 +358,21 @@ class Driver(object):
         str
         """
         
-        for placeholder in re.findall(config.RE_POSITIONAL, target):
+        for placeholder in re.findall(const.RE_POSITIONAL, target):
             value = placeholder[2:-1]
-            if value == config.LUTV: 
+            if value == const.ELUTV: 
                 span = []
                 for i, j in self.lut.items(): span.append(f"{i}: {j}")
                 target = target.replace(placeholder, ", ".join(span))
-            elif value == config.ARGV: target = target.replace(placeholder, ", ".join(self.results.values()))
+            elif value == const.ARGV: target = target.replace(placeholder, ", ".join(self.results.values()))
             elif value.isdigit(): target = target.replace(placeholder, self.results.get(placeholder, "N/A"))
-            elif value[0] == config.FINDV: target = target.replace(placeholder, self.find_all(value[1:]))
+            elif value[0] == const.FINDV: target = target.replace(placeholder, self.find_all(value[1:]))
             else: target = target.replace(placeholder, self.peek(value))
         
         return target
     
     # === Command Function(s) ===
+    # => Page <=
     def get(self, target:str, argv:list=None):
         """Get URL page
 
@@ -389,6 +392,51 @@ class Driver(object):
         except exceptions.WebDriverException:
             self.log.error(f"get: WebDriver Exception - Reached Error Page - {self.task}")
 
+    def dget(self, target:str, argv:list=None):
+        """Dynamic get
+        Support dictionary & web element look-up
+
+        Parameters
+        ----------
+        target: str
+            The string format
+        """
+
+        self.get(self.scan(target))
+
+    def pause(self, target:str, argv:list=None):
+        """Pause WebDriver instance
+
+        Parameters
+        ----------
+        target: str
+            A float, the number of seconds to pause
+        """
+        
+        try:
+            seconds = float(target)
+            ActionChains(self.driver).pause(seconds).perform()
+
+        except ValueError:
+            self.log.error(f"pause: Value Error - {self.task}")
+            raise ValueError(f"INA.Driver.pause: Value Error - {target} - {self.task}")
+
+    def printf(self, target:str, argv:list=None):
+        """Print formatted
+
+        Find & replace all special sequences to generate a formatted string
+
+        Parameters
+        ----------
+        target: str
+            The string format
+        """
+        
+        key = self.argv_key()
+        self.results[key] = ""
+        
+        if target: self.results[key] = self.scan(target)
+
     def refresh(self, target:str=None, argv:list=None):
         """Refresh current page
 
@@ -396,6 +444,40 @@ class Driver(object):
 
         self.driver.refresh()
     
+    def wait(self, target:str, argv:list)->bool:
+        """Wait for expected condition
+
+        Parameters
+        ----------
+        target: str
+            Either an Integer, an XPATH or a URL
+        argv: [str]
+            A string tuple2 containing the operation and expected condition
+        """
+
+        try:
+            operation = argv[0]
+            expected_condition = const.EXPECTED_CONDITIONS.get(argv[1])
+
+            if expected_condition:
+                res = self.raw2ec(target, expected_condition[1])
+                if operation == const.UNTIL_NOT: WebDriverWait(self.driver, timeout=config.DEFAULT_TIMEOUT).until_not(expected_condition[0](res))
+                else: WebDriverWait(self.driver, timeout=config.DEFAULT_TIMEOUT).until(expected_condition[0](res))
+                
+                return True
+            else:
+                self.log.error(f"wait: Value Error - {self.task}")
+                raise ValueError(f"INA.Driver.wait: Value Error - {argv[1]} - {self.task}")
+
+        except IndexError:
+            self.log.error(f"wait: Index Error - {self.task}")
+            raise IndexError(f"INA.Driver.wait: Index Error - {argv} - {self.task}")
+        
+        except exceptions.TimeoutException:
+            self.log.error("wait: Timeout Exception")
+            return False
+
+    # => Mouse Cursor <=
     def click(self, target:str=None, argv:list=None):
         """Click a Selenium WebElement
 
@@ -558,6 +640,7 @@ class Driver(object):
             self.log.error(f"move_by_offset: Index Error - {self.task}")
             raise IndexError(f"INA.Driver.move_by_offset: Index Error - {argv} - {self.task}")
     
+    # => Keyboard <=
     def send_keys(self, target:str, argv:list):
         """Send keys
         NOTE. Support sending special characters including ${ENTER}, ${ALT}, ${SHIFT}, etc.
@@ -576,82 +659,6 @@ class Driver(object):
             if elem: self.enact_keyboard_actions(elem, argv)
         else: self.enact_keyboard_actions(None, argv)
     
-    def pause(self, target:str, argv:list=None):
-        """Pause WebDriver instance
-
-        Parameters
-        ----------
-        target: str
-            A float, the number of seconds to pause
-        """
-        
-        try:
-            seconds = float(target)
-            ActionChains(self.driver).pause(seconds).perform()
-
-        except ValueError:
-            self.log.error(f"pause: Value Error - {self.task}")
-            raise ValueError(f"INA.Driver.pause: Value Error - {target} - {self.task}")
-    
-    def wait(self, target:str, argv:list)->bool:
-        """Wait for expected condition
-
-        Parameters
-        ----------
-        target: str
-            Either an Integer, an XPATH or a URL
-        argv: [str]
-            A string tuple2 containing the operation and expected condition
-        """
-
-        try:
-            operation = argv[0]
-            expected_condition = config.EXPECTED_CONDITIONS.get(argv[1])
-
-            if expected_condition:
-                res = self.raw2ec(target, expected_condition[1])
-                if operation == "UNTIL_NOT": WebDriverWait(self.driver, timeout=config.DEFAULT_TIMEOUT).until_not(expected_condition[0](res))
-                else: WebDriverWait(self.driver, timeout=config.DEFAULT_TIMEOUT).until(expected_condition[0](res))
-                
-                return True
-            else:
-                self.log.error(f"wait: Value Error - {self.task}")
-                raise ValueError(f"INA.Driver.wait: Value Error - {argv[1]} - {self.task}")
-
-        except IndexError:
-            self.log.error(f"wait: Index Error - {self.task}")
-            raise IndexError(f"INA.Driver.wait: Index Error - {argv} - {self.task}")
-        
-        except exceptions.TimeoutException:
-            self.log.error("wait: Timeout Exception")
-            return False
-    
-    # => Dynamic Command Function(s) <=
-    # i.e. Command Functions w/ Look-Up Support
-    def dget(self, target:str, argv:list=None):
-        """Dynamic get
-        Support dictionary & web element look-up
-
-        Parameters
-        ----------
-        target: str
-            The string format
-        """
-
-        self.get(self.scan(target))
-
-    def dclick(self, target:str, argv:list=None):
-        """Dynamic click
-        Support dictionary & web element look-up
-
-        Parameters
-        ----------
-        target: str
-            The string format
-        """
-
-        self.click(self.scan(target))
-
     def dsend_keys(self, target:str, argv:list):
         """Dynamic send keys
         NOTE. Support dictionary & web element look-ups. 
@@ -670,20 +677,3 @@ class Driver(object):
             elem = self.find_element_by_xpath(target)
             if elem: self.enact_keyboard_actions(elem, values)
         else: self.enact_keyboard_actions(None, values)
-    
-    def printf(self, target:str, argv:list=None):
-        """Print formatted
-
-        Find & replace all special sequences to generate a formatted string
-
-        Parameters
-        ----------
-        target: str
-            The string format
-        """
-        
-        key = self.argv_key()
-        self.results[key] = ""
-        
-        if target: self.results[key] = self.scan(target)
-    

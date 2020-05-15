@@ -54,8 +54,8 @@ def get_logger(uid:str)->logging.Logger:
     log.addHandler(handle)
     return log
 
-def get_tasklist(log:logging.Logger=None, prefix:list=None, suffix:list=None)->list:
-    """Get a list of Task objects via parsing JSON files from "<thisdir>/journal/*.json"
+def get_task_list(log:logging.Logger=None, prefix:list=None, suffix:list=None)->list:
+    """Get 'list' of Task Objects via JSONs from "journal/*.json"
 
     Returns
     -------
@@ -63,10 +63,10 @@ def get_tasklist(log:logging.Logger=None, prefix:list=None, suffix:list=None)->l
     """
 
     tasks = []
-    for jsonpath in list(Path(config.JOURNAL_DIRPATH).rglob("*.[jJ][sS][oO][nN]")):
+    for jsonpath in list(Path(config.PATH_JOURNAL).rglob("*.[jJ][sS][oO][nN]")):
         if log: log.info(f"parsing task: {jsonpath}")
         task = json2task(jsonpath)
-        if task.key.env != config.NOT_APPLICABLE:
+        if task.key.env != config.DEFAULT_NA:
             if prefix: task.extendleft(prefix)
             if suffix: task.extend(suffix)
         task.pushleft(ina.Command("printf", f"{task.key.env},{task.key.name}", None))
@@ -74,10 +74,10 @@ def get_tasklist(log:logging.Logger=None, prefix:list=None, suffix:list=None)->l
         tasks.append(task)
     return tasks
 
-def get_taskdict(log:logging.Logger=None, prefix:list=None, suffix:list=None)->dict:
-    """Get a dictionary of Task objects via parsing JSON files from "<thisdir>/journal/*.json"
+def get_task_dict(log:logging.Logger=None, prefix:list=None, suffix:list=None)->dict:
+    """Get 'dict' of Task Objects via JSONs from "journal/*.json"
     
-    The dictionary keys are Task.key(s)
+    Keys are their respective INA.Key objects
 
     Returns
     -------
@@ -85,10 +85,10 @@ def get_taskdict(log:logging.Logger=None, prefix:list=None, suffix:list=None)->d
     """
     
     tasks = {}
-    for jsonpath in list(Path(config.JOURNAL_DIRPATH).rglob("*.[jJ][sS][oO][nN]")):
+    for jsonpath in list(Path(config.PATH_JOURNAL).rglob("*.[jJ][sS][oO][nN]")):
         if log: log.info(f"parsing task: {jsonpath}")
         task = json2task(jsonpath)
-        if task.key.env != config.NOT_APPLICABLE:
+        if task.key.env != config.DEFAULT_NA:
             if prefix: task.extendleft(prefix)
             if suffix: task.extend(suffix)
         task.pushleft(ina.Command("printf", f"{task.key.env},{task.key.name}", None))
@@ -96,21 +96,21 @@ def get_taskdict(log:logging.Logger=None, prefix:list=None, suffix:list=None)->d
         tasks[task.key] = task
     return tasks
 
-def get_tuplekey_taskdict(log:logging.Logger=None, prefix:list=None, suffix:list=None)->dict:
-    """Get a dictionary of Task objects via parsing JSON files from "<thisdir>/journal/*.json"
-
-    The dictionary keys are tuple2(s) of <env> and <name>
-
+def get_tupled_task_dict(log:logging.Logger=None, prefix:list=None, suffix:list=None)->dict:
+    """Get 'dict' of Task Objects via JSONs from "journal/*.json"
+    
+    Keys are tuple2s of INA.Key.env & INA.Key.name
+    
     Returns
     -------
     dict
     """
 
     tasks = {}
-    for jsonpath in list(Path(config.JOURNAL_DIRPATH).rglob("*.[jJ][sS][oO][nN]")):
+    for jsonpath in list(Path(config.PATH_JOURNAL).rglob("*.[jJ][sS][oO][nN]")):
         if log: log.info(f"parsing task: {jsonpath}")
         task = json2task(jsonpath)
-        if task.key.env != config.NOT_APPLICABLE:
+        if task.key.env != config.DEFAULT_NA:
             if prefix: task.extendleft(prefix)
             if suffix: task.extend(suffix)
         task.pushleft(ina.Command("printf", f"{task.key.env},{task.key.name}", None))
@@ -120,7 +120,21 @@ def get_tuplekey_taskdict(log:logging.Logger=None, prefix:list=None, suffix:list
 
 # => Parser(s) <=
 def json2task(jsonpath:str)->ina.Task:
-    """Parse a JSON file into a Task object
+    """Construct an INA Task Object via JSON
+
+    Required JSON Format:
+    {
+        "name": <INA.Key.name>
+        "env: <INA.Key.env>
+        "commands": [
+            [<INA.Command.label>, {
+                "target": <INA.Command.target>,
+                "argv": <INA.Command.argv>
+            }], 
+            
+            ...
+        ]
+    }
 
     Parameters
     ----------
