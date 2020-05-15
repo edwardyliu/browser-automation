@@ -53,12 +53,12 @@ A Browser Automation Tool Using Pre-Defined Finite State Machines
 
     1. Local Flask Server
         ```bash
-        $ python manage.py run
+        $ python -m project.server
         ```
 
     1. Local Redis Workers
         ```bash
-        $ python manage.py run_worker
+        $ rq worker
         ```
 
 # Requirements:
