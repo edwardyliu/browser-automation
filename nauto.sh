@@ -40,7 +40,12 @@ case $key in
     -m|--make)
 
         # server
-        python setup.py FireFox
+        if [[ "${2}" == "Chrome" ]]
+        then
+            python setup.py Chrome
+        else
+            python setup.py FireFox
+        fi
         
         # client
         (cd "${DIR}"/project/client && npm install --save && npm run build)
