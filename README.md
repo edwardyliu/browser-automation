@@ -5,13 +5,7 @@ A Browser Automation Tool Using Pre-Defined Finite State Machines
 1. [Quick Start](#quick-start)
     1. [Docker Build](#docker-build)
     1. [Local Build](#local-build)
-1. [Description](#description)
-    1. [React Frontend](#react-frontend)
-    1. [Flask Backend](#flask-backend)
-    1. [Redis Server](#redis-server)
-    1. [Redis Workers](#redis-workers)
 1. [Requirements](#requirements)
-1. [Usage](#usage)
 1. [Credits](#credits)
 
 # Quick Start:
@@ -95,5 +89,5 @@ rq==1.4.0
 selenium==3.141.0
 ```
 
-# Credis
+# Credits
 * [Edward Y. Liu](edwardy.liu@mail.utoronto.ca)
