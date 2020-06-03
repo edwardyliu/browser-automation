@@ -1,0 +1,28 @@
+{
+  "kind": "ImageStream",
+  "apiVersion": "v1",
+  "metadata": {
+    "name": "dashboard",
+    "creationTimestamp": null,
+    "labels": {
+      "io.kompose.service": "dashboard"
+    }
+  },
+  "spec": {
+    "tags": [
+      {
+        "name": "latest",
+        "annotations": null,
+        "from": {
+          "kind": "DockerImage",
+          "name": "redis-dashboard"
+        },
+        "generation": null,
+        "importPolicy": {}
+      }
+    ]
+  },
+  "status": {
+    "dockerImageRepository": ""
+  }
+}

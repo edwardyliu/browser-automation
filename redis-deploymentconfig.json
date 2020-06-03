@@ -1,0 +1,62 @@
+{
+  "kind": "DeploymentConfig",
+  "apiVersion": "v1",
+  "metadata": {
+    "name": "redis",
+    "creationTimestamp": null,
+    "labels": {
+      "io.kompose.service": "redis"
+    },
+    "annotations": {
+      "kompose.cmd": "/snap/kompose/1/./kompose-linux-amd64 convert --provider openshift -j",
+      "kompose.version": "1.18.0 (06a2e56)"
+    }
+  },
+  "spec": {
+    "strategy": {
+      "resources": {}
+    },
+    "triggers": [
+      {
+        "type": "ConfigChange"
+      },
+      {
+        "type": "ImageChange",
+        "imageChangeParams": {
+          "automatic": true,
+          "containerNames": [
+            "nauto-redis"
+          ],
+          "from": {
+            "kind": "ImageStreamTag",
+            "name": "redis:5-alpine"
+          }
+        }
+      }
+    ],
+    "replicas": 1,
+    "test": false,
+    "selector": {
+      "io.kompose.service": "redis"
+    },
+    "template": {
+      "metadata": {
+        "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "redis"
+        }
+      },
+      "spec": {
+        "containers": [
+          {
+            "name": "nauto-redis",
+            "image": " ",
+            "resources": {}
+          }
+        ],
+        "restartPolicy": "Always"
+      }
+    }
+  },
+  "status": {}
+}

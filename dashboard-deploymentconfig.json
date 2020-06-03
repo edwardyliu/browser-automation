@@ -1,0 +1,72 @@
+{
+  "kind": "DeploymentConfig",
+  "apiVersion": "v1",
+  "metadata": {
+    "name": "dashboard",
+    "creationTimestamp": null,
+    "labels": {
+      "io.kompose.service": "dashboard"
+    },
+    "annotations": {
+      "kompose.cmd": "/snap/kompose/1/./kompose-linux-amd64 convert --provider openshift -j",
+      "kompose.version": "1.18.0 (06a2e56)"
+    }
+  },
+  "spec": {
+    "strategy": {
+      "resources": {}
+    },
+    "triggers": [
+      {
+        "type": "ConfigChange"
+      },
+      {
+        "type": "ImageChange",
+        "imageChangeParams": {
+          "automatic": true,
+          "containerNames": [
+            "nauto-dashboard"
+          ],
+          "from": {
+            "kind": "ImageStreamTag",
+            "name": "dashboard:latest"
+          }
+        }
+      }
+    ],
+    "replicas": 1,
+    "test": false,
+    "selector": {
+      "io.kompose.service": "dashboard"
+    },
+    "template": {
+      "metadata": {
+        "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "dashboard"
+        }
+      },
+      "spec": {
+        "containers": [
+          {
+            "name": "nauto-dashboard",
+            "image": " ",
+            "args": [
+              "rq-dashboard",
+              "-H",
+              "redis"
+            ],
+            "ports": [
+              {
+                "containerPort": 9181
+              }
+            ],
+            "resources": {}
+          }
+        ],
+        "restartPolicy": "Always"
+      }
+    }
+  },
+  "status": {}
+}

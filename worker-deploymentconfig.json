@@ -1,0 +1,73 @@
+{
+  "kind": "DeploymentConfig",
+  "apiVersion": "v1",
+  "metadata": {
+    "name": "worker",
+    "creationTimestamp": null,
+    "labels": {
+      "io.kompose.service": "worker"
+    },
+    "annotations": {
+      "kompose.cmd": "/snap/kompose/1/./kompose-linux-amd64 convert --provider openshift -j",
+      "kompose.version": "1.18.0 (06a2e56)"
+    }
+  },
+  "spec": {
+    "strategy": {
+      "resources": {}
+    },
+    "triggers": [
+      {
+        "type": "ConfigChange"
+      },
+      {
+        "type": "ImageChange",
+        "imageChangeParams": {
+          "automatic": true,
+          "containerNames": [
+            "nauto-worker"
+          ],
+          "from": {
+            "kind": "ImageStreamTag",
+            "name": "worker:latest"
+          }
+        }
+      }
+    ],
+    "replicas": 1,
+    "test": false,
+    "selector": {
+      "io.kompose.service": "worker"
+    },
+    "template": {
+      "metadata": {
+        "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "worker"
+        }
+      },
+      "spec": {
+        "containers": [
+          {
+            "name": "nauto-worker",
+            "image": " ",
+            "args": [
+              "python",
+              "manage.py",
+              "run_worker"
+            ],
+            "env": [
+              {
+                "name": "APP_SETTINGS",
+                "value": "project.server.DockerDevConfig"
+              }
+            ],
+            "resources": {}
+          }
+        ],
+        "restartPolicy": "Always"
+      }
+    }
+  },
+  "status": {}
+}

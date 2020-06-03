@@ -1,0 +1,80 @@
+{
+  "kind": "DeploymentConfig",
+  "apiVersion": "v1",
+  "metadata": {
+    "name": "flask",
+    "creationTimestamp": null,
+    "labels": {
+      "io.kompose.service": "flask"
+    },
+    "annotations": {
+      "kompose.cmd": "/snap/kompose/1/./kompose-linux-amd64 convert --provider openshift -j",
+      "kompose.version": "1.18.0 (06a2e56)"
+    }
+  },
+  "spec": {
+    "strategy": {
+      "resources": {}
+    },
+    "triggers": [
+      {
+        "type": "ConfigChange"
+      },
+      {
+        "type": "ImageChange",
+        "imageChangeParams": {
+          "automatic": true,
+          "containerNames": [
+            "nauto-flask"
+          ],
+          "from": {
+            "kind": "ImageStreamTag",
+            "name": "flask:latest"
+          }
+        }
+      }
+    ],
+    "replicas": 1,
+    "test": false,
+    "selector": {
+      "io.kompose.service": "flask"
+    },
+    "template": {
+      "metadata": {
+        "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "flask"
+        }
+      },
+      "spec": {
+        "containers": [
+          {
+            "name": "nauto-flask",
+            "image": " ",
+            "args": [
+              "python",
+              "manage.py",
+              "run",
+              "-h",
+              "0.0.0.0"
+            ],
+            "ports": [
+              {
+                "containerPort": 5000
+              }
+            ],
+            "env": [
+              {
+                "name": "APP_SETTINGS",
+                "value": "project.server.DockerDevConfig"
+              }
+            ],
+            "resources": {}
+          }
+        ],
+        "restartPolicy": "Always"
+      }
+    }
+  },
+  "status": {}
+}

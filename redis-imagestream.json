@@ -1,0 +1,28 @@
+{
+  "kind": "ImageStream",
+  "apiVersion": "v1",
+  "metadata": {
+    "name": "redis",
+    "creationTimestamp": null,
+    "labels": {
+      "io.kompose.service": "redis"
+    }
+  },
+  "spec": {
+    "tags": [
+      {
+        "name": "5-alpine",
+        "annotations": null,
+        "from": {
+          "kind": "DockerImage",
+          "name": "redis:5-alpine"
+        },
+        "generation": null,
+        "importPolicy": {}
+      }
+    ]
+  },
+  "status": {
+    "dockerImageRepository": ""
+  }
+}

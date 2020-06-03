@@ -1,0 +1,73 @@
+{
+  "kind": "DeploymentConfig",
+  "apiVersion": "v1",
+  "metadata": {
+    "name": "react",
+    "creationTimestamp": null,
+    "labels": {
+      "io.kompose.service": "react"
+    },
+    "annotations": {
+      "kompose.cmd": "/snap/kompose/1/./kompose-linux-amd64 convert --provider openshift -j",
+      "kompose.version": "1.18.0 (06a2e56)"
+    }
+  },
+  "spec": {
+    "strategy": {
+      "resources": {}
+    },
+    "triggers": [
+      {
+        "type": "ConfigChange"
+      },
+      {
+        "type": "ImageChange",
+        "imageChangeParams": {
+          "automatic": true,
+          "containerNames": [
+            "nauto-react"
+          ],
+          "from": {
+            "kind": "ImageStreamTag",
+            "name": "react:latest"
+          }
+        }
+      }
+    ],
+    "replicas": 1,
+    "test": false,
+    "selector": {
+      "io.kompose.service": "react"
+    },
+    "template": {
+      "metadata": {
+        "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "react"
+        }
+      },
+      "spec": {
+        "containers": [
+          {
+            "name": "nauto-react",
+            "image": " ",
+            "args": [
+              "npm",
+              "run",
+              "start"
+            ],
+            "ports": [
+              {
+                "containerPort": 3000
+              }
+            ],
+            "resources": {},
+            "stdin": true
+          }
+        ],
+        "restartPolicy": "Always"
+      }
+    }
+  },
+  "status": {}
+}

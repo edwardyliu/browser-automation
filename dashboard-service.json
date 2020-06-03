@@ -1,0 +1,30 @@
+{
+  "kind": "Service",
+  "apiVersion": "v1",
+  "metadata": {
+    "name": "dashboard",
+    "creationTimestamp": null,
+    "labels": {
+      "io.kompose.service": "dashboard"
+    },
+    "annotations": {
+      "kompose.cmd": "/snap/kompose/1/./kompose-linux-amd64 convert --provider openshift -j",
+      "kompose.version": "1.18.0 (06a2e56)"
+    }
+  },
+  "spec": {
+    "ports": [
+      {
+        "name": "9181",
+        "port": 9181,
+        "targetPort": 9181
+      }
+    ],
+    "selector": {
+      "io.kompose.service": "dashboard"
+    }
+  },
+  "status": {
+    "loadBalancer": {}
+  }
+}

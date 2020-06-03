@@ -1,0 +1,28 @@
+{
+  "kind": "ImageStream",
+  "apiVersion": "v1",
+  "metadata": {
+    "name": "react",
+    "creationTimestamp": null,
+    "labels": {
+      "io.kompose.service": "react"
+    }
+  },
+  "spec": {
+    "tags": [
+      {
+        "name": "latest",
+        "annotations": null,
+        "from": {
+          "kind": "DockerImage",
+          "name": "nauto-client"
+        },
+        "generation": null,
+        "importPolicy": {}
+      }
+    ]
+  },
+  "status": {
+    "dockerImageRepository": ""
+  }
+}
