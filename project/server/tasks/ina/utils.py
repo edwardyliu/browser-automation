@@ -113,6 +113,20 @@ def load_cache(path:str)->list:
         results = json.load(fp)
     return results
 
+def dump(data:str, path:str):
+    """Dump <data> to file located at <path>
+
+    Parameters
+    ----------
+    data: str
+        The data dump
+    path: str
+        The file path
+    """
+
+    with open(path, "w") as fp:
+        fp.write(data)
+    
 def write(lines:[str], path:str):
     """Write <lines> to file located at <path>
 

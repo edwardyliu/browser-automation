@@ -17,10 +17,10 @@ LOG_LEVEL=logging.ERROR
 PATH_JOURNAL=os.path.join(Path(__file__).parents[0], "journal/")
 
 # => Default(s) <=
-DEFAULT_NA="STATE CHANGE"
+DEFAULT_NA="DELTA"
 DEFAULT_URL="https://www.google.com/"
 DEFAULT_PREFIX=[]
 DEFAULT_SUFFIX=[
-    ina.Command("GET", DEFAULT_URL, None)
     # TODO: Get Order Id & [Optionally] Memos
+    ina.Command("GET", DEFAULT_URL, None)
 ]
