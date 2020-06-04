@@ -1,6 +1,6 @@
 {
-    "name": "HOT SWAP",
-    "env": "STATE CHANGE",
+    "name": "SWAP USER",
+    "env": "DELTA",
     "commands": [
         ["GET", "https://www.bing.com/"],
         ["DSEND_KEYS", {
