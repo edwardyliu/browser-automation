@@ -13,6 +13,8 @@ RE_NUMERAL=re.compile(r"([0-9]+)")
 RE_POSITIONAL=re.compile(r"(\$\{.*?\})")
 
 # => Keyword(s) <=
+SNAPV="SNAPSHOTS"
+
 ARGV="@"
 ELUTV="@#"
 FINDV="@"

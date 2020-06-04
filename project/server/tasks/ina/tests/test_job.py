@@ -94,5 +94,20 @@ class TestJob(unittest.TestCase):
         self.assertEqual(len(handler.queue), 0)
         self.assertEqual("Edward Y. Liu is typing..." in handler.lines[0], True)
 
+    def test_snap_email(self):
+        key = models.Key("Test", "test_snap_email")
+        task = models.Task(key, deque([
+            models.Command("get", "https://www.google.com/", None),
+            models.Command("snap", None, None),
+            models.Command("printf", "a placeholder", None)
+        ]))
+
+        handler = job.Job()
+        handler.push(task, elut={"usrId": "AzPom"})
+        self.assertEqual(len(handler.queue), 1)
+
+        handler.deploy("edward.yifengliu@gmail.com")
+        self.assertEqual(len(handler.queue), 0)
+
 if __name__ == "__main__":
     unittest.main()

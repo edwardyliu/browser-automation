@@ -65,5 +65,19 @@ class TestDriver(unittest.TestCase):
         ilut = instance.exec({"usrId": "Edward", "orderId": "###3###542"})
         self.assertEqual("lutv - usrId: Edward, orderId: ###3###542" in ilut["${0}"], True)
 
+    def test_snap(self):
+        instance = driver.Driver("test_snap")
+        key = models.Key("Test", "test_snap")
+        task = models.Task(key, deque([
+            models.Command("get", "https://www.google.com/", None),
+            models.Command("snap", None, None),
+            models.Command("printf", "a placeholder", None)
+        ]))
+        instance.assign(task)
+        self.assertEqual(instance.taskkey(), key)
+
+        ilut = instance.exec({"usrId": "Edward", "orderId": "###3###542"})
+        print(ilut["SNAPSHOTS"])
+
 if __name__ == "__main__":
     unittest.main()

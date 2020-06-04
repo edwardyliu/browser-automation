@@ -1,6 +1,6 @@
 {
-    "name": "FIND BY ORDER",
-    "env": "STATE CHANGE",
+    "name": "FIND ORDER",
+    "env": "DELTA",
     "commands": [
         ["GET", "https://www.bing.com/"],
         ["DSEND_KEYS", {

@@ -20,9 +20,23 @@ class TestTasks(unittest.TestCase):
         self.assertEqual("TEST MOUSE" in names, True)
         self.assertEqual("TEST PRINTF" in names, True)
 
-        self.assertEqual("FIND BY ORDER" in names, False)
-        self.assertEqual("GET BY ID" in names, False)
-        self.assertEqual("HOT SWAP" in names, False)
+        self.assertEqual("FIND ORDER" in names, False)
+        self.assertEqual("GET ORDER BY ID" in names, False)
+        self.assertEqual("SWAP USER" in names, False)
+    
+    def test_snap(self):
+        raw = {
+            "receipt": "edward.yifengliu@gmail.com",
+            "data": [
+                {
+                    "usrId": "Edward",
+                    "env": "DELTA",
+                    "name": "GET SNAP",
+                    "lut": {'url': 'https://www.bing.com/'}
+                }
+            ]
+        }
+        self.assertEqual(tasks.create_job(raw), True)
 
     def test_create_scan(self):
         raw = {

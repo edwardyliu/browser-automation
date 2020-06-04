@@ -1,6 +1,6 @@
 {
-    "name": "GET BY ID",
-    "env": "STATE CHANGE",
+    "name": "GET ORDER BY ID",
+    "env": "DELTA",
     "commands": [
         ["DGET", "https://www.bing.com/search?q=${orderId}"],
         ["PRINTF", 

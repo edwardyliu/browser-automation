@@ -404,6 +404,21 @@ class Driver(object):
 
         self.get(self.scan(target))
 
+    def snap(self, target:str, argv:list=None):
+        """Take a snapshot of the web page source code
+
+        """
+
+        try:
+            WebDriverWait(self.driver, timeout=config.DEFAULT_TIMEOUT).until(lambda driver: driver.execute_script("return document.readyState") == "complete")
+            if not self.results.get(const.SNAPV):
+                self.results[const.SNAPV] = {}
+                self.results[const.SNAPV][self.driver.title] = self.driver.page_source
+            else: self.results[const.SNAPV][self.driver.title] = self.driver.page_source
+        
+        except exceptions.TimeoutException:
+            self.log.error("snap: Timeout Exception")
+
     def pause(self, target:str, argv:list=None):
         """Pause WebDriver instance
 
