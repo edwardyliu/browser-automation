@@ -32,9 +32,10 @@ class TestConst(unittest.TestCase):
         self.assertEqual(ina.Key("TEST", "TEST PRINTF") in tasks, True)
     
     def test_tasks(self):
-        self.assertEqual(ina.Key("STATE CHANGE", "FIND BY ORDER"), const.TASK_FINDBYORDER.key)
-        self.assertEqual(ina.Key("STATE CHANGE", "GET BY ID"), const.TASK_GETBYID.key)
-        self.assertEqual(ina.Key("STATE CHANGE", "HOT SWAP"), const.TASK_HOTSWAP.key)
+        self.assertEqual(ina.Key("DELTA", "FIND ORDER"), const.TASK_FIND_ORDER.key)
+        self.assertEqual(ina.Key("DELTA", "GET ORDER BY ID"), const.TASK_GET_ORDER_BY_ID.key)
+        self.assertEqual(ina.Key("DELTA", "SWAP USER"), const.TASK_SWAP_USER.key)
+        self.assertEqual(ina.Key("DELTA", "GET SNAP"), const.TASK_GET_SNAP.key)
 
 if __name__ == "__main__":
     unittest.main()
