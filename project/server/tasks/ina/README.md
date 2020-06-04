@@ -40,51 +40,79 @@ class Key:
 
 ### Available Commands:
 ```json
-1. CLICK
+1. GET:
+    HTTP Request GET <URL>
+    { "target": <URL> }
+
+2. DGET
+    Dynamic GET
+    **Supports Find via Dictionary & Web Element Look-Up
+    { "target": <FORMAT> }
+
+3. SNAP
+    Take a Snapshot of the Current Web Page Source
+    { }
+
+4. PAUSE
+    Pause The Browser Instance
+    { "target": <SECONDS> }
+
+5. PRINTF
+    Print Formatted String
+    **Supports Find via Dictionary & Web Element Look-Up
+    { "target": <FORMAT> }
+
+6. REFRESH
+    Refresh Current Instance
+    { None }
+
+7. WAIT
+    Wait For An Expected Condition OR Timeout
+    {
+        "target": An INTEGER, An XPATH Value Or A URL String
+        "argv": [<OPERATION>, <EXPECTED_CONDITION>]
+    }
+
+8. CLICK
     Left Mouse Click
     { "target": optional <XPATH> }
 
-2. CLICK_AND_HOLD
+9. CLICK_AND_HOLD
     Left Mouse Click & Hold, Do Not Release
     { "target": optional <XPATH> }
 
-3. CONTEXT_CLICK
+10. RELEASE
+    Release Mouse Click
+    { "target": optional <XPATH> }
+
+11. CONTEXT_CLICK
     Right Mouse Click
     { "target": optional <XPATH> }
 
-4. DOUBLE_CLICK
+12. DOUBLE_CLICK
     Double Left Mouse Click
     { "target": optional <XPATH> }
 
-5. DRAG_AND_DROP
+13. DRAG_AND_DROP
     Mouse Drag & Drop From <SRC> To <DEST>
     { 
         "target": <XPATH>,
         "argv": <XPATH>
     }
 
-6. DRAG_AND_DROP_BY_OFFSET
+14. DRAG_AND_DROP_BY_OFFSET
     Mouse Drag & Drop From <SRC> To [<XOFFSET>, <YOFFSET>]
     { 
         "target": <XPATH>,
         "argv": [<XOFFSET>, <YOFFSET>]
     }
 
-7. GET:
-    HTTP Request GET <URL>
-    { "target": <URL> }
-
-8. DGET
-    Dynamic GET
-    **Supports Find via Dictionary & Web Element Look-Up
-    { "target": <FORMAT> }
-
-9. MOVE_TO_ELEMENT
+15. MOVE_TO_ELEMENT
     FireFox: Move Mouse Cursor to WebElement
     Others: Maneuver to WebElement (i.e. Scroll & Cursor)
     { "target": optional <XPATH> }
 
-10. MOVE_TO_ELEMENT_WITH_OFFSET
+16. MOVE_TO_ELEMENT_WITH_OFFSET
     FireFox: Move Mouse Cursor to WebElement Plus [<XOFFSET>, <YOFFSET>]
     Others: Maneuver to WebElement Plus [<XOFFSET>, <YOFFSET>] (i.e. Scroll & Cursor)
     { 
@@ -92,29 +120,12 @@ class Key:
         "argv": [<XOFFSET>, <YOFFSET>]
     }
 
-11. MOVE_BY_OFFSET
+17. MOVE_BY_OFFSET
     FireFox: Move Mouse Cursor to [<XOFFSET>, <YOFFSET>]
     Others: Maneuver to [<XOFFSET>, <YOFFSET>] (i.e. Scroll)
     { "argv": [<XOFFSET>, <YOFFSET>] }
 
-12. PAUSE
-    Pause The Browser Instance
-    { "target": <SECONDS> }
-
-13. PRINTF
-    Print Formatted String
-    **Supports Find via Dictionary & Web Element Look-Up
-    { "target": <FORMAT> }
-
-14. REFRESH
-    Refresh Current Instance
-    { None }
-
-15. RELEASE
-    Release Mouse Click
-    { "target": optional <XPATH> }
-
-16. SEND_KEYS
+18. SEND_KEYS
     Send Keyboard Actions To The Browser Instance
     **Supports Key Logic
     **Supports Special Key Characters
@@ -123,7 +134,7 @@ class Key:
         "argv": [ [<KEY_LOGIC>, <KEY>] OR <KEY>, ... ]
     }
 
-17. DSEND_KEYS
+19. DSEND_KEYS
     Dynamic Send Keys
     **Supports Find via Dictionary & Web Element Look-Up
     **Removed Key Logic Support
@@ -131,13 +142,6 @@ class Key:
     { 
         "target": optional <XPATH>,
         "argv": [ <KEY>, ... ]
-    }
-
-18. WAIT
-    Wait For An Expected Condition OR Timeout
-    {
-        "target": An INTEGER, An XPATH Value Or A URL String
-        "argv": [<OPERATION>, <EXPECTED_CONDITION>]
     }
 ```
 

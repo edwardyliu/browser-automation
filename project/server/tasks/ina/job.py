@@ -35,7 +35,9 @@ class Job(object):
 
         self.browser = browser
         self.driver = None
+        
         self.queue = deque([])
+        self.snaps = {}
         self.lines = []
 
     def __del__(self):
@@ -54,6 +56,7 @@ class Job(object):
         """
 
         self.queue.clear()
+        self.snaps.clear()
         self.lines.clear()
 
     # === Functional ===
@@ -88,10 +91,11 @@ class Job(object):
             ilut = self.driver.exec(elut)
 
             if trace:
-                if fmt: 
-                    line = self.task2str(fmt, elut, ilut)
-                else: 
-                    line = self.task2str(config.DEFAULT_FORMAT, elut, ilut)
+                if ilut.get(const.SNAPV): self.snaps = {**self.snaps, **ilut[const.SNAPV]}
+
+                if fmt: line = self.task2str(fmt, elut, ilut)
+                else: line = self.task2str(config.DEFAULT_FORMAT, elut, ilut)
+                
                 self.lines.append(line)
     
     def deploy(self, receipt:str=None):
@@ -185,7 +189,7 @@ class Job(object):
         
         return part
 
-    def send_email(self, receipt:str, attachment=None):
+    def send_email(self, receipt:str, attachments=None):
         """Send <receipt> an e-mail w/ <attachment>
         
         Parameters
@@ -226,8 +230,9 @@ class Job(object):
         message.attach(MIMEText(html, "html"))
 
         # === Add The Attachment ===
-        if attachment: message.attach(attachment)
-
+        if attachments: 
+            for attachment in attachments: message.attach(attachment)
+        
         # === Send The E-mail ===
         text = message.as_string()
         with smtplib.SMTP(config.DEFAULT_SMTP_SERVER, config.DEFAULT_SMTP_PORT) as server:
@@ -242,12 +247,21 @@ class Job(object):
             An E-mail address
         """
         
-        path = os.path.join(config.PATH_CACHE, f"{self.id}.csv")
-        utils.write(self.lines, path)
-        attachment = self.make_attachment(path)
+        report = os.path.join(config.PATH_CACHE, f"{self.id}.csv")
+        utils.write(self.lines, report)
+
+        attachments = [ self.make_attachment(report) ]
+        paths = [ report ]
+        for key, value in self.snaps.items():
+            key = key.replace(" ", "")
+            path = os.path.join(config.PATH_CACHE, f"{key}.html")
+            utils.dump(value, path)
+
+            attachments.append( self.make_attachment(path) )
+            paths.append(path)
         
-        try: self.send_email(receipt, attachment=attachment)
+        try: self.send_email(receipt, attachments=attachments)
         except Exception: pass
 
-        utils.remove(path)
-    
+        for path in paths:
+            utils.remove(path)
