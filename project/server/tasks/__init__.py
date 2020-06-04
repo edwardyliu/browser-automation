@@ -55,15 +55,15 @@ def create_scan(raw:dict, uid:str=None, browser:str=None)->bool:
             handler = ina.Job(uid, browser=browser)
             for get in gets:
                 lut = get["lut"]
-                handler.push(const.TASK_GETBYID, elut = lut)
+                handler.push(const.TASK_GET_ORDER_BY_ID, elut = lut)
                 
             prev_id = None
             for find in finds:
                 lut = find["lut"]; curr_id = find["lut"]["usrId"]
 
                 if prev_id != curr_id:
-                    handler.push(const.TASK_HOTSWAP, elut = lut, trace = False)
-                handler.push(const.TASK_FINDBYORDER, elut = lut)
+                    handler.push(const.TASK_SWAP_USER, elut = lut, trace = False)
+                handler.push(const.TASK_FIND_ORDER, elut = lut)
                 
                 prev_id = curr_id
             handler.deploy(receipt)
@@ -103,7 +103,7 @@ def create_job(raw:dict, uid:str=None, browser:str=None)->bool:
                 
                 if task:
                     if prev_id != curr_id:
-                        handler.push(const.TASK_HOTSWAP, elut = lut, trace = False)
+                        handler.push(const.TASK_SWAP_USER, elut = lut, trace = False)
                     handler.push(task, elut = lut)
                 
                 prev_id = curr_id
