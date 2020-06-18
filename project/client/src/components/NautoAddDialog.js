@@ -159,15 +159,15 @@ const NautoAddDialog = ({
                         />
                     </Tooltip>
                     <Button 
-                        onClick={handleClose}
                         color='primary'
+                        onClick={handleClose}
                     >
                         Cancel
                     </Button>
                     <Button 
-                        onClick={handleAdd}
                         color='secondary'
                         disabled={!(cart.usrId || cart.orderId)}
+                        onClick={handleAdd}
                     >
                         <strong>Add</strong>
                     </Button>

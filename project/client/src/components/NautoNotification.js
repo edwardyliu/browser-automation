@@ -1,7 +1,7 @@
 import React from 'react'
 
-import { makeStyles } from '@material-ui/core'
 import LinearProgress from '@material-ui/core/LinearProgress'
+import { makeStyles } from '@material-ui/core'
 import MuiAlert from '@material-ui/lab/Alert'
 import PropTypes from 'prop-types'
 import Snackbar from '@material-ui/core/Snackbar'
@@ -36,23 +36,23 @@ const NautoNotification = ({
     const classes = useStyles()
 
     // == Events ==
-    const handleCloseNotification = () => {
+    const handleClose = () => {
         setNotification(false)
     }
 
     return (
         <Snackbar
             autoHideDuration={6000}
-            onClose={handleCloseNotification}
+            onClose={handleClose}
             open={notification}
         >
             {uid ? (
-                <Alert onClose={handleCloseNotification} severity="success">
+                <Alert onClose={handleClose} severity="success">
                     Request Successful!<br />
                     Task ID: <span className={classes.uid}>{uid}</span>
                 </Alert>
             ) : (
-                <Alert onClose={handleCloseNotification} severity="info">
+                <Alert onClose={handleClose} severity="info">
                     Your request is being processed:<br />
                     <span className={classes.progress}><LinearProgress className={classes.barBGColor} /></span>
                 </Alert>
