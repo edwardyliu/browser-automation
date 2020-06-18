@@ -2,6 +2,7 @@ import React from 'react'
 
 import axios from 'axios'
 import CssBaseline from '@material-ui/core/CssBaseline'
+import NautoFormPanel from './components/NautoFormPanel'
 import NautoNotification from './components/NautoNotification'
 import NautoTable from './components/NautoTable'
 
@@ -38,6 +39,9 @@ const App = () => {
     const [data, setData] = React.useState(React.useMemo(() => [], []))
     const [marketplace, setMarketplace] = React.useState([])
     const [receipt, setReceipt] = React.useState("")
+
+    // For Secret Information: Form Panel
+    const [formPanel, setFormPanel] = React.useState("")
 
     // For Response: Notification
     const [uid, setUID] = React.useState("")
@@ -77,10 +81,15 @@ const App = () => {
     }, [])
 
     // == Events ==
-    const handleRequestScan = () => {
+    const handleButtonScan = () => { setFormPanel("Scan") }
+    const handleButtonSend = () => { setFormPanel("Send") }
+
+    // == Requests ==
+    const handleRequestScan = (form) => {
         setUID("")
         axios.post('/api/scan', {
                 'receipt': receipt,
+                'form': form,
                 'data': data,
             })
             .then(response => {
@@ -92,10 +101,11 @@ const App = () => {
         setNotification(true)
     }
 
-    const handleRequestSend = () => {
+    const handleRequestSend = (form) => {
         setUID("")
         axios.post('/api/job', {
                 'receipt': receipt,
+                'form': form,
                 'data': data,
             })
             .then(response => {
@@ -113,14 +123,20 @@ const App = () => {
             <NautoTable
                 columns={columns}
                 data={data}
-                handleRequestScan={handleRequestScan}
-                handleRequestSend={handleRequestSend}
+                handleButtonScan={handleButtonScan}
+                handleButtonSend={handleButtonSend}
                 marketplace={marketplace}
                 receipt={receipt}
                 setData={setData}
                 setReceipt={setReceipt}
                 skipPageReset={skipPageReset}
                 updateData={updateData}
+            />
+            <NautoFormPanel
+                formPanel={formPanel}
+                setFormPanel={setFormPanel}
+                handleRequestScan={handleRequestScan}
+                handleRequestSend={handleRequestSend}
             />
             <NautoNotification 
                 uid={uid}

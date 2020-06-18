@@ -48,8 +48,8 @@ const useStyles = makeStyles((theme) => ({
 const NautoTable = ({
     columns,
     data,
-    handleRequestScan,
-    handleRequestSend,
+    handleButtonScan,
+    handleButtonSend,
     marketplace,
     receipt,
     setData,
@@ -292,7 +292,7 @@ const NautoTable = ({
                                     className={classes.button}
                                     color="secondary"
                                     endIcon={<SendIcon />}
-                                    onClick={handleRequestSend}
+                                    onClick={handleButtonSend}
                                     variant="contained"
                                 >
                                     Send
@@ -301,7 +301,7 @@ const NautoTable = ({
                                     className={classes.button}
                                     color="primary"
                                     endIcon={<CenterFocusWeakIcon />}
-                                    onClick={handleRequestScan}
+                                    onClick={handleButtonScan}
                                     variant="contained"
                                 >
                                     Scan
@@ -318,8 +318,8 @@ const NautoTable = ({
 NautoTable.propTypes = {
     columns: PropTypes.array.isRequired,
     data: PropTypes.array.isRequired,
-    handleRequestScan: PropTypes.func.isRequired,
-    handleRequestSend: PropTypes.func.isRequired,
+    handleButtonScan: PropTypes.func.isRequired,
+    handleButtonSend: PropTypes.func.isRequired,
     marketplace: PropTypes.array.isRequired,
     receipt: PropTypes.string.isRequired,
     setData: PropTypes.func.isRequired,
