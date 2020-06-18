@@ -10,17 +10,17 @@ import logging
 from pathlib import Path
 
 # === Configuration(s) ===
-# => Logging <=
+# => Log Level <=
 LOG_LEVEL=logging.ERROR
 
-# => Path & Directories <=
-JOURNAL_DIRPATH=os.path.join(Path(__file__).parents[0], "journal/")
+# => Path(s) <=
+PATH_JOURNAL=os.path.join(Path(__file__).parents[0], "journal/")
 
 # => Default(s) <=
+DEFAULT_NA="DELTA"
 DEFAULT_URL="https://www.google.com/"
-NOT_APPLICABLE="STATE CHANGE"
-PREFIX=[]
-SUFFIX=[
-    ina.Command("GET", DEFAULT_URL, None)
+DEFAULT_PREFIX=[]
+DEFAULT_SUFFIX=[
     # TODO: Get Order Id & [Optionally] Memos
+    ina.Command("GET", DEFAULT_URL, None)
 ]

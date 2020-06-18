@@ -1,0 +1,12 @@
+nauto.sh
+
+*.log
+*.csv
+
+.*
+
+docs
+__pycache__
+project/client
+project/dashboard
+project/server/tasks/ina/resources

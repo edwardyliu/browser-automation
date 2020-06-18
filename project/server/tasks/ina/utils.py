@@ -2,6 +2,7 @@
 
 # === Import(s) ===
 # => Local <=
+from . import const
 from . import config
 
 # => System <=
@@ -70,9 +71,9 @@ def cache_key(prefix:str, postfix:str)->str:
     str
     """
 
-    path = os.path.join(config.CACHE_DIRPATH, f"{prefix}1{postfix}")
+    path = os.path.join(config.PATH_CACHE, f"{prefix}1{postfix}")
     while os.path.isfile(path):
-        pattern = re.findall(config.RE_NUMERAL, path)[0]
+        pattern = re.findall(const.RE_NUMERAL, path)[0]
         path = path.replace(pattern, str(int(pattern)+1))
     return path
 
@@ -112,6 +113,20 @@ def load_cache(path:str)->list:
         results = json.load(fp)
     return results
 
+def dump(data:str, path:str):
+    """Dump <data> to file located at <path>
+
+    Parameters
+    ----------
+    data: str
+        The data dump
+    path: str
+        The file path
+    """
+
+    with open(path, "w") as fp:
+        fp.write(data)
+    
 def write(lines:[str], path:str):
     """Write <lines> to file located at <path>
 

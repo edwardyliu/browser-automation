@@ -1,0 +1,9 @@
+{
+    "name": "GET SNAP",
+    "env": "DELTA",
+    "commands": [
+        ["DGET", "${url}"],
+        ["SNAP"],
+        ["PRINTF", "Success!"]
+    ]
+}

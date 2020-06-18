@@ -26,23 +26,29 @@ case $key in
     ;;
     -c|--clean)
         find "${DIR}"/ -type f -name "*.log" -exec rm -r {} +
-        find "${DIR}"/ -type d -name "__pycache__" -exec rm -r {} +
-
+        
         # server
-        rm -r "${DIR}"/project/server/tasks/ina/resources
+        find "${DIR}"/project/ -type d -name "__pycache__" -exec rm -r {} +
         find "${DIR}"/project/server/tasks/ -type f -name "*.csv" -exec rm -r {} +
+        rm -r "${DIR}"/project/server/tasks/ina/resources
         
         # client
         rm -r "${DIR}"/project/server/build
-
+        
         exit 0
     ;;
     -m|--make)
-        # server
-        python3 "${DIR}/setup.py"
 
+        # server
+        if [[ "${2}" == "Chrome" ]]
+        then
+            python setup.py Chrome
+        else
+            python setup.py FireFox
+        fi
+        
         # client
-        (cd "${DIR}/project/client" && npm install --save && npm run build)
+        (cd "${DIR}"/project/client && npm install --save && npm run build)
         
         exit 0
     ;;

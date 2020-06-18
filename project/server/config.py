@@ -11,6 +11,7 @@ class BaseLocalConfig(object):
     WTF_CSRF_ENABLED = True
     REDIS_URL = "redis://127.0.0.1:6379/0"
     QUEUES = ["default"]
+    WEBDRIVER = "FireFox"
 
 class LocalTestingConfig(BaseLocalConfig):
     """Define The Localized Testing Environment
@@ -38,6 +39,7 @@ class BaseDockerConfig(object):
     WTF_CSRF_ENABLED = True
     REDIS_URL = "redis://redis:6379/0"
     QUEUES = ["default"]
+    WEBDRIVER = "Chrome"
 
 class DockerTestingConfig(BaseDockerConfig):
     """Define The Dockerized Testing Environment

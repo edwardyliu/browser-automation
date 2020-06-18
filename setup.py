@@ -1,14 +1,12 @@
 # setup.py
 
-# == Import(s) ==
+# === Import(s) ===
+# => System <=
 import os
+import sys
 import subprocess
-from pathlib import Path
 
-# == Local Constant(s) ==
-ROOTPATH = Path(__file__).parents[0]
-
-# == Utility Function(s) ==
+# === Utility Function(s) ===
 def shell(cmd, show=True):
     """Execute shell <cmd>
 
@@ -36,13 +34,13 @@ def shell(cmd, show=True):
         pass
     return stdout
 
-# == Main Function ==
-def main(env="linux"):
+# === Main Function ===
+def main(env:str):
     print("========================================================")
     print("=== Make Folder(s): ")
     print("========================================================")
-    resources = os.path.join(ROOTPATH, "project/server/tasks/ina/resources/")
-    cache = os.path.join(ROOTPATH, "project/server/tasks/ina/resources/cache/")
+    resources = "./project/server/tasks/ina/resources/"
+    cache = "./project/server/tasks/ina/resources/cache/"
     print(resources)
     if not os.path.exists(resources):
         shell("mkdir -p {0}".format(resources), show=False)
@@ -50,24 +48,17 @@ def main(env="linux"):
     if not os.path.exists(cache):
         shell("mkdir -p {0}".format(cache), show=False)
     
-    print("========================================================")
-    print("=== Download & Install Geckodriver: ")
-    print("========================================================")
-    version = "v0.26.0"
-    env = env.lower()
-    if env == "windows":
-        name = "geckodriver-"+version+"-win64.zip"
-        command = "curl -L -O https://github.com/mozilla/geckodriver/releases/download/{0}/{1}".format(version, name)
-    elif env == "darwin":
-        name = "geckodriver-"+version+"-macos.tar.gz"
-        command = "curl -L -O https://github.com/mozilla/geckodriver/releases/download/{0}/{1}".format(version, name)
-    else:
+    if env == "FireFox":
+        print("========================================================")
+        print("=== Download & Install Geckodriver: ")
+        print("========================================================")
+        version = "v0.26.0"
         name = "geckodriver-"+version+"-linux64.tar.gz"
         command = "curl -L -O https://github.com/mozilla/geckodriver/releases/download/{0}/{1}".format(version, name)
-    shell("cd {0} && {1}".format(resources, command))
+        shell("cd {0} && {1}".format(resources, command))
 
-    stdout = shell("cd {0} && tar -xvzf {1}".format(resources, name), show=False)
-    if not env == "windows": shell("chmod +x {0}".format(os.path.join(resources, stdout)), show=False)
+        stdout = shell("cd {0} && tar -xvzf {1}".format(resources, name), show=False)
+        shell("chmod +x {0}".format(os.path.join(resources, stdout)), show=False)
 
 if __name__ == "__main__":
-    main()
+    main(env=sys.argv[1])

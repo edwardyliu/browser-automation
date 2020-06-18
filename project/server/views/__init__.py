@@ -3,4 +3,4 @@
 # === Export(s) ===
 # => View(s) <=
 from .api import api
-from .site import site
+from .static import static

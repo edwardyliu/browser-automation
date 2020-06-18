@@ -17,10 +17,10 @@ class TestJob(unittest.TestCase):
         task = models.Task(key, deque([
             models.Command("get", "https://www.youtube.com/", None),
             models.Command("dsend_keys", 
-                "/html/body/ytd-app/div/div/ytd-masthead/div[3]/div[2]/ytd-searchbox/form/div/div[1]/input", 
-                ["${@//*[@id='video-title']}; lutv - ${@#};"]
+                "//input[@id='search']", 
+                ["lutv - ${@#};"]
             ),
-            models.Command("printf", "${@//*[@id='video-title']}; lutv - ${@#};", None),
+            models.Command("printf", "lutv - ${@#};", None),
             models.Command("pause", "2.0", None)
         ]))
 
@@ -37,10 +37,10 @@ class TestJob(unittest.TestCase):
         task_a = models.Task(key_a, deque([
             models.Command("get", "https://www.youtube.com/", None),
             models.Command("dsend_keys", 
-                "/html/body/ytd-app/div/div/ytd-masthead/div[3]/div[2]/ytd-searchbox/form/div/div[1]/input", 
-                ["${@//*[@id='video-title']}; lutv - ${@#};"]
+                "//input[@id='search']", 
+                ["lutv - ${@#};"]
             ),
-            models.Command("printf", "${@//*[@id='video-title']}; lutv - ${@#};", None),
+            models.Command("printf", "lutv - ${@#};", None),
             models.Command("pause", "2.0", None)
         ]))
 
@@ -93,6 +93,21 @@ class TestJob(unittest.TestCase):
         handler.deploy("edward.yifengliu@gmail.com")
         self.assertEqual(len(handler.queue), 0)
         self.assertEqual("Edward Y. Liu is typing..." in handler.lines[0], True)
+
+    def test_snap_email(self):
+        key = models.Key("Test", "test_snap_email")
+        task = models.Task(key, deque([
+            models.Command("get", "https://www.google.com/", None),
+            models.Command("snap", None, None),
+            models.Command("printf", "a placeholder", None)
+        ]))
+
+        handler = job.Job()
+        handler.push(task, elut={"usrId": "AzPom"})
+        self.assertEqual(len(handler.queue), 1)
+
+        handler.deploy("edward.yifengliu@gmail.com")
+        self.assertEqual(len(handler.queue), 0)
 
 if __name__ == "__main__":
     unittest.main()

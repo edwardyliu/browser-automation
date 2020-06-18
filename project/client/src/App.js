@@ -7,7 +7,6 @@ import NautoTable from './components/NautoTable'
 
 const App = () => {
 
-    const server = "http://127.0.0.1:5000/api"
     const columns = React.useMemo(
         () => [
             {
@@ -69,7 +68,7 @@ const App = () => {
 
     // == Effects ==
     React.useEffect(() => {
-        axios.get(server.concat('/keys'))
+        axios.get('/api/keys')
             .then(response => {
                 setMarketplace(response.data)
             }, error => {
@@ -80,7 +79,7 @@ const App = () => {
     // == Events ==
     const handleRequestScan = () => {
         setUID("")
-        axios.post(server.concat('/scan'), {
+        axios.post('/api/scan', {
                 'receipt': receipt,
                 'data': data,
             })
@@ -95,7 +94,7 @@ const App = () => {
 
     const handleRequestSend = () => {
         setUID("")
-        axios.post(server.concat('/job'), {
+        axios.post('/api/job', {
                 'receipt': receipt,
                 'data': data,
             })
